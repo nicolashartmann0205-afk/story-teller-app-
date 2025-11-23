@@ -1,0 +1,274 @@
+# FReD #1: Mode Selection System
+
+## 1. Feature Name
+**Mode Selection System**
+
+## 2. Goal
+Enable users to choose between Quick Mode (15-20 min) and Comprehensive Mode (45-60 min) at the start of their storytelling journey, optimizing the experience for their time constraints and depth preferences. This initial decision determines the subsequent feature set, guidance level, and AI interaction patterns.
+
+## 3. User Story
+**As a** user starting a new story,  
+**I want to** choose how much time and depth I want to invest upfront,  
+**So that** I get a tailored experience matching my needs (quick draft vs. comprehensive development).
+
+## 4. Functional Requirements
+
+### 4.1 Core Functionality
+- **Display clear mode choice on app entry** after authentication
+- **Two distinct mode cards** with visual differentiation:
+  - Quick Mode card (15-20 min, streamlined, 6-step process)
+  - Comprehensive Mode card (45-60 min, full tactical framework, 15-step process)
+- **"Not sure?" helper flow** with 3-5 questions to recommend a mode
+- **Mode preview** showing what features are included/excluded in each
+- **Ability to switch modes** mid-story (with confirmation and data preservation warning)
+- **Remember user preference** for next story (with option to change)
+
+### 4.2 Mode Comparison Display
+Each mode card shows:
+- **Time estimate** (large, prominent)
+- **Feature checklist** (what's included)
+- **Difficulty indicator** (Simple/Standard/Advanced)
+- **Visual icon/illustration** representing the mode
+- **Success rate badge** ("75% completion rate")
+- **Best for** description (use cases)
+
+### 4.3 "Not Sure?" Questionnaire
+When user clicks "Help me choose":
+1. **Question 1**: "How much time do you have right now?"
+   - Less than 30 minutes → Quick Mode
+   - 30-60 minutes → Either
+   - More than 60 minutes → Comprehensive Mode
+
+2. **Question 2**: "What's your storytelling experience?"
+   - Beginner → Quick Mode (guided)
+   - Some experience → Either
+   - Experienced → Comprehensive Mode (full tools)
+
+3. **Question 3**: "What's your goal?"
+   - Quick draft for review → Quick Mode
+   - Complete story ready to share → Comprehensive Mode
+   - Explore possibilities → Comprehensive Mode
+
+**Result**: AI recommendation with explanation
+
+### 4.4 Mode Switching
+- **Switch mode button** accessible from navigation (subtle, not prominent)
+- **Confirmation dialog** when switching:
+  - "Switching to [mode] will [add/remove] features"
+  - "Your current progress will be preserved"
+  - "Are you sure?"
+- **Data mapping**: Preserve compatible data fields when switching
+- **Feature unlock/lock**: Add or remove features based on new mode
+
+### 4.5 State Management
+```javascript
+storyData.mode = 'quick' | 'comprehensive';
+storyData.modeSelectedAt = timestamp;
+storyData.modeSwitchHistory = [
+  { from: 'quick', to: 'comprehensive', at: timestamp, reason: 'user_action' }
+];
+userPreferences.defaultMode = 'quick' | 'comprehensive' | null;
+```
+
+## 5. Data Requirements
+
+### 5.1 Database Schema Updates (Supabase)
+
+**stories table** - Add/modify columns:
+```sql
+-- Add mode tracking
+ALTER TABLE stories ADD COLUMN mode TEXT 
+  CHECK (mode IN ('quick', 'comprehensive'));
+
+-- Add mode switch history
+ALTER TABLE stories ADD COLUMN mode_switch_history JSONB DEFAULT '[]'::jsonb;
+```
+
+**users table** - Add preference tracking:
+```sql
+-- Add to preferences JSONB
+UPDATE users SET preferences = preferences || '{
+  "defaultMode": null,
+  "modeCompletionStats": {
+    "quick": {"started": 0, "completed": 0},
+    "comprehensive": {"started": 0, "completed": 0}
+  }
+}'::jsonb;
+```
+
+### 5.2 Row Level Security (RLS)
+```sql
+-- Users can only read/update their own mode preferences
+CREATE POLICY "Users can update own mode preference" ON users
+  FOR UPDATE USING (auth.uid() = stytch_user_id);
+```
+
+## 6. UI/UX Requirements
+
+### 6.1 Visual Design
+- **Card-based layout** with two large, equal-sized cards
+- **Purple gradient** for Comprehensive Mode (primary brand color)
+- **Blue gradient** for Quick Mode (secondary color)
+- **Ample whitespace** between cards
+- **Clear typography hierarchy**:
+  - Title: 32px bold
+  - Time estimate: 24px semibold
+  - Description: 16px regular
+- **Hover states**: Subtle scale (1.02) and shadow enhancement
+- **Icons**: Clock icon for time, CheckCircle for features
+
+### 6.2 Component Structure
+```
+ModeSelectionScreen
+├── Header
+│   ├── Logo
+│   └── Help Button
+├── ModeCards Container
+│   ├── QuickModeCard
+│   │   ├── Icon & Badge
+│   │   ├── Title & Time
+│   │   ├── Description
+│   │   ├── Feature Checklist
+│   │   └── Select Button
+│   └── ComprehensiveModeCard
+│       └── (same structure)
+├── NotSureButton
+└── ModeComparisonModal (optional)
+```
+
+### 6.3 Responsive Behavior
+- **Desktop**: Side-by-side cards
+- **Tablet**: Side-by-side with reduced padding
+- **Mobile**: Stacked cards, full width
+
+### 6.4 Accessibility
+- **ARIA labels** on all buttons
+- **Keyboard navigation** (Tab through cards, Enter to select)
+- **Screen reader announcements** for mode selection
+- **Focus indicators** (visible outline on keyboard focus)
+- **Color contrast** meeting WCAG AA standards (4.5:1 minimum)
+
+## 7. Success Metrics
+
+### 7.1 Primary Metrics
+- **Mode selection distribution**: Track Quick vs. Comprehensive usage
+  - Target: 60% Quick, 40% Comprehensive
+- **Completion rate by mode**:
+  - Quick Mode: 75%+ completion
+  - Comprehensive Mode: 55%+ completion
+- **"Not sure?" usage**: 30%+ use the questionnaire
+- **Mode switch rate**: <10% (indicates good initial choice)
+
+### 7.2 Secondary Metrics
+- **Time to decision**: Average time user takes to select mode (<30 seconds)
+- **Questionnaire accuracy**: Users completing chosen mode without switching (85%+)
+- **Return user pattern**: Track if users stick with same mode or vary
+- **A/B test variants**: Test different descriptions, time estimates, visual designs
+
+### 7.3 Analytics Events to Track
+```javascript
+// Track these events
+analytics.track('mode_selection_viewed');
+analytics.track('mode_selected', { mode: 'quick' | 'comprehensive', time_to_decision: seconds });
+analytics.track('help_questionnaire_started');
+analytics.track('help_questionnaire_completed', { recommendation: mode, followed: boolean });
+analytics.track('mode_switched', { from: mode, to: mode, at_step: number });
+```
+
+## 8. Dependencies
+
+### 8.1 Technical Dependencies
+- **React Context API**: For global mode state management
+- **React Router**: For conditional routing based on mode
+- **Supabase Client**: For saving user mode preferences
+- **Analytics SDK**: For tracking mode selection events
+
+### 8.2 Feature Dependencies
+- **Authentication system**: Must be complete (user logged in to save preferences)
+- **Story creation flow**: Must be defined to show accurate feature lists
+- **Navigation system**: Must support conditional step display based on mode
+
+### 8.3 Content Dependencies
+- **Mode descriptions**: Final copy approved
+- **Feature checklists**: Complete list of features per mode
+- **Questionnaire questions**: Validated with user testing
+
+## 9. User Acceptance Criteria
+
+### 9.1 Acceptance Tests
+
+**Test 1: New User - Mode Selection**
+- ✅ User lands on mode selection screen after sign-up/login
+- ✅ Both mode cards are clearly visible and distinct
+- ✅ User can select Quick Mode and proceed to story creation
+- ✅ Mode choice is saved to database
+
+**Test 2: "Not Sure?" Questionnaire**
+- ✅ User clicks "Not sure?" button
+- ✅ Questionnaire appears with 3-5 questions
+- ✅ User answers all questions
+- ✅ System recommends a mode with explanation
+- ✅ User can accept or override recommendation
+
+**Test 3: Mode Switching Mid-Story**
+- ✅ User starts in Quick Mode
+- ✅ User clicks "Switch Mode" button in navigation
+- ✅ Confirmation dialog appears with clear explanation
+- ✅ User confirms switch to Comprehensive Mode
+- ✅ Previously entered data is preserved
+- ✅ New features become available
+
+**Test 4: Returning User - Preference Memory**
+- ✅ Returning user automatically sees their last-used mode pre-selected
+- ✅ User can easily change to other mode
+- ✅ New preference is saved for next session
+
+### 9.2 Edge Cases
+- **User refreshes page during mode selection**: Returns to mode selection screen
+- **User navigates back from next step**: Mode selection is remembered, not re-asked
+- **User has incomplete story from previous session**: Loads into that story's mode
+- **User switches mode with incompatible data**: Show warning, offer to adapt or cancel
+
+## 10. Open Questions & Risks
+
+### 10.1 Open Questions
+1. Should we allow users to create stories in both modes simultaneously?
+2. Should there be a "Preview Mode" feature to try both without committing?
+3. Should we show statistics about mode usage to users ("80% of users start with Quick")?
+4. Should mode preference be story-type specific (e.g., always use Quick for pitches)?
+
+### 10.2 Risks & Mitigations
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Users confused by choice | High | Medium | Clear descriptions, questionnaire helper, preview videos |
+| Mode switching causes data loss | High | Low | Robust data preservation logic, clear warnings, undo capability |
+| Quick mode feels too limiting | Medium | Medium | Allow easy upgrade to Comprehensive, highlight Quick benefits |
+| Comprehensive feels overwhelming | Medium | Medium | Better onboarding, contextual help, optional features |
+
+## 11. Implementation Notes
+
+### 11.1 Vibe Coding Approach
+This feature can be built in **1-2 development sessions**:
+
+**Session 1**: Mode Selection UI
+- Create mode card components
+- Implement selection logic
+- Add basic state management
+- Style with Tailwind
+
+**Session 2**: Questionnaire & Switching
+- Build "Not sure?" questionnaire
+- Implement mode switching with confirmation
+- Add persistence to Supabase
+- Add analytics tracking
+
+### 11.2 Code Structure
+```
+/components/mode-selection/
+├── ModeSelectionScreen.jsx
+├── ModeCard.jsx
+├── ModeQuestionnaire.jsx
+├── ModeSwitchModal.jsx
+└── modeConfig.js (data for features, descriptions)
+```

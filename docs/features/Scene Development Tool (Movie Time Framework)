@@ -1,0 +1,1859 @@
+S2. Goal
+Enable users to develop compelling, vivid scenes using the Movie Time framework (Action → Emotion → Meaning), transforming abstract story concepts into concrete, visual narrative moments that readers can "see like a movie" in their minds.
+Key Outcomes:
+
+Users create scenes with strong visual action, emotional resonance, and clear meaning
+Reduce "telling" language in favor of "showing" through sensory details
+Build complete story drafts scene-by-scene with AI assistance
+Maintain consistency with overall story structure and character arcs
+Accelerate scene development while teaching storytelling principles
+
+
+3. User Story
+As a writer developing my story
+I want to build individual scenes using a proven framework that ensures each scene has action, emotion, and meaning
+So that I can create vivid, compelling narrative moments that engage readers and advance my story effectively
+Acceptance Criteria:
+
+User can create, edit, and delete scenes in their story
+Each scene follows the Movie Time framework (Action, Emotion, Meaning)
+AI generates scene content drafts based on framework inputs
+Show Don't Tell Coach provides actionable feedback
+Scenes integrate with selected story structure beats
+Scene content is fully editable and saveable
+Users can preview scenes and navigate between them
+Scenes can be exported as part of complete story
+Scene templates accelerate common scene types
+Visual indicators show scene completeness and quality
+
+
+4. Functional Requirements
+4.1 Scene Management
+Scene List View:
+
+Display all scenes in the story with scene number, title, and status
+Show scene count (e.g., "Scene 3 of 12")
+Visual indicators for scene completeness:
+
+Empty (gray) - No content yet
+In Progress (yellow) - Partial completion
+Complete (green) - All Movie Time sections filled
+Drafted (blue) - AI content generated
+
+
+Add new scene button (+ Add Scene)
+Delete scene functionality (with confirmation for non-empty scenes)
+Reorder scenes via drag-and-drop
+Quick preview on hover showing first line of action
+Filter/search scenes by title or structure beat
+
+Scene Navigation:
+
+Previous/Next scene buttons
+Scene dropdown selector for quick jumping
+"Return to List" button from editor view
+Breadcrumb trail: Story > Scene Development > Scene [X]
+
+4.2 Movie Time Framework Editor
+ACTION Section (📍 Blue theme)
+Purpose: What literally happens (visual, concrete)
+Fields:
+
+Where are we? (text input, 200 char max)
+
+Placeholder: "e.g., A cramped coffee shop in downtown Seattle, rain streaming down the windows"
+Required field
+
+
+What is happening? (textarea, 500 char max)
+
+Placeholder: "e.g., Sarah slides the laptop across the table. The screen shows their bank balance: $247.52. Marcus won't look at it."
+Required field
+
+
+What happens next? (textarea, 300 char max)
+
+Placeholder: "e.g., Her phone buzzes. The investor's name flashes on screen. This is the call they've been waiting for."
+Optional but recommended
+
+
+
+AI Assistance - Sensory Details:
+
+Button: "✨ Enhance with Sensory Details"
+AI suggests additions for:
+
+What can we see? (visual details)
+What can we hear? (sounds, dialogue tone)
+What physical actions occur? (body language, movements)
+
+
+Suggestions appear as insertable chips user can click to add
+
+EMOTION Section (❤️ Red theme)
+Purpose: How it feels (human connection)
+Fields:
+
+Who is involved? (character selector + text input)
+
+Dropdown of characters from story (pulled from Archetype Builder)
+Additional text field for relationship dynamics
+Placeholder: "Sarah (the founder), Marcus (her co-founder), and the weight of their 2-year partnership"
+
+
+What is at stake? (textarea, 300 char max)
+
+Auto-populated with overall story stakes as reference
+Editable for scene-specific stakes
+Placeholder: "The entire company's future, their life savings, their friendship"
+
+
+Emotional Tone (single select buttons)
+
+Joy (yellow)
+Fear (purple)
+Anger (red)
+Sadness (blue)
+Surprise (orange)
+Disgust (green)
+Trust (teal)
+Anticipation (pink)
+Neutral (gray)
+
+
+
+AI Assistance - Emotional Description:
+
+Auto-generates emotional description based on tone selected
+Three aspects:
+
+Internal feeling (what character feels inside)
+External show (how they display it physically)
+Audience feeling (what reader should feel)
+
+
+User can edit or regenerate
+
+MEANING Section (💡 Green theme)
+Purpose: What it means (takeaway)
+Fields:
+
+What changed? (textarea, 300 char max)
+
+Placeholder: "Sarah realized she had to make the decision alone. Marcus had already checked out."
+Focus on transformation, revelation, or shift
+
+
+Why does this matter? (textarea, 300 char max)
+
+Placeholder: "This moment showed her she'd been carrying the company solo for months"
+Connection to larger story themes
+
+
+What do you want us to think or do differently? (textarea, 300 char max)
+
+Placeholder: "Sometimes the hardest truth is admitting a partnership has ended"
+The takeaway or lesson
+
+
+
+AI Assistance - Scene Purpose:
+
+Checkbox selection (multiple allowed):
+
+□ Advances plot
+□ Develops character
+□ Reveals theme
+□ Builds tension
+□ Provides relief
+□ Plants setup for payoff later
+□ Delivers payoff from earlier setup
+
+
+AI suggests which purposes this scene serves
+User can accept, modify, or ignore suggestions
+
+4.3 Scene Type Templates
+Template Library (10 Common Types):
+
+Opening Scene - Establish normal world
+
+Pre-fills ACTION with "ordinary world" prompts
+EMOTION: Low stakes, comfortable tone
+MEANING: What's missing or about to change
+
+
+Inciting Incident - Disrupt the status quo
+
+ACTION: The disruptive event
+EMOTION: Surprise, fear, or curiosity
+MEANING: "Things will never be the same"
+
+
+Character Introduction - Meet a key player
+
+ACTION: Character's defining action
+EMOTION: First impression emotional tone
+MEANING: What this character represents
+
+
+Revelation - Discover important information
+
+ACTION: The moment of discovery
+EMOTION: Shock, clarity, or validation
+MEANING: How this changes everything
+
+
+Conflict Scene - Confrontation or obstacle
+
+ACTION: The clash or barrier
+EMOTION: Anger, fear, determination
+MEANING: What's really being fought for
+
+
+Low Point - Everything seems lost
+
+ACTION: The failure or defeat
+EMOTION: Sadness, despair, resignation
+MEANING: The lesson in the darkness
+
+
+Breakthrough - Insight or turning point
+
+ACTION: The moment of realization
+EMOTION: Hope, determination, clarity
+MEANING: The new path forward
+
+
+Climax - Final confrontation
+
+ACTION: The ultimate challenge
+EMOTION: High stakes, intense
+MEANING: Who they've become
+
+
+Resolution - New equilibrium
+
+ACTION: Settling into new normal
+EMOTION: Peace, satisfaction, or bittersweet
+MEANING: What was gained/lost
+
+
+Closing Scene - Where we end up
+
+ACTION: Final image
+EMOTION: Reflective tone
+MEANING: The lasting impact
+
+
+
+Template Application:
+
+Templates appear as selection cards at top of editor
+Click template to auto-populate relevant fields
+User can then customize all fields
+Template selection is optional, not required
+
+4.4 AI Scene Content Generation
+Generate Scene Draft:
+
+Button: "✨ Generate Scene Draft" (prominent, purple)
+Requires minimum: WHERE and WHAT HAPPENING fields
+AI generates 300-500 word scene prose based on:
+
+All Movie Time framework inputs
+Selected structure beat (if linked)
+Character information from Archetype Builder
+Overall story context
+Story type and tone
+
+
+
+AI Draft Display:
+
+Full-width text editor
+Markdown formatting supported
+Completely editable
+"Regenerate" option if user dislikes
+Save as final scene content or keep editing
+Version history (show last 3 generations)
+
+AI Generation Process:
+
+User fills Movie Time framework sections
+User clicks "Generate Scene Draft"
+Loading state: "Creating your scene..." (2-3 seconds)
+AI draft appears in editor
+User can edit directly or regenerate
+Auto-save on changes
+
+4.5 Show Don't Tell Coach
+Purpose: AI-powered feedback to improve scene writing by identifying "telling" language and suggesting "showing" alternatives
+Activation:
+
+Button: "🎯 Get Show Don't Tell Feedback"
+Available after scene content is generated or user writes content
+Runs AI analysis on scene text
+
+Feedback Components:
+Overall Score:
+
+1-10 scale with visual meter
+Color-coded: 1-4 (red), 5-7 (yellow), 8-10 (green)
+Brief explanation of score
+
+Telling Phrases Identified:
+
+Highlights specific phrases that "tell" instead of "show"
+For each phrase:
+
+Original text highlighted
+Suggested replacement with "show" alternative
+Brief explanation why (1 sentence)
+"Apply" button to insert suggestion
+
+
+
+Example:
+Original: "She felt angry"
+Suggestion: "Her fists clenched, jaw tight"
+Why: Show physical manifestation of emotion
+[Apply Suggestion]
+Improvement Opportunities:
+Sensory Details:
+
+"Add sounds - what can be heard in this location?"
+"Include smells or textures to ground the scene"
+"Describe body language more specifically"
+
+Dialogue Opportunities:
+
+"Consider adding dialogue to reveal character thoughts"
+"Use conversation to show relationships"
+
+Action Specificity:
+
+"Replace vague verbs with specific actions"
+"Show the physical sequence of events"
+
+Top Priority:
+
+Single most impactful improvement highlighted
+"Fix this first" recommendation
+
+Feedback Display:
+
+Expandable panel below scene editor
+Can be dismissed and recalled
+Updates if user regenerates scene
+Persists with scene (shows last feedback)
+
+4.6 Scene Preview Mode
+Full Scene Preview:
+
+Button: "👁️ Preview Scene"
+Displays formatted scene with:
+
+Scene title as heading
+Structure beat label (if linked)
+Full scene content in readable format
+Reading time estimate
+Word count
+
+
+
+Context Preview:
+
+"Preview in Story" mode
+Shows previous scene → current scene → next scene
+Helps user see scene flow and transitions
+Navigation to edit adjacent scenes
+
+4.7 Scene Metadata & Organization
+Scene Card Header:
+
+Scene number badge (editable sequence)
+Scene title (editable inline)
+Structure beat tag (e.g., "Inciting Incident - Hero's Journey")
+Last edited timestamp
+Completeness indicator
+
+Additional Scene Fields:
+
+Duration Estimate (dropdown)
+
+Micro-moment (< 1 min)
+Short (1-5 min)
+Medium (5-15 min)
+Long (15-30 min)
+Extended (30+ min)
+
+
+Notes (textarea, 500 char)
+
+Private notes about scene
+Not included in exports
+Ideas, reminders, research needed
+
+
+
+Structure Beat Linking:
+
+Dropdown of structure beats from selected story structure
+Optional linkage
+Visual indicator when scene fulfills structure requirement
+Helps track structural completeness
+
+4.8 Mode-Specific Behavior
+Quick Mode:
+
+Scene editor with simplified interface
+Only core Movie Time fields (no optional extras)
+AI auto-generates drafts more aggressively
+Templates pre-selected based on structure position
+Fewer customization options
+Focus: Speed and completion
+
+Comprehensive Mode:
+
+Full editor with all features enabled
+All optional fields available
+Show Don't Tell Coach prominent
+Template library fully accessible
+Sensory detail AI assistance
+Multiple AI draft versions
+Focus: Depth and quality
+
+
+5. Data Requirements
+5.1 Supabase Schema
+scenes table:
+sqlCREATE TABLE scenes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  story_id UUID REFERENCES stories(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  
+  -- Metadata
+  title VARCHAR(200) NOT NULL DEFAULT 'Untitled Scene',
+  position INTEGER NOT NULL, -- Scene order in story
+  structure_beat VARCHAR(100), -- e.g., "Inciting Incident"
+  template_type VARCHAR(50), -- Template used (if any)
+  
+  -- Movie Time Framework Data
+  movie_time_action JSONB DEFAULT '{
+    "where": "",
+    "what": "",
+    "next": "",
+    "sensory_details": []
+  }',
+  
+  movie_time_emotion JSONB DEFAULT '{
+    "characters": "",
+    "stakes": "",
+    "tone": "neutral",
+    "internal_feeling": "",
+    "external_show": "",
+    "audience_feeling": ""
+  }',
+  
+  movie_time_meaning JSONB DEFAULT '{
+    "change": "",
+    "significance": "",
+    "takeaway": "",
+    "purposes": []
+  }',
+  
+  -- Content
+  scene_content TEXT, -- AI generated or user written scene
+  ai_draft_versions JSONB DEFAULT '[]', -- Array of previous AI drafts
+  user_notes TEXT,
+  
+  -- Metadata
+  duration_estimate VARCHAR(20), -- "short", "medium", "long"
+  word_count INTEGER DEFAULT 0,
+  completeness_status VARCHAR(20) DEFAULT 'empty', -- empty, in_progress, complete, drafted
+  
+  -- Show Don't Tell Feedback
+  last_feedback JSONB, -- Most recent coach feedback
+  show_tell_score INTEGER, -- 1-10 score
+  
+  -- Timestamps
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  
+  CONSTRAINT scenes_position_check CHECK (position >= 1)
+);
+
+-- Indexes
+CREATE INDEX idx_scenes_story_id ON scenes(story_id);
+CREATE INDEX idx_scenes_user_id ON scenes(user_id);
+CREATE INDEX idx_scenes_position ON scenes(story_id, position);
+
+-- RLS Policies
+ALTER TABLE scenes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own scenes"
+  ON scenes FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own scenes"
+  ON scenes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own scenes"
+  ON scenes FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own scenes"
+  ON scenes FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_scenes_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER scenes_updated_at
+  BEFORE UPDATE ON scenes
+  FOR EACH ROW
+  EXECUTE FUNCTION update_scenes_updated_at();
+```
+
+### 5.2 Data Relationships
+
+**Foreign Keys:**
+- `story_id` → stories table (CASCADE delete)
+- `user_id` → auth.users (CASCADE delete)
+
+**Referenced Data:**
+- Characters from story's archetype data
+- Structure beats from selected story structure
+- Overall story stakes for context
+- Story type and mode for AI generation
+
+### 5.3 Data Validation
+
+**Required Fields:**
+- title (min 1 char, max 200)
+- story_id (must exist)
+- position (must be ≥ 1)
+- At least one of: where OR what (in movie_time_action)
+
+**Field Constraints:**
+- movie_time_action.where: 200 char max
+- movie_time_action.what: 500 char max
+- movie_time_action.next: 300 char max
+- All emotion fields: 300 char max
+- All meaning fields: 300 char max
+- scene_content: 10,000 char max
+- user_notes: 1,000 char max
+
+**Auto-calculated Fields:**
+- word_count: Updated on scene_content save
+- completeness_status: Calculated based on filled fields
+- updated_at: Auto-updated on any change
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Visual Design System
+
+**Color Scheme:**
+- ACTION: Blue theme (#3B82F6, #DBEAFE backgrounds)
+- EMOTION: Red theme (#EF4444, #FEE2E2 backgrounds)
+- MEANING: Green theme (#10B981, #D1FAE5 backgrounds)
+- Primary CTA: Purple (#8B5CF6)
+- Success: Green (#10B981)
+- Warning: Yellow (#F59E0B)
+- Error: Red (#EF4444)
+
+**Icons:**
+- Scene list: Film icon
+- Add scene: Plus icon
+- ACTION section: MapPin icon
+- EMOTION section: Heart icon
+- MEANING section: Lightbulb icon
+- AI generation: Sparkles icon
+- Show Don't Tell: Target icon
+- Preview: Eye icon
+- Delete: Trash icon
+- Edit: Pencil icon
+- Save: Check icon
+
+**Typography:**
+- Headings: Bold, 24px for main, 18px for sections
+- Body text: Regular, 16px
+- Field labels: Medium, 14px
+- Placeholders: Italic, 14px, gray
+- Scene content: Serif font, 18px, line-height 1.8
+
+### 6.2 Layout Structure
+
+**Scene List View:**
+```
+┌─────────────────────────────────────────────────┐
+│ 🎬 Scene Development              [+ Add Scene] │
+│ Build your story scene by scene                 │
+├─────────────────────────────────────────────────┤
+│ Movie Time Framework Explanation Card           │
+│ [ACTION] [EMOTION] [MEANING] overview           │
+├─────────────────────────────────────────────────┤
+│ ┌──────────────────────────────────────────┐   │
+│ │ Scene 1: Opening Scene            ●●●○○  │   │
+│ │ Inciting Incident                  Draft │   │
+│ │ "A cramped coffee shop..."       [Edit]  │   │
+│ └──────────────────────────────────────────┘   │
+│ ┌──────────────────────────────────────────┐   │
+│ │ Scene 2: The Call                 ●●○○○  │   │
+│ │ Rising Action              In Progress   │   │
+│ │ "Her phone buzzes..."            [Edit]  │   │
+│ └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+```
+
+**Scene Editor View:**
+```
+┌─────────────────────────────────────────────────┐
+│ [< Back to List]    Scene 1: [Title Field]      │
+│                     Inciting Incident   [Preview]│
+├─────────────────────────────────────────────────┤
+│ Scene Type Templates (optional)                  │
+│ [Opening] [Inciting] [Character] [Revelation]...│
+├─────────────────────────────────────────────────┤
+│ 📍 ACTION (Show, don't just tell)               │
+│ ┌───────────────────────────────────────────┐   │
+│ │ Where are we?                             │   │
+│ │ [Input field]                             │   │
+│ │                                           │   │
+│ │ What is happening?                        │   │
+│ │ [Textarea]                                │   │
+│ │                                           │   │
+│ │ What happens next?                        │   │
+│ │ [Textarea]                                │   │
+│ │                                           │   │
+│ │        [✨ Enhance with Sensory Details]  │   │
+│ └───────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────┤
+│ ❤️ EMOTION (Connect to feelings)                │
+│ ┌───────────────────────────────────────────┐   │
+│ │ Who is involved? [Character dropdown]     │   │
+│ │ What is at stake? [Input]                 │   │
+│ │ Emotional Tone:                           │   │
+│ │ [Joy][Fear][Anger][Sadness]...            │   │
+│ └───────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────┤
+│ 💡 MEANING (What's the point?)                  │
+│ ┌───────────────────────────────────────────┐   │
+│ │ What changed? [Textarea]                  │   │
+│ │ Why does this matter? [Textarea]          │   │
+│ │ What should we think/do? [Textarea]       │   │
+│ │                                           │   │
+│ │ Purpose: □ Plot □ Character □ Theme...   │   │
+│ └───────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────┤
+│        [✨ Generate Scene Draft]                │
+│                                                  │
+│ ┌───────────────────────────────────────────┐   │
+│ │ AI Generated Scene Content                │   │
+│ │ [Editable text editor]                    │   │
+│ │                                           │   │
+│ │                              [Regenerate]  │   │
+│ └───────────────────────────────────────────┘   │
+│                                                  │
+│        [🎯 Get Show Don't Tell Feedback]        │
+│                                                  │
+│ [< Previous Scene]           [Next Scene >]     │
+└─────────────────────────────────────────────────┘
+```
+
+### 6.3 Interaction Patterns
+
+**Auto-save:**
+- Triggered 2 seconds after user stops typing
+- Visual indicator: "Saving..." → "Saved ✓"
+- No manual save button needed
+- Works offline (syncs when reconnected)
+
+**AI Generation Loading States:**
+- "Generating scene..." with animated dots
+- Estimated time: "This takes about 3 seconds"
+- Cancel button if taking too long
+- Error handling: "Generation failed. Try again?"
+
+**Field Focus States:**
+- Border highlights in section color
+- Placeholder text fades
+- Help text appears below field
+- Character count shows for limited fields
+
+**Scene Templates:**
+- Hover shows template description
+- Click applies template with animation
+- Confirmation if overwriting existing content
+- "Clear Template" option to reset
+
+**Show Don't Tell Coach:**
+- Expandable/collapsible panel
+- Smooth slide animation
+- Sticky at bottom of viewport
+- "Apply" buttons for each suggestion
+- "Apply All" for bulk changes
+
+### 6.4 Responsive Behavior
+
+**Desktop (>1024px):**
+- Two-column layout where appropriate
+- Side panel for scene list while editing
+- Full width for text editor
+- Floating action buttons
+
+**Tablet (768px - 1024px):**
+- Single column layout
+- Collapsible scene list
+- Touch-optimized buttons
+- Swipe gestures for prev/next scene
+
+**Mobile (<768px):**
+- Stacked sections
+- Simplified Movie Time fields
+- Bottom sheet for templates
+- Reduced AI features (core only)
+- Quick mode recommended
+
+### 6.5 Accessibility
+
+**Keyboard Navigation:**
+- Tab through all fields in logical order
+- Enter to submit forms
+- Esc to close modals/panels
+- Arrow keys to navigate scenes
+- Shortcuts: Ctrl+S save, Ctrl+G generate
+
+**Screen Reader Support:**
+- ARIA labels for all interactive elements
+- Section headings properly structured
+- Form field descriptions
+- Status announcements for AI generation
+- Skip links for long scenes
+
+**Visual Accessibility:**
+- Minimum contrast ratio 4.5:1
+- Focus indicators on all interactive elements
+- Color not sole indicator of status
+- Resizable text without breaking layout
+- High contrast mode support
+
+---
+
+## 7. Success Metrics
+
+### 7.1 Adoption Metrics
+
+**Primary:**
+- **Scene Tool Usage Rate:** 60% of users in Comprehensive Mode use scene development
+  - Baseline: 40% in Quick Mode
+  - Target: 75% by Month 3
+
+- **Scenes Created per Story:** Average 8-12 scenes per completed story
+  - Quick Mode: 5-7 scenes
+  - Comprehensive Mode: 10-15 scenes
+
+**Secondary:**
+- Template usage rate: 50% of scenes use templates
+- Multi-scene stories: 70% of users create 3+ scenes
+- Scene completion rate: 65% of started scenes reach "drafted" status
+
+### 7.2 Quality Metrics
+
+**Scene Quality:**
+- **Show Don't Tell Score:** Average score of 6.5+/10
+  - Track improvement over time for same user
+  - Measure impact of coach feedback on subsequent scenes
+
+- **Framework Completion:** All three Movie Time sections filled
+  - ACTION: 85% completion
+  - EMOTION: 75% completion
+  - MEANING: 70% completion
+
+**AI Effectiveness:**
+- **AI Draft Acceptance:** 60% of generated drafts used (with or without edits)
+- **Edit Rate:** Users edit 40% of AI-generated content on average
+- **Regeneration Rate:** <20% of drafts regenerated (indicates satisfaction)
+
+### 7.3 Engagement Metrics
+
+**Time Metrics:**
+- **Time per Scene:** 8-12 minutes average
+  - Quick Mode: 5-8 minutes
+  - Comprehensive Mode: 10-15 minutes
+  
+- **Show Don't Tell Coach Usage:** Used on 40% of scenes
+  - Application rate of suggestions: 50%
+
+**Feature Usage:**
+- Sensory detail enhancement: 35% usage
+- Scene templates: 50% usage
+- Preview mode: 60% usage
+- Character selector: 70% usage (vs. manual entry)
+
+### 7.4 Success Indicators
+
+**User Satisfaction:**
+- Post-scene survey: "Was this scene tool helpful?" → 80%+ "Yes"
+- Feature rating: 4.2+/5.0 stars
+- NPS contribution: +10 points to overall app NPS
+
+**Story Completion Impact:**
+- Stories with developed scenes have 25% higher completion rate
+- Export rate: 70% of stories with scenes are exported
+- User retention: Scene tool users 2x more likely to return
+
+### 7.5 Learning Metrics
+
+**Skill Development:**
+- Show Don't Tell score improvement over first 5 scenes: +2 points average
+- Framework understanding: 75% of users fill all sections by scene 3
+- Independent usage: 60% of users stop using templates by scene 5
+
+**Support Reduction:**
+- Help requests related to scene development: <5% of support tickets
+- Tutorial completion: 70% watch Movie Time explainer
+- Coaching adoption: Users request feedback more over time (sign of trust)
+
+---
+
+## 8. Dependencies
+
+### 8.1 Feature Dependencies
+
+**Required (Must be completed first):**
+- ✅ Mode Selection (Priority N/A) - Determines scene editor complexity
+- ✅ Story Type Selection (Priority A) - Provides story context for AI
+- ✅ Archetype Builder (Priority B) - Character data for scene context
+- ✅ Structure Selector (Priority B) - Structure beats for scene linking
+- 🔲 Basic Story State Management - Scene data must persist with story
+
+**Integrates With:**
+- 🔲 Visual Story Map (Priority C) - Scenes appear on timeline
+- 🔲 Moral Conflict Framework (Priority E) - Moral stakes in emotion section
+- 🔲 Review & Export (Priority F) - Scenes included in final output
+
+**Enhanced By:**
+- 🔲 Full AI Integration - Better scene generation
+- 🔲 Supabase Real-time - Live collaboration on scenes
+- 🔲 Version History - Track scene iterations
+
+### 8.2 Technical Dependencies
+
+**Backend:**
+- Supabase database with scenes table schema
+- Row Level Security policies configured
+- Real-time subscriptions (for auto-save)
+- Storage for scene drafts (optional, could use JSONB)
+
+**AI/API:**
+- Anthropic Claude API integration
+- Prompt templates for scene generation
+- Prompt templates for Show Don't Tell analysis
+- Prompt templates for sensory detail suggestions
+- Rate limiting and error handling
+
+**Frontend:**
+- React state management (Context API or Redux)
+- Rich text editor component (TipTap or similar)
+- Drag-and-drop library (for scene reordering)
+- Markdown renderer (for preview)
+- Auto-save debouncing utility
+
+**Third-party:**
+- Tailwind CSS for styling
+- Lucide React for icons
+- Optional: Framer Motion for animations
+- Optional: React Beautiful DnD for drag-drop
+
+### 8.3 Data Dependencies
+
+**Requires Access To:**
+- Current story data object
+- User's selected mode (Quick/Comprehensive)
+- Story type and category
+- Selected story structure and beats
+- Character/archetype data
+- Overall story stakes
+- Story theme and goals
+
+**Provides Data To:**
+- Visual Story Map (scene data for visualization)
+- Review & Export (scene content for final output)
+- Story analytics (scene count, quality metrics)
+- User progress tracking
+
+---
+
+## 9. User Acceptance Criteria
+
+### 9.1 Core Functionality
+
+**Scene CRUD Operations:**
+- [ ] User can create a new scene with single click
+- [ ] Default scene title follows pattern "Scene [N]"
+- [ ] User can edit scene title inline
+- [ ] User can delete scene with confirmation prompt
+- [ ] Scene deletion updates position numbers automatically
+- [ ] User can reorder scenes via drag-and-drop
+- [ ] Reordering updates position field in database
+- [ ] Scene list shows all scenes in order with status
+
+**Movie Time Framework:**
+- [ ] ACTION section displays three required fields
+- [ ] EMOTION section shows character selector and tone buttons
+- [ ] MEANING section captures change, significance, takeaway
+- [ ] All fields have helpful placeholder text
+- [ ] Character count shows for limited fields
+- [ ] Required fields marked with visual indicator
+- [ ] Cannot generate AI draft without minimum fields filled
+
+**Auto-save:**
+- [ ] Changes save automatically after 2 seconds of inactivity
+- [ ] "Saving..." indicator appears during save
+- [ ] "Saved ✓" confirmation appears on success
+- [ ] User can continue working during save
+- [ ] No data loss if user navigates away
+- [ ] Offline changes queue and sync when online
+
+### 9.2 AI Features
+
+**Scene Generation:**
+- [ ] "Generate Scene Draft" button disabled until minimum data entered
+- [ ] Button shows loading state during generation
+- [ ] Generation completes in <5 seconds
+- [ ] Generated content appears in editable text area
+- [ ] User can edit AI content immediately
+- [ ] "Regenerate" creates new version without losing current
+- [ ] Previous versions accessible (last 3)
+- [ ] Error message if generation fails with retry option
+
+**Show Don't Tell Coach:**
+- [ ] Coach button available after scene content exists
+- [ ] Analysis completes in <3 seconds
+- [ ] Score displays as visual meter (1-10)
+- [ ] Telling phrases highlighted in red
+- [ ] Each phrase has suggested replacement
+- [ ] Explanation provided for each suggestion
+- [ ] "Apply" button inserts suggestion into scene
+- [ ] Feedback panel can be dismissed and recalled
+- [ ] Feedback persists with scene (shows last analysis)
+
+**Sensory Details Enhancement:**
+- [ ] "Enhance with Sensory Details" button in ACTION section
+- [ ] AI generates 3-5 sensory detail suggestions
+- [ ] Suggestions appear as clickable chips
+- [ ] Clicking chip inserts detail into appropriate field
+- [ ] User can edit inserted details immediately
+- [ ] Suggestions relevant to location and action described
+
+### 9.3 Templates
+
+**Template Selection:**
+- [ ] 10 scene templates available as cards
+- [ ] Template cards show name and brief description
+- [ ] Clicking template populates relevant fields
+- [ ] Confirmation prompt if overwriting existing content
+- [ ] User can customize all fields after applying template
+- [ ] Template selection is optional (can start blank)
+- [ ] "Clear Template" removes pre-filled content
+
+### 9.4 Integration
+
+**Structure Beat Linking:**
+- [ ] Dropdown shows beats from selected story structure
+- [ ] User can link scene to structure beat
+- [ ] Beat name displays on scene card in list view
+- [ ] Visual indicator when all structure beats have scenes
+- [ ] Can change linked beat without data loss
+
+**Character Integration:**
+- [ ] Character selector pulls from Archetype Builder data
+- [ ] Shows character name and archetype
+- [ ] Can select multiple characters for scene
+- [ ] Can add manual character text in addition to selector
+- [ ] Character data available to AI for generation context
+
+**Story Context:**
+- [ ] Overall story stakes pre-populate in EMOTION stakes field
+- [ ] User can customize for scene-specific stakes
+- [ ] Story type and mode affect AI generation style
+- [ ] Theme and goals inform MEANING suggestions
+
+### 9.5 User Experience
+
+**Navigation:**
+- [ ] "Back to List" button returns to scene overview
+- [ ] "Previous Scene" and "Next Scene" buttons work
+- [ ] Scene dropdown allows jumping to any scene
+- [ ] Breadcrumb trail shows current location
+- [ ] URL updates with scene ID for bookmarking
+
+**Preview:**
+- [ ] "Preview" button shows formatted scene
+- [ ] Preview includes title, beat, and content
+- [ ] Reading time and word count displayed
+- [ ] "Preview in Story" shows context (prev/current/next)
+- [ ] Can navigate to adjacent scenes from preview
+
+**Responsive Design:**
+- [ ] Layout adapts to screen size
+- [ ] All features accessible on tablet
+- [ ] Core features work on mobile
+- [ ] Touch gestures work for scene navigation
+- [ ] No horizontal scrolling required
+
+**Accessibility:**
+- [ ] All fields keyboard accessible
+- [ ] Tab order is logical
+- [ ] Screen reader announces all actions
+- [ ] Focus indicators visible
+- [ ] Color contrast meets WCAG AA
+- [ ] Works with keyboard only (no mouse required)
+
+### 9.6 Mode-Specific
+
+**Quick Mode:**
+- [ ] Simplified editor with core fields only
+- [ ] Templates auto-applied based on structure position
+- [ ] AI generation more aggressive (less user input needed)
+- [ ] Fewer customization options visible
+- [ ] Faster workflow (target: 5-8 min per scene)
+
+**Comprehensive Mode:**
+- [ ] Full editor with all optional fields
+- [ ] All AI assistance features enabled
+- [ ] Show Don't Tell Coach prominent
+- [ ] Template library fully accessible
+- [ ] Multiple AI draft versions available
+- [ ] No time pressure (target: 10-15 min per scene)
+
+---
+
+## 10. Risks & Mitigations
+
+### 10.1 Technical Risks
+
+**Risk: AI Generation Latency**
+- **Impact:** User frustration if scene generation takes >5 seconds
+- **Probability:** Medium (depends on API load)
+- **Mitigation:**
+  - Implement request timeout at 10 seconds
+  - Show estimated time and progress indicator
+  - Cache common generation patterns
+  - Allow user to continue editing other scenes while waiting
+  - Provide "Cancel" option for long requests
+  - Use streaming responses if available from Claude API
+
+**Risk: Database Query Performance**
+- **Impact:** Slow load times with 20+ scenes
+- **Probability:** Low (with proper indexing)
+- **Mitigation:**
+  - Index story_id and position fields
+  - Lazy load scene content (load list first, content on demand)
+  - Implement pagination for 50+ scenes
+  - Use Supabase real-time efficiently
+  - Monitor query performance with logging
+
+**Risk: Auto-save Conflicts**
+- **Impact:** Data loss or overwrites in multi-device scenarios
+- **Probability:** Low (single user, but possible)
+- **Mitigation:**
+  - Implement optimistic locking with version numbers
+  - Show conflict resolution UI if detected
+  - Use Supabase real-time to detect concurrent edits
+  - "Last write wins" with user notification
+  - Offer to save conflicting version separately
+
+### 10.2 User Experience Risks
+
+**Risk: Framework Too Complex**
+- **Impact:** Users abandon scene tool due to perceived difficulty
+- **Probability:** Medium (three sections may feel overwhelming)
+- **Mitigation:**
+  - Progressive disclosure: start with ACTION only, unlock others
+  - Clear "Movie Time Explained" tutorial on first use
+  - Allow skipping optional fields
+  - Templates reduce cognitive load
+  - Quick Mode simplifies to essential fields only
+  - Show completion percentage to encourage progress
+
+**Risk: AI Generates Poor Quality Scenes**
+- **Impact:** Loss of trust in AI features, manual writing only
+- **Probability:** Medium (depends on prompt quality and user input)
+- **Mitigation:**
+  - Extensive prompt engineering and testing
+  - Clear expectation setting: "AI provides drafts, you refine"
+  - Easy regeneration with different parameters
+  - "Edit AI Draft" as primary CTA, not "Accept"
+  - Collect feedback on AI quality
+  - A/B test different generation prompts
+  - Show Don't Tell Coach helps improve even AI drafts
+
+**Risk: Show Don't Tell Coach Feels Pedantic**
+- **Impact:** Users ignore coach, feature unused
+- **Probability:** Medium (depends on feedback tone)
+- **Mitigation:**
+  - Friendly, encouraging tone in feedback
+  - Focus on top 3 improvements, not exhaustive list
+  - Make suggestions optional, not mandatory
+  - Show score improvement over time (gamification)
+  - Allow dismissing coach entirely if desired
+  - Test feedback language with beta users
+
+### 10.3 Business Risks
+
+**Risk: Low Feature Adoption**
+- **Impact:** Development effort doesn't translate to usage
+- **Probability:** Low-Medium (if not well-integrated)
+- **Mitigation:**
+  - Make scene development optional but recommended
+  - Integrate tightly with story structure (auto-suggest scenes)
+  - Show value early: template library immediately useful
+  - Onboarding specifically highlights this feature
+  - Success stories from beta users
+  - Track drop-off points and optimize
+
+**Risk: Over-reliance on AI**
+- **Impact:** Users expect AI to write entire story, disappointed
+- **Probability:** Medium (common misconception)
+- **Mitigation:**
+  - Clear messaging: AI assists, doesn't replace creativity
+  - Limit AI generation to scene-level, not full story
+  - Require user input before generation
+  - Educational content about writing craft
+  - Show Don't Tell Coach teaches, doesn't just fix
+  - Celebrate user edits and customization
+
+**Risk: Feature Scope Creep**
+- **Impact:** Development timeline extends, delays MVP
+- **Probability:** High (many possible enhancements)
+- **Mitigation:**
+  - Strict adherence to FReD scope for v1.0
+  - Park "nice to have" features for v2.0
+  - Focus on core Movie Time framework first
+  - Templates can start with 5, expand to 10 later
+  - Show Don't Tell Coach can be basic initially
+  - Ruthlessly prioritize must-haves
+
+### 10.4 Content Risks
+
+**Risk: Inappropriate AI-Generated Content**
+- **Impact:** Offensive or harmful scene content generated
+- **Probability:** Low (Claude API has safety measures)
+- **Mitigation:**
+  - Content filtering on AI outputs
+  - User reporting mechanism
+  - Clear content policy
+  - Manual review of flagged content
+  - Age-appropriate filtering based on story type
+  - Opt-out of AI features available
+
+**Risk: Copyright/Plagiarism in AI Output**
+- **Impact:** AI inadvertently reproduces copyrighted material
+- **Probability:** Very Low (Claude designed to avoid this)
+- **Mitigation:**
+  - Include disclaimer about AI-generated content
+  - Encourage users to review and edit all AI outputs
+  - Plagiarism checker integration (future)
+  - Clear terms of service about content ownership
+  - User owns all final output
+
+---
+
+## 11. Open Questions
+
+### 11.1 Design Decisions Needed
+
+**Scene Limits:**
+- ❓ Should we limit maximum scenes per story?
+  - Option A: No limit (allow epic novels)
+  - Option B: Soft limit at 50 scenes (warning, not blocking)
+  - Option C: Hard limit at 100 scenes (performance concern)
+  - **Recommendation:** Soft limit at 50 with warning
+
+**Template Customization:**
+- ❓ Should users be able to create/save their own templates?
+  - v1.0: No (use pre-built 10 only)
+  - v2.0: Yes (custom template library)
+  - **Recommendation:** v2.0 feature, parking for now
+
+**AI Draft Versioning:**
+- ❓ How many AI draft versions to keep?
+  - Option A: Last 3 versions
+  - Option B: Last 5 versions
+  - Option C: All versions (storage concern)
+  - **Recommendation:** Last 3 versions (balance utility and storage)
+
+**Show Don't Tell Scoring:**
+- ❓ Should score be absolute or relative to user's skill level?
+  - Option A: Absolute (same standards for everyone)
+  - Option B: Relative (adjusted based on user history)
+  - Option C: User selectable (beginner/intermediate/advanced mode)
+  - **Recommendation:** Start absolute, add relative in v2.0
+
+### 11.2 Integration Questions
+
+**Visual Story Map:**
+- ❓ When user creates scene from story map, which fields auto-populate?
+  - Structure beat definitely
+  - Scene position definitely
+  - Character involvement? (if map shows character track)
+  - **Needs:** Story Map FReD completion to answer
+
+**Export Format:**
+- ❓ How should scenes appear in exported story?
+  - Option A: Continuous prose (scenes flow together)
+  - Option B: Chapter breaks at scene boundaries
+  - Option C: User choice per export
+  - **Recommendation:** User choice, default to continuous
+
+**Moral Conflict Integration:**
+- ❓ Should EMOTION section show moral stakes if moral framework used?
+  - Yes, helpful context for writers
+  - But don't force moral framework on every scene
+  - **Recommendation:** Optional enhancement when moral conflict selected
+
+### 11.3 AI Configuration Questions
+
+**Generation Style:**
+- ❓ Should AI generation style vary by story type?
+  - Business pitch: Concise, punchy
+  - Novel: Descriptive, literary
+  - Screenplay: Visual, dialogue-heavy
+  - **Recommendation:** Yes, tailor prompts to story type
+
+**Regeneration Parameters:**
+- ❓ What should user be able to adjust on regeneration?
+  - Tone (more serious/lighthearted)
+  - Length (shorter/longer)
+  - Style (more/less descriptive)
+  - POV (first/third person)
+  - **Recommendation:** Tone and Length for v1.0
+
+**Coach Sensitivity:**
+- ❓ Should Show Don't Tell Coach have difficulty settings?
+  - Gentle (beginner-friendly)
+  - Balanced (default)
+  - Rigorous (advanced writers)
+  - **Recommendation:** Balanced default, add settings in v2.0
+
+### 11.4 Performance Questions
+
+**Real-time Collaboration:**
+- ❓ Should multiple users be able to edit same scene simultaneously?
+  - v1.0: No (single user app)
+  - Future: Yes (collaborative writing feature)
+  - **Recommendation:** Park for future, focus single user
+
+**Offline Capability:**
+- ❓ How much functionality should work offline?
+  - Scene editing: Yes
+  - Auto-save queue: Yes
+  - AI generation: No (requires API)
+  - Scene list: Yes (cached)
+  - **Recommendation:** Core editing offline, AI features online only
+
+**Mobile Experience:**
+- ❓ Should mobile have full feature parity or simplified version?
+  - Option A: Full parity (responsive design)
+  - Option B: Simplified (hide advanced features)
+  - Option C: View-only (edit on desktop)
+  - **Recommendation:** Option B - simplified but functional
+
+---
+
+## 12. Future Enhancements (v2.0+)
+
+### 12.1 Advanced AI Features
+
+**Scene Continuity Checker:**
+- AI analyzes scene transitions
+- Flags jarring jumps or missing connective tissue
+- Suggests transition sentences
+- Checks for timeline consistency
+
+**Character Consistency:**
+- Tracks character mentions across scenes
+- Flags out-of-character dialogue or actions
+- Reminds about character arcs from Archetype Builder
+- Suggests character development moments
+
+**Pacing Analyzer:**
+- Calculates scene length and intensity
+- Visualizes pacing rhythm
+- Identifies slow sections
+- Recommends scene cuts or additions
+
+**Dialogue Coach:**
+- Specialized feedback for dialogue-heavy scenes
+- Suggests subtext improvements
+- Checks for distinct character voices
+- Recommends beats and pauses
+
+### 12.2 Collaboration Features
+
+**Co-Writing Mode:**
+- Multiple users can edit same story
+- Scene assignments (you work on scene 3, I'll do scene 4)
+- Comment threads on scenes
+- Suggestion mode (like Google Docs)
+- Version control and merge conflicts
+
+**Feedback/Critique:**
+- Share scenes with beta readers
+- Inline comments and highlights
+- Rating/voting on scene quality
+- Consolidated feedback view
+
+### 12.3 Enhanced Templates
+
+**Custom Template Builder:**
+- Users create and save their own templates
+- Share templates with community
+- Template marketplace (premium)
+- Genre-specific template packs
+
+**Scene Archetypes:**
+- Beyond basic templates, full archetype scenes
+- "The Training Montage"
+- "The False Victory"
+- "The Dark Night of the Soul"
+- Based on Blake Snyder's Save the Cat beats
+
+**Dynamic Templates:**
+- Templates that adapt based on story context
+- Pull character names automatically
+- Reference prior scenes
+- Adjust to story structure position
+
+### 12.4 Export Enhancements
+
+**Format-Specific Scene Rendering:**
+- Screenplay format (scene headings, action, dialogue)
+- Novel format (prose with chapter breaks)
+- Outline format (beat sheet)
+- Presentation format (slides per scene)
+
+**Scene Filtering:**
+- Export only selected scenes
+- Export by structure act
+- Export by character POV
+- Export by emotional arc section
+
+**Multimedia Scenes:**
+- Attach images to scenes (mood boards)
+- Audio notes or recordings
+- Reference links
+- Research document attachments
+
+### 12.5 Learning Features
+
+**Writing Tutorials:**
+- In-app tutorials on Movie Time framework
+- Show Don't Tell mini-course
+- Sensory detail exercises
+- Interactive writing challenges
+
+**Progress Tracking:**
+- Dashboard showing writing stats
+- Scenes completed over time
+- Show Don't Tell score trends
+- Writing streak tracking
+
+**Achievement System:**
+- Badges for milestones
+- "First Scene Complete"
+- "Show Don't Tell Master" (10 scenes with 8+ score)
+- "Marathon Writer" (20+ scenes in one story)
+- Gamification to encourage completion
+
+### 12.6 Professional Features
+
+**Professional Export:**
+- Industry-standard screenplay format
+- Query letter integration
+- Synopsis generation from scenes
+- Logline suggestions
+
+**Revision Tracking:**
+- Full version history
+- Compare scene versions
+- Track changes over time
+- Revert to previous versions
+
+**Research Integration:**
+- Link scenes to research notes
+- Attach reference images
+- Timeline consistency checker
+- Fact verification suggestions
+
+---
+
+## 13. Implementation Guidance
+
+### 13.1 Development Phases
+
+**Phase 1: Core Framework (Week 1-2)**
+- Database schema implementation
+- Basic CRUD operations for scenes
+- Scene list view with add/delete
+- Movie Time framework fields (ACTION, EMOTION, MEANING)
+- Auto-save functionality
+- Scene navigation (prev/next)
+
+**Deliverable:** Users can create and edit scenes with Movie Time framework
+
+**Phase 2: AI Integration (Week 3)**
+- Anthropic Claude API integration
+- Scene generation prompts
+- AI draft display and editing
+- Regeneration functionality
+- Error handling and retry logic
+- Loading states and user feedback
+
+**Deliverable:** Users can generate AI scene drafts from framework inputs
+
+**Phase 3: Templates & Enhancement (Week 4)**
+- 10 scene type templates
+- Template selection UI
+- Template application logic
+- Sensory detail AI enhancement
+- Scene purpose checkboxes
+- Character selector integration
+
+**Deliverable:** Users have template shortcuts and AI assistance beyond full generation
+
+**Phase 4: Show Don't Tell Coach (Week 5)**
+- Show Don't Tell analysis prompts
+- Feedback parsing and display
+- Telling phrase highlighting
+- Suggestion application
+- Score calculation and display
+- Coach panel UI
+
+**Deliverable:** Users receive actionable feedback on scene quality
+
+**Phase 5: Integration & Polish (Week 6)**
+- Structure beat linking
+- Character data integration
+- Story context in AI generation
+- Preview mode
+- Mode-specific behavior (Quick/Comprehensive)
+- Responsive design
+- Accessibility improvements
+
+**Deliverable:** Feature fully integrated with rest of app
+
+**Phase 6: Testing & Optimization (Week 7)**
+- User acceptance testing
+- Performance optimization
+- Bug fixes
+- UI/UX refinements
+- Documentation
+- Analytics implementation
+
+**Deliverable:** Production-ready Scene Development Tool
+
+### 13.2 AI Prompt Templates
+
+**Scene Generation Prompt Structure:**
+```
+You are a creative writing assistant helping to develop a scene for a story.
+
+STORY CONTEXT:
+- Story Type: {storyType}
+- Mode: {mode}
+- Overall Stakes: {overallStakes}
+- Theme: {theme}
+
+SCENE FRAMEWORK (Movie Time):
+
+ACTION:
+- Where: {where}
+- What's happening: {what}
+- What happens next: {next}
+
+EMOTION:
+- Characters involved: {characters}
+- Stakes: {stakes}
+- Tone: {emotionalTone}
+
+MEANING:
+- What changed: {change}
+- Why it matters: {significance}
+- Takeaway: {takeaway}
+
+ADDITIONAL CONTEXT:
+- Character archetypes: {archetypes}
+- Structure beat: {structureBeat}
+- Previous scene summary: {previousScene}
+
+Generate a vivid, engaging scene (300-500 words) that:
+1. Shows concrete visual action (don't just tell)
+2. Conveys emotion through physical details and dialogue
+3. Advances the story meaningfully
+4. Uses sensory details appropriate to the location
+5. Maintains the specified emotional tone
+6. Leads to the stated change/meaning
+
+Write in {pov} perspective, in a {style} style suitable for a {storyType}.
+```
+
+**Show Don't Tell Analysis Prompt:**
+```
+You are a writing coach analyzing a scene for "show don't tell" effectiveness.
+
+SCENE TEXT:
+{sceneContent}
+
+Analyze this scene and provide:
+
+1. OVERALL SCORE (1-10):
+- How well does this scene SHOW rather than TELL?
+- Consider visual description, sensory details, character actions
+
+2. TELLING PHRASES (identify 3-5):
+For each phrase that "tells" rather than "shows":
+- Quote the original phrase
+- Suggest a "showing" alternative
+- Explain why in one sentence
+
+3. IMPROVEMENT OPPORTUNITIES:
+- Sensory details that could be added
+- Dialogue opportunities
+- Physical action suggestions
+
+4. TOP PRIORITY:
+What single change would most improve this scene?
+
+Format response as JSON for easy parsing.
+```
+
+**Sensory Detail Enhancement Prompt:**
+```
+Given this scene location and action:
+
+LOCATION: {where}
+ACTION: {what}
+
+Suggest 5 sensory details that would make this scene more vivid:
+- 2 visual details (what can be seen)
+- 1 auditory detail (what can be heard)
+- 1 tactile detail (texture, temperature, physical sensation)
+- 1 smell or taste detail (if appropriate)
+
+Make suggestions brief (10-15 words each) and specific to this scene.
+Return as array of strings.
+```
+
+### 13.3 Component Architecture
+
+**React Component Structure:**
+```
+SceneDevelopmentTool/
+├── index.tsx (main container)
+├── SceneListView.tsx
+│   ├── SceneCard.tsx
+│   ├── AddSceneButton.tsx
+│   └── MovieTimeExplainer.tsx
+├── SceneEditor/
+│   ├── index.tsx
+│   ├── SceneHeader.tsx
+│   ├── ActionSection.tsx
+│   ├── EmotionSection.tsx
+│   ├── MeaningSection.tsx
+│   ├── SceneContentEditor.tsx
+│   └── TemplateSelector.tsx
+├── ShowDontTellCoach/
+│   ├── CoachPanel.tsx
+│   ├── ScoreDisplay.tsx
+│   ├── TellingPhrase.tsx
+│   └── ImprovementSuggestion.tsx
+├── ScenePreview.tsx
+├── hooks/
+│   ├── useScenes.ts
+│   ├── useAIGeneration.ts
+│   ├── useAutoSave.ts
+│   └── useShowDontTell.ts
+└── utils/
+    ├── sceneTemplates.ts
+    ├── aiPrompts.ts
+    └── sceneValidation.ts
+State Management:
+typescript// Scene Context
+interface SceneContextType {
+  scenes: Scene[];
+  currentSceneId: string | null;
+  addScene: () => void;
+  updateScene: (id: string, updates: Partial<Scene>) => void;
+  deleteScene: (id: string) => void;
+  reorderScenes: (newOrder: string[]) => void;
+  generateSceneContent: (id: string) => Promise<void>;
+  analyzeShowDontTell: (id: string) => Promise<void>;
+}
+
+// Scene Data Structure
+interface Scene {
+  id: string;
+  story_id: string;
+  title: string;
+  position: number;
+  structure_beat?: string;
+  template_type?: string;
+  
+  movie_time_action: {
+    where: string;
+    what: string;
+    next: string;
+    sensory_details: string[];
+  };
+  
+  movie_time_emotion: {
+    characters: string;
+    stakes: string;
+    tone: EmotionalTone;
+    internal_feeling?: string;
+    external_show?: string;
+    audience_feeling?: string;
+  };
+  
+  movie_time_meaning: {
+    change: string;
+    significance: string;
+    takeaway: string;
+    purposes: ScenePurpose[];
+  };
+  
+  scene_content?: string;
+  ai_draft_versions: string[];
+  user_notes?: string;
+  
+  completeness_status: 'empty' | 'in_progress' | 'complete' | 'drafted';
+  show_tell_score?: number;
+  last_feedback?: ShowDontTellFeedback;
+  
+  created_at: string;
+  updated_at: string;
+}
+13.4 Testing Strategy
+Unit Tests:
+
+Scene CRUD operations
+Auto-save debouncing
+Scene position calculation
+Completeness status calculation
+Data validation functions
+Template application logic
+
+Integration Tests:
+
+Supabase connection and queries
+RLS policy enforcement
+AI API integration
+Real-time sync
+Auto-save to database
+Scene reordering with DB update
+
+E2E Tests (Cypress/Playwright):
+
+Create new scene flow
+Fill Movie Time framework fields
+Generate AI scene draft
+Edit generated content
+Request Show Don't Tell feedback
+Apply coach suggestions
+Navigate between scenes
+Delete scene with confirmation
+Apply template to scene
+Preview scene
+
+AI Testing:
+
+Prompt effectiveness (manual review)
+Generation quality across story types
+Show Don't Tell accuracy
+Sensory detail relevance
+Response time under load
+Error handling for API failures
+
+Accessibility Testing:
+
+Keyboard-only navigation
+Screen reader compatibility
+Color contrast validation
+Focus management
+ARIA label accuracy
+
+13.5 Analytics Implementation
+Events to Track:
+javascript// Scene Creation
+trackEvent('scene_created', {
+  story_id: storyId,
+  mode: userMode,
+  template_used: templateType || 'none',
+  source: 'manual' | 'story_map' | 'structure_beat'
+});
+
+// AI Generation
+trackEvent('scene_generated', {
+  scene_id: sceneId,
+  generation_time_ms: duration,
+  user_edited: hasEdits,
+  regenerated: isRegeneration
+});
+
+// Show Don't Tell
+trackEvent('show_tell_analyzed', {
+  scene_id: sceneId,
+  score: showTellScore,
+  suggestions_applied: appliedCount,
+  total_suggestions: totalCount
+});
+
+// Scene Completion
+trackEvent('scene_completed', {
+  scene_id: sceneId,
+  time_spent_minutes: timeSpent,
+  framework_completion: {
+    action: actionComplete,
+    emotion: emotionComplete,
+    meaning: meaningComplete
+  },
+  template_used: templateType,
+  ai_draft_used: hasAIDraft
+});
+
+// Feature Usage
+trackEvent('feature_used', {
+  feature: 'sensory_enhancement' | 'template' | 'preview' | 'coach',
+  scene_id: sceneId
+});
+Metrics Dashboard:
+
+Scene creation rate (per day/week)
+Average scenes per story
+Framework section completion rates
+AI generation usage and acceptance
+Show Don't Tell score trends
+Template popularity
+Feature adoption rates
+Time to complete scene
+Scene edit frequency
+
+13.6 Documentation Needs
+User Documentation:
+
+Movie Time framework explainer
+Video tutorial: "Your First Scene"
+Template usage guide
+Show Don't Tell Coach interpretation
+Best practices for scene development
+FAQ section
+
+Developer Documentation:
+
+Component API reference
+State management guide
+AI prompt customization
+Database schema documentation
+Testing procedures
+Deployment checklist
+
+API Documentation:
+
+Supabase functions for scenes
+Claude API integration patterns
+Error codes and handling
+Rate limiting approach
+
+
+Appendix: Scene Templates Detail
+Template 1: Opening Scene
+Pre-filled Framework:
+
+ACTION Where: "The ordinary world - where does your character live/work?"
+ACTION What: "A typical day or moment that shows normalcy"
+EMOTION Tone: Trust or neutral
+MEANING Change: "Establish the baseline before change comes"
+
+Template 2: Inciting Incident
+Pre-filled Framework:
+
+ACTION Where: "Where the disruption occurs"
+ACTION What: "The event that changes everything"
+ACTION Next: "The immediate reaction/consequence"
+EMOTION Tone: Surprise or fear
+EMOTION Stakes: "Everything comfortable is now at risk"
+MEANING Change: "The old world is gone"
+
+Template 3: Character Introduction
+Pre-filled Framework:
+
+ACTION What: "The character's defining action or moment"
+EMOTION Who: "[Character name] and their immediate impact"
+MEANING Significance: "What this character represents in the story"
+
+Template 4: Revelation
+Pre-filled Framework:
+
+ACTION What: "The moment of discovery or realization"
+EMOTION Tone: Surprise or sadness
+MEANING Change: "What new understanding emerges"
+MEANING Significance: "Why this truth matters"
+
+Template 5: Conflict Scene
+Pre-filled Framework:
+
+ACTION What: "The confrontation or obstacle"
+EMOTION Tone: Anger or fear
+EMOTION Stakes: "What's being fought for"
+MEANING Change: "Who gains ground, who loses"
+
+Template 6: Low Point
+Pre-filled Framework:
+
+ACTION What: "The failure or defeat"
+EMOTION Tone: Sadness or despair
+EMOTION Stakes: "Everything seems lost"
+MEANING Change: "The lesson learned in darkness"
+
+Template 7: Breakthrough
+Pre-filled Framework:
+
+ACTION What: "The moment of insight or renewed determination"
+EMOTION Tone: Hope or anticipation
+MEANING Change: "The new path forward becomes clear"
+
+Template 8: Climax
+Pre-filled Framework:
+
+ACTION What: "The ultimate challenge or confrontation"
+EMOTION Tone: Fear + anticipation (high intensity)
+EMOTION Stakes: "Everything on the line"
+MEANING Change: "Who the character has become"
+
+Template 9: Resolution
+Pre-filled Framework:
+
+ACTION What: "Settling into the new normal"
+EMOTION Tone: Trust or joy or bittersweet sadness
+MEANING Change: "How the world has changed"
+
+Template 10: Closing Scene
+Pre-filled Framework:
+
+ACTION Where: "The final location - often mirrors opening"
+ACTION What: "The final image we leave readers with"
+EMOTION Tone: Reflective (varies by story)
+MEANING Takeaway: "The lasting message or feeling"

@@ -1,0 +1,1591 @@
+2. Goal
+Enable writers to add moral depth and complexity to their stories using Jonathan Haidt's six fundamental moral conflicts, helping them create nuanced narratives that explore ethical dimensions, tragic choices, and the gray areas between right and wrong.
+Key Outcomes:
+
+Writers understand and apply moral foundations to their stories
+Stories gain thematic depth beyond simple good vs. evil
+Characters' moral positions are clearly defined and tested
+Complex moral dilemmas create engaging tension
+Audiences connect emotionally through moral resonance
+AI suggests moral dimensions implicit in story elements
+Integration with character archetypes creates coherent moral frameworks
+
+
+3. User Story
+As a writer crafting a meaningful story
+I want to explore moral conflicts and ethical dilemmas within my narrative using established psychological frameworks
+So that I can create stories with thematic depth, complex characters facing genuine moral choices, and themes that resonate with diverse audiences
+Acceptance Criteria:
+
+User can select from six moral conflict frameworks
+User can choose complexity level (simple, two rights, lesser evil)
+Moral positions can be assigned to characters
+Moral mapping tool visualizes character positions and journeys
+AI analyzes story for implicit moral conflicts
+AI suggests moral complexity enhancements
+Moral framework integrates with archetype selections
+Moral stakes can be added to scenes
+Questions guide user through moral exploration
+Examples demonstrate each conflict type
+All data saves to database automatically
+
+
+4. Functional Requirements
+4.1 Moral Conflict Selection
+Six Moral Conflicts (Based on Jonathan Haidt's Moral Foundations Theory):
+1. Care vs. Harm
+
+Core Tension: Protecting others from suffering versus causing pain or neglect
+Icon: Heart (❤️)
+Color Theme: Pink (#EC4899)
+Description: Stories about compassion, protection, preventing cruelty, and alleviating suffering
+Good Side: Care, compassion, nurturing, protection
+Bad Side: Harm, cruelty, neglect, causing suffering
+
+Examples:
+
+Healthcare access and medical ethics
+Animal welfare and protection
+Child protection services
+Humanitarian aid and disaster relief
+Elder care and dignity
+Mental health support
+
+Story Applications:
+
+Doctor choosing between saving one patient or many
+Parent sacrificing career to care for child
+Company prioritizing worker safety over profits
+Rescuer risking life to save stranger
+
+Guiding Questions:
+
+Who needs protection in your story?
+What harm is threatened or occurring?
+What sacrifice is required to provide care?
+Who prioritizes care? Who dismisses it?
+What happens when care becomes overprotection?
+
+2. Fairness vs. Cheating
+
+Core Tension: Justice and equality versus deception and manipulation
+Icon: Scale (⚖️)
+Color Theme: Blue (#3B82F6)
+Description: Stories about justice, equality, playing by the rules, and exposing corruption
+Good Side: Fairness, justice, honesty, equal treatment
+Bad Side: Cheating, deception, fraud, exploitation
+
+Examples:
+
+Whistleblower exposing corporate fraud
+Social justice movements
+Legal battles for equal rights
+Fighting corruption and bribery
+Fair competition vs. monopolies
+Meritocracy vs. nepotism
+
+Story Applications:
+
+Employee exposing workplace discrimination
+Athlete competing clean vs. doping competitors
+Journalist uncovering government corruption
+Student reporting academic cheating
+
+Guiding Questions:
+
+What injustice exists in your story?
+Who is playing by the rules?
+What does "fair" mean in this context?
+Who benefits from unfairness?
+When might fairness conflict with other values?
+
+3. Liberty vs. Oppression
+
+Core Tension: Freedom and autonomy versus domination and control
+Icon: Shield (🛡️)
+Color Theme: Green (#10B981)
+Description: Stories about freedom, independence, breaking constraints, and resisting tyranny
+Good Side: Liberty, freedom, autonomy, independence
+Bad Side: Oppression, domination, tyranny, control
+
+Examples:
+
+Revolution and resistance movements
+Civil rights and liberties
+Escaping abusive relationships
+Fighting authoritarian regimes
+Privacy vs. surveillance
+Individual rights vs. collective control
+
+Story Applications:
+
+Citizens overthrowing dictator
+Employee leaving controlling company culture
+Artist defying censorship
+Teenager asserting independence from overbearing parents
+
+Guiding Questions:
+
+Who is being constrained?
+What freedom is at stake?
+Is the limitation justified? Who decides?
+What price comes with freedom?
+When does liberty become chaos?
+
+4. Authority vs. Subversion
+
+Core Tension: Respect for structure and tradition versus rebellion and questioning
+Icon: Crown (👑)
+Color Theme: Purple (#8B5CF6)
+Description: Stories about hierarchy, tradition, institutions, and challenging the status quo
+Good Side: Order, tradition, legitimate authority, respect
+Bad Side: Tyranny, unjust hierarchy, blind obedience
+
+Story Applications:
+
+Military questioning illegal orders
+Student challenging outdated educational system
+Religious reformation
+Corporate whistleblower vs. chain of command
+
+Guiding Questions:
+
+What structure or tradition is being challenged?
+Is the authority legitimate?
+Is the rebellion justified?
+What maintains social order?
+When should we question authority?
+
+5. Loyalty vs. Betrayal
+
+Core Tension: Group commitment and solidarity versus abandoning allies
+Icon: Users linked (👥)
+Color Theme: Teal (#14B8A6)
+Description: Stories about allegiance, belonging, team identity, and the cost of disloyalty
+Good Side: Loyalty, solidarity, belonging, commitment
+Bad Side: Betrayal, abandonment, disloyalty
+
+Examples:
+
+Whistleblower vs. company loyalty
+Family ties vs. personal values
+National loyalty vs. global ethics
+Friend groups and social bonds
+Team dynamics and sports
+
+Story Applications:
+
+Spy choosing country vs. friend
+Employee exposing company vs. colleagues
+Gang member leaving vs. staying loyal
+Sibling testifying against family
+
+Guiding Questions:
+
+What group/person commands loyalty?
+What greater cause might override loyalty?
+What would betrayal accomplish?
+What would it cost?
+Who defines betrayal?
+
+6. Purity vs. Degradation
+
+Core Tension: Sanctity, cleanliness, and transcendence versus contamination and corruption
+Icon: Sparkles (✨)
+Color Theme: Gold (#F59E0B)
+Description: Stories about sanctity, contamination, maintaining standards, and moral pollution
+Good Side: Purity, sanctity, cleanliness, integrity
+Bad Side: Degradation, contamination, corruption, pollution
+
+Examples:
+
+Environmental protection
+Food safety and purity
+Religious/spiritual sanctity
+Moral integrity vs. compromise
+Cultural preservation
+Scientific ethics and integrity
+
+Story Applications:
+
+Environmental activist fighting pollution
+Scientist maintaining research integrity
+Religious figure resisting corruption
+Artist refusing to compromise vision
+
+Guiding Questions:
+
+What is being contaminated, polluted, or degraded?
+What purity or sanctity is being protected?
+Is this literal or symbolic?
+Who defines what's pure?
+Can purity be taken too far?
+
+4.2 Moral Conflict Interface
+Conflict Selection View:
+Display 6 moral conflict cards in grid (2x3 layout):
+┌─────────────┬─────────────┬─────────────┐
+│ ❤️ Care vs.  │ ⚖️ Fairness │ 🛡️ Liberty  │
+│    Harm     │ vs. Cheat   │ vs. Oppress │
+│ [Select]    │ [Select]    │ [Select]    │
+├─────────────┼─────────────┼─────────────┤
+│ 👑 Authority│ 👥 Loyalty  │ ✨ Purity   │
+│ vs. Subvert │ vs. Betray  │ vs. Degrade │
+│ [Select]    │ [Select]    │ [Select]    │
+└─────────────┴─────────────┴─────────────┘
+Each Card Contains:
+
+Icon and conflict name
+One-sentence description
+"Learn More" button (expands to show full details)
+"Select" button
+
+Card Expansion (on "Learn More"):
+
+Full description (2-3 sentences)
+4-6 real-world examples
+3-4 story applications
+4-5 guiding questions
+"Use This Conflict" button
+
+Selection Behavior:
+
+Can select 1 primary conflict (required)
+Can add 1 secondary conflict (optional)
+Selected cards highlight in color theme
+Badge shows "Primary" or "Secondary"
+
+4.3 Complexity Level Selection
+After Conflict Selection:
+Display complexity selector with three options:
+Option 1: Simple Moral Story (Clear Good vs. Evil)
+┌───────────────────────────────────────┐
+│ ⭐ Simple Conflict                    │
+│                                       │
+│ Clear moral sides: Good vs. Evil     │
+│                                       │
+│ Your hero represents the good side   │
+│ Your villain represents the bad side │
+│                                       │
+│ Example: Nonprofit providing clean   │
+│ water (Care) vs. companies polluting │
+│ water sources (Harm)                 │
+│                                       │
+│ [Choose Simple]                       │
+└───────────────────────────────────────┘
+Best for:
+
+Inspirational stories
+Children's narratives
+Motivational content
+Clear cause advocacy
+Traditional hero journeys
+
+Option 2: Two Rights Colliding (Tragic Choice)
+┌───────────────────────────────────────┐
+│ ⚡ Two Rights in Conflict             │
+│                                       │
+│ Both sides have moral justification  │
+│ No perfect answer exists              │
+│                                       │
+│ Example: Whistleblower must choose   │
+│ between Fairness (expose wrongdoing) │
+│ and Loyalty (betray company/friends) │
+│                                       │
+│ The tension: Can't honor both fully  │
+│                                       │
+│ [Choose Two Rights]                   │
+└───────────────────────────────────────┘
+Best for:
+
+Sophisticated dramas
+Ethical dilemmas
+Character-driven stories
+Professional ethics
+Complex real-world issues
+
+Option 3: Lesser Evil Choice (No Good Options)
+┌───────────────────────────────────────┐
+│ 🌪️ Lesser of Two Evils               │
+│                                       │
+│ Both options cause harm               │
+│ Must choose least damaging path       │
+│                                       │
+│ Example: Public health lockdowns      │
+│ (Oppression) restrict Liberty but    │
+│ prevent disease spread (Care)         │
+│                                       │
+│ The pain: Both choices have cost      │
+│                                       │
+│ [Choose Lesser Evil]                  │
+└───────────────────────────────────────┘
+Best for:
+
+War stories
+Crisis scenarios
+Political dramas
+Survival narratives
+Impossible choices
+
+4.4 Moral Position Definition
+For Simple Complexity:
+Two text areas for defining positions:
+Your Hero represents: [GOOD SIDE]
+┌─────────────────────────────────────────────┐
+│ How does your hero embody [Good Side]?     │
+│ What actions show this?                     │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+
+Your Villain represents: [BAD SIDE]
+┌─────────────────────────────────────────────┐
+│ How does the antagonist embody [Bad Side]? │
+│ What makes them the villain?                │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+AI Assistance:
+
+Button: "✨ Suggest Positions"
+AI generates examples based on story context
+User can accept, edit, or regenerate
+
+For Two Rights Complexity:
+Define both conflicting values:
+Right #1: [First Moral Value]
+┌─────────────────────────────────────────────┐
+│ What moral good does this represent?        │
+│ Who advocates for this position?            │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+
+Right #2: [Second Moral Value]
+┌─────────────────────────────────────────────┐
+│ What moral good does this represent?        │
+│ Who advocates for this position?            │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+
+The Tragic Choice:
+┌─────────────────────────────────────────────┐
+│ Why can't both be honored fully?            │
+│ What makes this choice so difficult?        │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+For Lesser Evil Complexity:
+Define both harmful options:
+Greater Evil: [Worse Outcome]
+┌─────────────────────────────────────────────┐
+│ What terrible outcome must be avoided?      │
+│ What happens if we do nothing?              │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+
+Lesser Evil: [Chosen Harm]
+┌─────────────────────────────────────────────┐
+│ What harm must we cause to prevent greater? │
+│ Why is this the "better" bad choice?        │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+
+The Painful Reality:
+┌─────────────────────────────────────────────┐
+│ What cost does this choice exact?           │
+│ Who suffers from the "better" option?       │
+│                                             │
+│ [Textarea: 300 char max]                    │
+└─────────────────────────────────────────────┘
+4.5 Moral Mapping Tool
+Visual Representation of Moral Spectrum:
+┌──────────────────────────────────────────────┐
+│         Moral Spectrum Visualizer            │
+├──────────────────────────────────────────────┤
+│                                              │
+│  [CARE]                              [HARM]  │
+│    │                                    │    │
+│    ├─●──────────────────────────────────┤    │
+│    │ Hero (Sarah)                       │    │
+│    │                                    │    │
+│    ├────────○────────────────────────── │    │
+│    │     Antagonist (Marcus)            │    │
+│    │                                    │    │
+│    ├──────────────────────⚡─────────────┤    │
+│    │              Decision Point        │    │
+│                                              │
+│  [Green zone]  [Yellow zone]  [Red zone]    │
+│  (Strong Care) (Neutral)      (Strong Harm) │
+└──────────────────────────────────────────────┘
+Interactive Features:
+
+Drag character markers to position them on spectrum
+Add decision points (⚡) for key moral choices
+Show movement arrows for character moral journeys
+Color gradient: Green (good side) → Yellow (neutral) → Red (bad side)
+Timeline view: Show positions at different story points
+
+Character Markers:
+
+Circle (○) for characters
+Lightning bolt (⚡) for key decisions
+Arrow (→) for transformation direction
+Color-coded by character
+
+4.6 Character Moral Alignment
+For Each Major Character:
+Create moral profile:
+Character: [Name] - [Archetype]
+
+Moral Position on [Conflict]:
+┌─────────────────────────────────────┐
+│ Starting Position: [Slider 1-10]   │
+│ ●──────────○──────────              │
+│ [Good Side]    [Middle]  [Bad Side] │
+└─────────────────────────────────────┘
+
+Core Values (Select up to 3):
+☐ Protection/Care
+☐ Justice/Fairness  
+☐ Freedom/Liberty
+☐ Loyalty/Belonging
+☐ Order/Tradition
+☐ Purity/Integrity
+
+Moral Lines (Won't Cross):
+┌─────────────────────────────────────┐
+│ What won't this character do?       │
+│ What principles won't they violate? │
+│                                     │
+│ [Textarea: 200 char]                │
+└─────────────────────────────────────┘
+
+Moral Blind Spots:
+┌─────────────────────────────────────┐
+│ What moral dimension do they ignore?│
+│ What consequences don't they see?   │
+│                                     │
+│ [Textarea: 200 char]                │
+└─────────────────────────────────────┘
+
+Moral Transformation:
+Ending Position: [Slider 1-10]
+●──────────────────○──────            
+[Shows movement from start to end]
+AI Assistance:
+
+"✨ Suggest Moral Profile" based on archetype
+Archetypes have natural moral alignments:
+
+Caregiver → Care vs. Harm
+Ruler → Authority vs. Subversion
+Rebel → Liberty vs. Oppression
+Sage → Fairness vs. Cheating
+Companion → Loyalty vs. Betrayal
+
+
+
+4.7 AI Moral Analysis
+Feature: "🤖 Analyze Moral Depth"
+AI Reviews Story Elements:
+
+Character archetypes
+Conflict description
+Stakes
+Story type
+Existing scenes (if any)
+
+AI Provides:
+1. Implicit Moral Conflicts:
+"Your story has an implicit Care vs. Harm conflict:
+- Sarah (Caregiver) wants to protect vulnerable users
+- The company prioritizes profit over user wellbeing
+- Consider making this moral dimension explicit"
+2. Moral Complexity Suggestions:
+"Add depth by making the antagonist believe they're right:
+- What if Marcus thinks efficiency helps MORE people?
+- 'We can't save everyone' vs. 'We must try anyway'
+- This creates a Two Rights conflict"
+3. Character Moral Enhancement:
+"Your hero's archetype (Rebel) naturally aligns with
+Liberty vs. Oppression. Consider:
+- What freedom is being restricted?
+- Who benefits from the constraint?
+- Is rebellion always justified?"
+4. Moral Stakes Integration:
+"Your stakes are practical (money, time, success).
+Add a moral dimension:
+- It's not just about winning, but winning the right way
+- What moral line might be tempted to cross?
+- What happens if they compromise their values?"
+5. Decision Point Recommendations:
+"Key scenes for moral dilemmas:
+- Scene 3: Force character to choose between Loyalty and Fairness
+- Scene 7: Test their commitment to Care when it's costly
+- Scene 10: Final choice reveals true moral position"
+4.8 Integration Points
+With Archetype Builder:
+
+Archetypes suggest natural moral alignments
+Moral conflict reinforces archetype choice
+Dark sides connect to moral failures
+Archetype journey can be moral journey
+
+With Scene Development:
+
+"Moral Stakes" field in EMOTION section
+Scenes can be tagged with moral conflict moments
+Show Don't Tell coach checks moral clarity
+Key decisions mapped to scene cards
+
+With Visual Story Map:
+
+Moral conflict markers on timeline
+Character moral journey tracks
+Transformation points highlighted
+Moral intensity overlay option
+
+With Structure:
+
+Structure beats suggest moral test points
+Ordeal/Crisis often includes moral choice
+Resolution shows moral outcome
+Midpoint can be moral revelation
+
+4.9 Guided Questions Workflow
+Question Flow for Each Conflict:
+When user selects conflict, present questions one at a time:
+Q1: Identification
+[Icon] [Conflict Name]
+
+In your story, [question specific to conflict]
+
+Example: "Who needs protection in your story?"
+
+[Text input field]
+[Skip] [Next →]
+Q2: Sides/Positions
+[Icon] [Conflict Name]
+
+Who represents [Good Side]? What do they believe?
+
+[Text input field]
+
+Who represents [Bad Side]? What do they believe?
+
+[Text input field]
+[← Back] [Next →]
+Q3: Stakes
+[Icon] [Conflict Name]
+
+What's at stake morally?
+What happens if [Good Side] loses?
+
+[Text input field]
+[← Back] [Next →]
+Q4: Testing
+[Icon] [Conflict Name]
+
+How will this moral conflict test your characters?
+What choice must they make?
+
+[Text input field]
+[← Back] [Finish]
+Progress Indicator:
+Step 1 of 4: [████░░░░] 25%
+4.10 Mode-Specific Behavior
+Quick Mode:
+
+"Does your story have a moral dimension?" (Yes/No)
+If Yes:
+
+AI suggests most relevant conflict
+Show conflict card with example
+Ask: "Which side is your hero on?"
+Simple text input for hero and villain positions
+Skip mapping and alignment tools
+
+
+If No:
+
+Skip entirely, proceed to next step
+
+
+Total time: 2-3 minutes
+
+Comprehensive Mode:
+
+Full conflict selection interface (all 6 cards)
+Complexity level selection required
+Complete position definition
+Character moral alignment for all major characters
+Moral mapping tool available
+AI analysis and suggestions
+Integration with scenes and structure
+Total time: 8-12 minutes
+
+
+5. Data Requirements
+5.1 Supabase Schema
+Extends stories table with moral conflict fields:
+sql-- Add moral conflict columns to stories table
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS
+  moral_conflict_primary VARCHAR(50), -- e.g., 'care_harm'
+  moral_conflict_secondary VARCHAR(50),
+  moral_complexity VARCHAR(20), -- 'simple', 'two_rights', 'lesser_evil'
+  moral_data JSONB DEFAULT '{}';
+
+-- moral_data structure:
+{
+  "primary_conflict": {
+    "id": "care_harm",
+    "hero_position": "Sarah fights to protect vulnerable users...",
+    "villain_position": "Marcus prioritizes company profit over safety...",
+    "stakes": "If Care loses, vulnerable people suffer..."
+  },
+  "secondary_conflict": {
+    "id": "fairness_cheating",
+    "description": "..."
+  },
+  "complexity_details": {
+    "type": "two_rights",
+    "right_one": "Loyalty to company and team",
+    "right_two": "Fairness to users being harmed",
+    "tragic_choice": "Can't protect users without betraying team",
+    "greater_evil": "",
+    "lesser_evil": ""
+  },
+  "character_alignments": [
+    {
+      "character_name": "Sarah",
+      "archetype": "Caregiver",
+      "starting_position": 2,  // 1-10 scale, 1=good side, 10=bad side
+      "ending_position": 1,
+      "core_values": ["protection", "fairness"],
+      "moral_lines": "Won't harm innocent people, even to win",
+      "blind_spots": "Doesn't see how protection can become overreach"
+    }
+  ],
+  "decision_points": [
+    {
+      "scene_id": "uuid",
+      "description": "Must choose between loyalty and fairness",
+      "moral_test": "two_rights",
+      "position": 35  // % through story
+    }
+  ],
+  "ai_suggestions": {
+    "implicit_conflicts": ["..."],
+    "complexity_ideas": ["..."],
+    "character_enhancements": ["..."],
+    "decision_recommendations": ["..."]
+  }
+}
+```
+
+### 5.2 Data Relationships
+
+**Dependencies:**
+- Connects to character/archetype data
+- References scenes for moral decision points
+- Links to story stakes
+- Integrates with structure beats
+
+**Computed Data:**
+- Moral journey visualization from character positions
+- Decision point timeline
+- Conflict intensity tracking
+
+### 5.3 Data Validation
+
+**Required Fields:**
+- moral_conflict_primary (if user engages with feature)
+- moral_complexity (if primary conflict selected)
+- At least hero_position OR right_one/greater_evil
+
+**Field Constraints:**
+- moral_conflict_primary: Must be valid conflict ID
+- moral_complexity: Must be 'simple', 'two_rights', or 'lesser_evil'
+- Position sliders: 1-10 integer
+- Text fields: Character limits as specified
+
+**Optional Fields:**
+- moral_conflict_secondary
+- All character_alignments
+- decision_points
+- AI suggestions
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Visual Design System
+
+**Color Themes by Conflict:**
+- Care vs. Harm: Pink (#EC4899, #FCE7F3)
+- Fairness vs. Cheating: Blue (#3B82F6, #DBEAFE)
+- Liberty vs. Oppression: Green (#10B981, #D1FAE5)
+- Authority vs. Subversion: Purple (#8B5CF6, #EDE9FE)
+- Loyalty vs. Betrayal: Teal (#14B8A6, #CCFBF1)
+- Purity vs. Degradation: Gold (#F59E0B, #FEF3C7)
+
+**Icons:**
+- Care/Harm: Heart
+- Fairness/Cheating: Scale
+- Liberty/Oppression: Shield
+- Authority/Subversion: Crown
+- Loyalty/Betrayal: Users linked
+- Purity/Degradation: Sparkles
+
+**Typography:**
+- Conflict names: Bold, 18px
+- Descriptions: Regular, 14px
+- Questions: Medium, 15px
+- Examples: Italic, 13px
+
+### 6.2 Layout Structure
+
+**Conflict Selection Grid:**
+```
+┌────────────────────────────────────────────┐
+│ ⚖️ Moral Conflict Framework                │
+│ Add depth through moral dimensions          │
+├────────────────────────────────────────────┤
+│                                            │
+│ [Card 1]  [Card 2]  [Card 3]              │
+│ [Card 4]  [Card 5]  [Card 6]              │
+│                                            │
+│ Primary: [Selected]  Secondary: [None]     │
+│                                            │
+│ [Continue →]                               │
+└────────────────────────────────────────────┘
+```
+
+**Complexity Selection:**
+```
+┌────────────────────────────────────────────┐
+│ How complex is your moral story?           │
+├────────────────────────────────────────────┤
+│                                            │
+│ ┌────────┐  ┌────────┐  ┌────────┐       │
+│ │Simple  │  │2 Rights│  │Lesser  │       │
+│ │Good vs │  │Collide │  │Evil    │       │
+│ │Evil    │  │        │  │        │       │
+│ │[Select]│  │[Select]│  │[Select]│       │
+│ └────────┘  └────────┘  └────────┘       │
+└────────────────────────────────────────────┘
+```
+
+**Moral Mapping Tool:**
+```
+┌────────────────────────────────────────────┐
+│ Moral Spectrum: Care ⟷ Harm              │
+├────────────────────────────────────────────┤
+│                                            │
+│  [Care]          [Neutral]          [Harm]│
+│    ●─────────────○─────────────⚡─────────│
+│  Hero(1)      Villain(5)    Decision(8)   │
+│                                            │
+│  Story Timeline:                           │
+│  Start  ●─────────────→○  End             │
+│        (Care)       (Neutral)              │
+└────────────────────────────────────────────┘
+```
+
+### 6.3 Interaction Patterns
+
+**Card Selection:**
+- Hover: Subtle lift and shadow
+- Click: Expands to show full details
+- Selected: Colored border and "Selected" badge
+- Deselect: Click X on badge
+
+**Slider Interactions:**
+- Drag thumb to position character
+- Click track to jump to position
+- Numbers show position (1-10)
+- Color changes: Green → Yellow → Red
+
+**AI Analysis:**
+- Loading: "Analyzing moral dimensions..."
+- Results: Expandable sections
+- Suggestions: Clickable to apply
+- Dismiss: Can close and recall later
+
+### 6.4 Responsive Behavior
+
+**Desktop (>1024px):**
+- 3x2 grid for conflict cards
+- Side-by-side complexity options
+- Full mapping tool with controls
+
+**Tablet (768px-1024px):**
+- 2x3 grid for conflict cards
+- Stacked complexity options
+- Simplified mapping tool
+
+**Mobile (<768px):**
+- 1x6 vertical card list
+- Single-column complexity selection
+- Text-based positioning (no sliders)
+- Simplified moral spectrum
+
+### 6.5 Accessibility
+
+**Keyboard Navigation:**
+- Tab through conflict cards
+- Enter to select/expand
+- Arrow keys for sliders
+- Escape to close modals
+
+**Screen Reader:**
+- ARIA labels for all conflicts
+- Slider values announced
+- Position descriptions
+- Complexity explanations
+
+**Visual Accessibility:**
+- High contrast mode for spectrum
+- Text labels in addition to colors
+- Pattern fills for colorblind users
+- Minimum 4.5:1 contrast ratio
+
+---
+
+## 7. Success Metrics
+
+### 7.1 Adoption Metrics
+
+**Primary:**
+- **Moral Framework Usage:** 40% of Comprehensive Mode users engage with moral conflicts
+  - Target: 60% by Month 3
+  - Quick Mode: 15% (optional feature)
+
+- **Complexity Distribution:**
+  - Simple: 60% of moral framework users
+  - Two Rights: 30%
+  - Lesser Evil: 10%
+
+**Secondary:**
+- Conflict popularity (which conflicts most used)
+- Secondary conflict adoption: 25% add second conflict
+- AI analysis request rate: 50% of moral users
+- Character alignment completion: 70% fill for protagonist
+
+### 7.2 Quality Metrics
+
+**Story Depth:**
+- Stories with moral framework have higher thematic depth ratings
+- User satisfaction with moral complexity: 4.0+/5.0
+- "Moral framework added depth": 75% agree
+
+**Integration Effectiveness:**
+- Moral-archetype alignment accuracy: 80%
+- Moral decision points in scenes: Average 3 per story
+- Character transformation tracking: 60% define moral journey
+
+### 7.3 Engagement Metrics
+
+**Feature Usage:**
+- Time spent on moral framework: 5-8 minutes
+- Questions answered per conflict: Average 3.5 of 4
+- Mapping tool usage: 35% create visual map
+- Character alignment: 60% define for 2+ characters
+
+**AI Interaction:**
+- Analysis request rate: 50%
+- Suggestion acceptance: 40%
+- Position generation: 30% use AI suggestions
+
+### 7.4 Business Impact
+
+**Story Completion:**
+- Stories with moral framework: 10% higher completion
+- Perceived value: "This made my story more meaningful" 70%+
+- Feature satisfaction: 4.2+/5.0
+
+**User Retention:**
+- Moral framework users 1.5x more likely to return
+- Premium conversion (future): 1.8x for moral users
+
+---
+
+## 8. Dependencies
+
+### 8.1 Feature Dependencies
+
+**Required:**
+- ✅ Archetype Builder (Priority B) - Character moral alignments
+- 🔲 Basic Conflict Definition - Moral adds dimension to conflict
+- ✅ Story Type Selection - Informs moral relevance
+
+**Integrates With:**
+- 🔲 Scene Development Tool (Priority D) - Moral stakes in scenes
+- 🔲 Visual Story Map (Priority C) - Moral markers on map
+- 🔲 Structure Selector - Moral tests at key beats
+
+**Enhanced By:**
+- 🔲 Full AI Integration - Better analysis
+- 🔲 Character Development - Deeper alignment
+
+### 8.2 Technical Dependencies
+
+**Frontend:**
+- React state management
+- Slider components
+- Modal/dialog system
+- Expandable card components
+
+**AI:**
+- Claude API for analysis
+- Moral framework prompts
+- Suggestion generation
+- Position recommendations
+
+**Database:**
+- JSONB storage for complex moral data
+- Real-time updates
+- Character data queries
+
+---
+
+## 9. User Acceptance Criteria
+
+### 9.1 Core Functionality
+
+**Conflict Selection:**
+- [ ] User can view all 6 moral conflicts
+- [ ] Each card shows icon, name, brief description
+- [ ] "Learn More" expands to full details
+- [ ] Can select 1 primary conflict
+- [ ] Can add 1 optional secondary conflict
+- [ ] Selected cards highlighted with badge
+- [ ] Can deselect conflicts
+
+**Complexity Selection:**
+- [ ] Three complexity options displayed clearly
+- [ ] Each shows example and best use cases
+- [ ] Can select one complexity level
+- [ ] Selection advances to position definition
+- [ ] Can go back to change complexity
+
+**Position Definition:**
+- [ ] Fields adapt to complexity level chosen
+- [ ] Simple: Hero and Villain fields
+- [ ] Two Rights: Both rights + tragic choice
+- [ ] Lesser Evil: Both evils + painful reality
+- [ ] AI suggestion button works
+- [ ] Can edit AI suggestions
+- [ ] Character limits enforced
+
+### 9.2 Moral Mapping
+
+**Spectrum Visualization:**
+- [ ] Shows moral axis with labels
+- [ ] Character markers draggable
+- [ ] Position numbers display (1-10)
+- [ ] Color gradient shows good→neutral→bad
+- [ ] Can add decision point markers
+- [ ] Timeline shows moral journey
+
+**Character Alignment:**
+- [ ] Can create profile for each character
+- [ ] Starting position slider works
+- [ ] Ending position slider works
+- [ ] Can select core values
+- [ ] Can define moral lines
+- [ ] Can describe blind spots
+- [ ] Archetype suggests default alignment
+
+### 9.3 AI Analysis
+
+**Analysis Request:**
+- [ ] "Analyze Moral Depth" button visible
+- [ ] Analysis completes in <5 seconds
+- [ ] Shows loading state
+- [ ] Results display in organized sections
+- [ ] Can dismiss and recall analysis
+
+**Analysis Content:**
+- [ ] Identifies implicit conflicts
+- [ ] Suggests complexity enhancements
+- [ ] Recommends character improvements
+- [ ] Suggests decision points
+- [ ] All suggestions actionable
+- [ ] Can apply suggestions
+- [ ] Can ignore suggestions
+
+### 9.4 Integration
+
+**Archetype Integration:**
+- [ ] Archetype suggests moral alignment
+- [ ] Caregiver → Care vs. Harm works
+- [ ] Rebel → Liberty vs. Oppression works
+- [ ] Other archetypes map correctly
+- [ ] Can override suggestions
+
+**Scene Integration:**
+- [ ] Moral stakes field in scene editor
+- [ ] Can link decision points to scenes
+- [ ] Scene tags include moral moments
+
+**Map Integration:**
+- [ ] Moral conflict markers on timeline
+- [ ] Character moral journey tracks
+- [ ] Transformation points highlighted
+
+### 9.5 Mode-Specific
+
+**Quick Mode:**
+- [ ] Yes/No question about moral dimension
+- [ ] AI suggests conflict if yes
+- [ ] Simple hero/villain position fields
+- [ ] Can skip if answer no
+- [ ] Total time under 3 minutes
+
+**Comprehensive Mode:**
+- [ ] All 6 conflicts available
+- [ ] Full complexity selection
+- [ ] Complete position definition
+- [ ] Character alignment tools
+- [ ] Mapping visualization
+- [ ] AI analysis available
+- [ ] Total time 8-12 minutes
+
+---
+
+## 10. Risks & Mitigations
+
+### 10.1 Conceptual Risks
+
+**Risk: Framework Too Academic**
+- **Impact:** Users intimidated by moral foundations theory
+- **Probability:** Medium
+- **Mitigation:**
+  - Use simple, relatable language
+  - Lead with examples, not theory
+  - Never mention "Jonathan Haidt" or academic concepts
+  - Focus on story applications
+  - Optional "Learn More" for interested users
+  - Tutorial uses familiar story examples
+
+**Risk: Overwhelming Complexity**
+- **Impact:** Users confused by six conflicts plus complexity levels
+- **Probability:** Medium-High
+- **Mitigation:**
+  - Progressive disclosure (one step at a time)
+  - Clear "Skip This" option prominent
+  - Quick Mode makes it optional
+  - AI can pre-select most relevant
+  - Visual hierarchy emphasizes simple path
+  - Examples show it's not as hard as it looks
+
+**Risk: Moral Relativism Concerns**
+- **Impact:** Users uncomfortable with presenting "bad" side as justified
+- **Probability:** Low-Medium
+- **Mitigation:**
+  - Frame as "understanding motivations" not endorsing
+  - Emphasize this creates realistic, nuanced stories
+  - Clear that complexity ≠ moral equivalence
+  - Simple option always available for clear good/evil
+  - Examples show how this enhances storytelling
+
+### 10.2 User Experience Risks
+
+**Risk: Unclear Value Proposition**
+- **Impact:** Users don't understand why moral framework helps
+- **Probability:** Medium
+- **Mitigation:**
+  - Lead with benefit: "Add depth and meaning"
+  - Show before/after examples
+  - "Stories with moral depth engage readers more deeply"
+  - Optional feature (can skip)
+  - Success stories from beta users
+  - Quick wins (AI shows implicit conflict already there)
+
+**Risk: Forced Moral Framework**
+- **Impact:** Users feel pressured to add moral dimension
+- **Probability:** Low
+- **Mitigation:**
+  - Always optional (never required)
+  - "Skip" button prominent
+  - "Not all stories need explicit moral framework"
+  - Can add later if desired
+  - Quick Mode defaults to skip
+  - No penalty for skipping
+
+**Risk: Cultural/Religious Sensitivity**
+- **Impact:** Framework offends due to moral assumptions
+- **Probability:** Low
+- **Mitigation:**
+  - Present as one lens, not THE truth
+  - Acknowledge different cultures emphasize different values
+  - User defines what each value means in their context
+  - No judgments about "right" moral positions
+  - Examples from diverse cultures
+  - Beta test with diverse users
+
+### 10.3 Technical Risks
+
+**Risk: Complex Data Structure**
+- **Impact:** JSONB becomes unwieldy, hard to query
+- **Probability:** Low
+- **Mitigation:**
+  - Well-designed schema from start
+  - Indexing on conflict IDs
+  - Validation before save
+  - Flattened views for common queries
+  - Migration plan if restructure needed
+
+**Risk: AI Suggestion Quality**
+- **Impact:** AI generates irrelevant or poor moral suggestions
+- **Probability:** Medium
+- **Mitigation:**
+  - Extensive prompt engineering
+  - Use story context effectively
+  - Test with diverse story types
+  - Allow regeneration
+  - Make all suggestions optional
+  - User feedback loop for improvement
+
+### 10.4 Integration Risks
+
+**Risk: Archetype-Moral Misalignment**
+- **Impact:** Suggested alignments don't make sense
+- **Probability:** Low
+- **Mitigation:**
+  - Careful mapping of archetypes to conflicts
+  - Multiple conflicts can fit each archetype
+  - Always user-editable
+  - Explain reasoning for suggestions
+  - Test all 12 archetypes thoroughly
+
+**Risk: Scene Integration Confusion**
+- **Impact:** Users don't know when to use moral stakes
+- **Probability:** Medium
+- **Mitigation:**
+  - Clear guidance in scene editor
+  - Optional field (not required)
+  - Examples of moral stakes in scenes
+  - AI can suggest when relevant
+  - Tooltip explanations
+
+---
+
+## 11. Open Questions
+
+### 11.1 Design Decisions
+
+**Secondary Conflict Handling:**
+- ❓ Should secondary conflict be fully featured or simplified?
+  - Option A: Full complexity selection for secondary
+  - Option B: Simple overlay only (no complexity)
+  - Option C: Secondary is just a tag (minimal integration)
+  - **Recommendation:** Option B - acknowledge but don't fully develop
+
+**Villain Perspective:**
+- ❓ Should we explicitly explore villain's moral justification?
+  - Option A: Yes, separate section for villain's POV
+  - Option B: Only in complex modes
+  - Option C: No, just hero's journey
+  - **Recommendation:** Option B - in Two Rights and Lesser Evil modes
+
+**Decision Point Tracking:**
+- ❓ How detailed should decision point tracking be?
+  - Option A: Full decision tree system
+  - Option B: Mark key moments only
+  - Option C: Text description only
+  - **Recommendation:** Option B for v1.0, Option A for v2.0
+
+### 11.2 Content Questions
+
+**Conflict Examples:**
+- ❓ How many examples per conflict?
+  - Current: 4-6 real-world, 3-4 story
+  - Should we add more diverse cultural examples?
+  - **Recommendation:** Add 2-3 international examples per conflict
+
+**Complexity Guidance:**
+- ❓ Should we provide structure-specific moral guidance?
+  - e.g., "Hero's Journey traditionally tests Liberty at Threshold"
+  - **Recommendation:** Yes, but v2.0 feature
+
+### 11.3 Integration Questions
+
+**Map Visualization:**
+- ❓ How should moral conflicts appear on Visual Story Map?
+  - Option A: Color coding by conflict type
+  - Option B: Markers at decision points
+  - Option C: Character track shows moral position
+  - Option D: All of the above
+  - **Recommendation:** Option D - comprehensive integration
+
+**Export Inclusion:**
+- ❓ What moral framework data should appear in exports?
+  - Conflict name and complexity?
+  - Character positions?
+  - Decision points?
+  - Full analysis?
+  - **Recommendation:** Conflict + key positions + decision points
+
+---
+
+## 12. Future Enhancements (v2.0+)
+
+### 12.1 Advanced Moral Features
+
+**Multi-Conflict Mapping:**
+- Track multiple conflicts simultaneously
+- Show how they interact and compound
+- Identify where they align vs. conflict
+- Weighted conflict importance
+
+**Moral Perspective Analyzer:**
+- Different audiences weight values differently
+- Conservative vs. progressive moral priorities
+- Cultural moral emphasis differences
+- Age/demographic moral resonance
+
+**Moral Dilemma Generator:**
+- AI creates specific moral choice scenarios
+- Based on character, conflict, and story context
+- Generates scene ideas for moral tests
+- "What would X do if..." scenarios
+
+**Character Moral Development Tracker:**
+- Detailed moral journey visualization
+- Scene-by-scene position tracking
+- Transformation triggers identified
+- Moral arc quality scoring
+
+### 12.2 Educational Features
+
+**Moral Framework Tutorial:**
+- Interactive explanation of 6 conflicts
+- Quiz to identify conflicts in famous stories
+- Practice applying to user's scenario
+- "Find the moral conflict" exercises
+
+**Story Analysis Library:**
+- Famous stories analyzed by moral framework
+- "Breaking Bad: Purity vs. Degradation"
+- "Les Misérables: Justice vs. Mercy"
+- "1984: Liberty vs. Oppression"
+- Learn from masters
+
+**Moral Archetype Recipes:**
+- Proven combinations that work
+- "Caregiver + Care/Harm + Two Rights = Medical Drama"
+- "Rebel + Liberty/Oppression + Lesser Evil = War Story"
+- Templates based on successful stories
+
+### 12.3 Collaboration Features
+
+**Moral Debate Mode:**
+- Two writers take opposing moral sides
+- Collaborative story development
+- Ensures both sides represented fairly
+- Built-in devil's advocate
+
+**Beta Reader Moral Feedback:**
+- Share story moral framework
+- Readers identify which conflict resonated
+- Vote on moral complexity effectiveness
+- Moral blind spot identification
+
+### 12.4 Advanced AI
+
+**Predictive Moral Arc:**
+- AI suggests likely character moral journey
+- Based on archetype + starting position
+- Identifies transformation triggers
+- Suggests satisfying moral resolution
+
+**Moral Consistency Checker:**
+- Scans all scenes for moral coherence
+- Flags out-of-character moral choices
+- Identifies missing moral beats
+- Suggests where to deepen moral dimension
+
+**Cultural Moral Adaptation:**
+- Analyze how story's moral framework translates
+- Identify potential cultural misunderstandings
+- Suggest adjustments for different audiences
+- Universal vs. culturally-specific conflicts
+
+---
+
+## 13. Implementation Guidance
+
+### 13.1 Development Phases
+
+**Phase 1: Core Framework (Week 1)**
+- Database schema for moral data
+- Conflict selection interface (6 cards)
+- Basic card interactions
+- Primary conflict selection only
+- Save to database
+
+**Deliverable:** User can select one moral conflict
+
+**Phase 2: Complexity System (Week 1-2)**
+- Three complexity options interface
+- Position definition for each complexity
+- Form validation
+- AI suggestion basics
+- Character count limits
+
+**Deliverable:** Complete position definition for all complexity types
+
+**Phase 3: Character Integration (Week 2)**
+- Character moral alignment interface
+- Archetype-to-moral mapping
+- Slider components
+- Core values selection
+- Integration with Archetype Builder data
+
+**Deliverable:** Character moral profiles working
+
+**Phase 4: Moral Mapping Tool (Week 2)**
+- Visual spectrum component
+- Draggable character markers
+- Position tracking
+- Timeline view
+- Color gradients
+
+**Deliverable:** Interactive moral mapping visualization
+
+**Phase 5: AI Analysis (Week 3)**
+- AI analysis prompts
+- Implicit conflict detection
+- Complexity suggestions
+- Character enhancement ideas
+- Decision point recommendations
+
+**Deliverable:** AI moral analysis functional
+
+**Phase 6: Integration & Polish (Week 3)**
+- Scene moral stakes integration
+- Map markers for conflicts
+- Structure beat suggestions
+- Mode-specific behavior
+- Guided questions flow
+- Secondary conflict support
+
+**Deliverable:** Fully integrated moral framework
+
+**Phase 7: Testing (Week 4)**
+- User acceptance testing
+- Cultural sensitivity review
+- AI prompt refinement
+- Bug fixes
+- Documentation
+- Analytics
+
+**Deliverable:** Production-ready Moral Conflict Framework
+
+### 13.2 AI Prompt Templates
+
+**Implicit Conflict Detection:**
+```
+Analyze this story for implicit moral conflicts:
+
+STORY CONTEXT:
+- Type: {storyType}
+- Character: {characterDescription}
+- Archetype: {archetype}
+- Conflict: {conflictDescription}
+- Stakes: {stakes}
+
+Based on this, identify:
+1. Most likely moral conflict (from: care_harm, fairness_cheating, 
+   liberty_oppression, authority_subversion, loyalty_betrayal, 
+   purity_degradation)
+2. Evidence for this conflict in the story elements
+3. How it's currently implicit
+4. Suggestion for making it explicit
+
+Be specific and concise. Format as JSON.
+```
+
+**Complexity Enhancement:**
+```
+This story has a simple good vs. evil moral setup:
+- Hero represents: {heroPosition}
+- Villain represents: {villainPosition}
+
+Suggest how to add moral complexity:
+1. Two Rights approach: What valid moral position could the 
+   antagonist hold?
+2. Lesser Evil approach: What if both sides cause harm?
+3. Specific example dialogue showing the complexity
+4. Why this makes the story more engaging
+
+Keep suggestions constructive and story-focused.
+```
+
+**Character Moral Profile:**
+```
+Generate moral profile for this character:
+
+CHARACTER:
+- Name: {name}
+- Archetype: {archetype}
+- Role: {role}
+
+MORAL CONFLICT: {conflictName}
+
+Provide:
+1. Starting position (1-10, 1=good side, 10=bad side)
+2. Three core values from: protection, justice, freedom, 
+   loyalty, order, purity
+3. One moral line they won't cross (50 chars)
+4. One moral blind spot (50 chars)
+5. Likely ending position and why
+
+Format as JSON.
+```
+
+### 13.3 Component Architecture
+```
+MoralConflictFramework/
+├── index.tsx (main container)
+├── ConflictSelection/
+│   ├── ConflictGrid.tsx
+│   ├── ConflictCard.tsx
+│   ├── ConflictDetail.tsx
+│   └── ConflictBadge.tsx
+├── ComplexitySelector/
+│   ├── index.tsx
+│   ├── SimpleOption.tsx
+│   ├── TwoRightsOption.tsx
+│   └── LesserEvilOption.tsx
+├── PositionDefinition/
+│   ├── SimpleForm.tsx
+│   ├── TwoRightsForm.tsx
+│   ├── LesserEvilForm.tsx
+│   └── AISuggestionButton.tsx
+├── MoralMapping/
+│   ├── SpectrumVisualizer.tsx
+│   ├── CharacterMarker.tsx
+│   ├── DecisionPoint.tsx
+│   └── TimelineView.tsx
+├── CharacterAlignment/
+│   ├── AlignmentForm.tsx
+│   ├── PositionSlider.tsx
+│   ├── CoreValuesSelector.tsx
+│   └── MoralProfile.tsx
+├── AIAnalysis/
+│   ├── AnalysisPanel.tsx
+│   ├── ImplicitConflicts.tsx
+│   ├── ComplexitySuggestions.tsx
+│   └── DecisionRecommendations.tsx
+├── GuidedQuestions/
+│   ├── QuestionFlow.tsx
+│   ├── QuestionCard.tsx
+│   └── ProgressIndicator.tsx
+├── hooks/
+│   ├── useMoralFramework.ts
+│   ├── useCharacterAlignment.ts
+│   ├── useAIAnalysis.ts
+│   └── useMoralMapping.ts
+└── utils/
+    ├── moralConflicts.ts
+    ├── archetypeMapping.ts
+    ├── aiPrompts.ts
+    └── validation.ts
+13.4 Testing Strategy
+Unit Tests:
+
+Conflict selection logic
+Complexity validation
+Character position calculations
+Archetype-moral mappings
+Data structure validation
+
+Integration Tests:
+
+Archetype Builder integration
+Scene moral stakes
+Map visualization
+AI analysis flow
+Database operations
+
+E2E Tests:
+
+Select moral conflict
+Choose complexity
+Define positions
+Create character alignment
+Use mapping tool
+Request AI analysis
+Apply suggestions
+Navigate between views
+
+Content Testing:
+
+All 6 conflicts clear and accurate
+Examples culturally appropriate
+Questions guide effectively
+AI suggestions relevant
+No biased language
+
+13.5 Analytics
+javascript// Conflict Selection
+trackEvent('moral_conflict_selected', {
+  conflict_primary: conflictId,
+  conflict_secondary: secondaryId || null,
+  story_type: storyType,
+  mode: userMode
+});
+
+// Complexity Selection
+trackEvent('moral_complexity_chosen', {
+  complexity: 'simple' | 'two_rights' | 'lesser_evil',
+  conflict: conflictId
+});
+
+// Character Alignment
+trackEvent('character_alignment_created', {
+  character_archetype: archetype,
+  starting_position: position,
+  values_selected: valuesArray
+});
+
+// AI Analysis
+trackEvent('moral_ai_analysis', {
+  conflicts_detected: detectedCount,
+  suggestions_count: suggestionCount
+});
+
+trackEvent('moral_suggestion_applied', {
+  suggestion_type: type,
+  conflict: conflictId
+});
+
+// Mapping Tool
+trackEvent('moral_mapping_used', {
+  characters_mapped: count,
+  decision_points: count
+});
+13.6 Documentation
+User Documentation:
+
+"What are moral conflicts?" guide
+Six conflicts explained with examples
+Choosing complexity level
+Character moral alignment tutorial
+Integration with other features
+FAQ
+
+Developer Documentation:
+
+Moral framework theory overview
+Data schema documentation
+AI prompt guidelines
+Component API reference
+Testing procedures

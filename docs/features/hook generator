@@ -1,0 +1,361 @@
+1. Feature Name
+Hook Generator
+2. Goal
+Enable users to create compelling story openings by selecting from 5 proven hook types, generating AI-powered hook options tailored to their story context, and refining their chosen hook through editing. This feature ensures stories start strong by applying the Storyteller Tactics "Hook" framework to capture audience attention immediately.
+3. User Story
+As a user developing my story,
+I want to generate and select from professionally-crafted opening hooks,
+So that I can immediately capture my audience's attention and make them want to hear more.
+4. Functional Requirements
+4.1 Core Functionality
+
+Display 5 hook types with clear explanations:
+
+Unexpected: Contrarian, surprising, challenges assumptions
+Knowledge: Expertise-based, insider information, "secrets of"
+Story: Scene-based, action-oriented, drops into a moment
+Question: Provocative questions, "what if" scenarios
+Emotional: Relatable feelings, universal experiences
+
+
+Multi-select capability: User can select 1-5 hook types to explore
+AI generation: For each selected type, generate 3 hook options
+Context-aware generation: Hooks reflect user's story type, audience, character, and conflict
+Hook cards display:
+
+The hook text itself (editable)
+"Why this works" explanation (educational)
+Tone indicator (conversational, dramatic, professional, etc.)
+"Use this" button
+"Refine this" button (inline editing)
+"Regenerate" button (get new options)
+
+
+Selection and saving: User selects one hook, saved to story state
+Manual creation: Option to write hook from scratch
+Preview mode: See how hook looks in context of full story opening
+
+4.2 Hook Type Selection Interface
+Choose Your Hook Type(s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Select one or more hook types to explore:
+
+┌─────────────────────────────────────────┐
+│ 🎲 UNEXPECTED                           │
+│ Contrarian, surprising, zags when       │
+│ others zig                              │
+│                                         │
+│ Example: "We raised zero dollars and   │
+│ it was the best decision we ever made" │
+│                                         │
+│ ☐ Explore this type                    │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ 🔍 KNOWLEDGE                            │
+│ Expertise-based, insider information,   │
+│ "secrets of"                            │
+│                                         │
+│ Example: "After interviewing 200       │
+│ founders, I discovered one thing..."   │
+│                                         │
+│ ☐ Explore this type                    │
+└─────────────────────────────────────────┘
+
+[3 more hook type cards...]
+
+[Generate Hooks] button (enabled when ≥1 selected)
+4.3 Hook Generation & Display
+When user clicks "Generate Hooks", show:
+
+Loading state with animated indicator (~2-3 seconds)
+Grouped results by hook type
+3 options per type (9-15 total hooks if all types selected)
+
+Each hook card shows:
+┌───────────────────────────────────────────────────┐
+│ UNEXPECTED HOOK #1                    [⚡ Provocative] │
+├───────────────────────────────────────────────────┤
+│                                                   │
+│ "We raised zero dollars and it was the best      │
+│  decision we ever made. Here's why being broke   │
+│  made us rich."                                  │
+│                                                   │
+├───────────────────────────────────────────────────┤
+│ 💡 Why this works:                               │
+│ Challenges the common startup narrative that     │
+│ raising money equals success. Creates curiosity  │
+│ gap - reader wants to know how being broke led   │
+│ to success.                                      │
+├───────────────────────────────────────────────────┤
+│ [✏️ Refine This] [✓ Use This] [🔄 Regenerate]    │
+└───────────────────────────────────────────────────┘
+4.4 Inline Editing ("Refine This")
+When user clicks "Refine This":
+
+Hook text becomes editable textarea
+Character counter (recommend 100-200 characters)
+Tone selector (adjust formality: casual/professional/dramatic)
+AI assist button: "Make it more [surprising/emotional/concrete]"
+Preview button: See in context
+Save edits button
+Revert button (back to AI original)
+
+4.5 Hook Selection & Confirmation
+When user clicks "Use This":
+
+Highlight selected hook (visual checkmark, different background)
+Deselect others (only one hook can be active)
+Show preview: "Your story will begin: '[hook text]'"
+Continue button appears (advances to next step)
+Change selection allows switching to different hook
+
+4.6 Manual Hook Creation
+
+"Write My Own" button always visible
+Opens blank textarea with guidance:
+
+"Great hooks are typically 1-3 sentences"
+"Consider: What's surprising? What creates curiosity?"
+"What emotion do you want to evoke?"
+
+
+AI coaching: Optional "Get suggestions" analyzes user's draft
+Save when satisfied
+
+4.7 State Management
+javascriptstoryData.hooks = {
+  selectedTypes: ['unexpected', 'knowledge', 'story'], // User's selections
+  generated: {
+    unexpected: [
+      {
+        id: 'unexp_1',
+        text: 'We raised zero dollars...',
+        whyItWorks: 'Challenges common narrative...',
+        tone: 'provocative',
+        isEdited: false,
+        originalText: 'We raised zero dollars...'
+      },
+      // 2 more unexpected hooks
+    ],
+    knowledge: [...], // 3 knowledge hooks
+    story: [...] // 3 story hooks
+  },
+  chosen: {
+    id: 'unexp_1',
+    type: 'unexpected',
+    text: 'We raised zero dollars and it was the best decision...',
+    isEdited: false,
+    editHistory: []
+  },
+  manualHook: null, // If user writes from scratch
+  generatedAt: timestamp,
+  selectedAt: timestamp
+};
+5. Data Requirements
+5.1 Database Schema Updates (Supabase)
+stories table - hooks field already exists as JSONB:
+sql-- The hooks column stores the complete hook object
+-- Example stored value:
+{
+  "selectedTypes": ["unexpected", "knowledge"],
+  "generated": {
+    "unexpected": [
+      {
+        "id": "unexp_1",
+        "text": "We raised zero dollars...",
+        "whyItWorks": "Challenges narrative...",
+        "tone": "provocative",
+        "isEdited": false
+      }
+    ]
+  },
+  "chosen": {
+    "id": "unexp_1",
+    "type": "unexpected",
+    "text": "We raised zero dollars...",
+    "isEdited": false,
+    "selectedAt": "2025-01-15T14:30:00Z"
+  }
+}
+5.2 Hook Types Library (Static Data)
+Store in /src/data/hookTypes.js:
+javascriptexport const hookTypesData = [
+  {
+    id: 'unexpected',
+    name: 'Unexpected',
+    icon: '🎲',
+    tagline: 'Surprise and intrigue',
+    description: 'Challenge assumptions, present contrarian views, or reveal surprising truths that make people stop and think.',
+    color: 'purple',
+    examples: [
+      '"What if everything you knew about growth was wrong?"',
+      '"I\'m going to tell you why your startup should fail."',
+      '"The worst advice I ever got was \'follow your passion.\'"'
+    ],
+    whenToUse: 'When your story challenges conventional wisdom or has a surprising angle',
+    strengths: 'High attention-grabbing power, creates curiosity gap',
+    considerations: 'Must deliver on the promise, can feel gimmicky if overused'
+  },
+  {
+    id: 'knowledge',
+    name: 'Knowledge',
+    icon: '🔍',
+    tagline: 'Insider information',
+    description: 'Share expertise, insider secrets, or hard-won insights that position you as an authority.',
+    color: 'blue',
+    examples: [
+      '"After interviewing 200 failed founders, I discovered..."',
+      '"There\'s a pricing strategy 9 out of 10 businesses don\'t know exists."',
+      '"The hidden rule of bootstrapped success that VCs won\'t tell you."'
+    ],
+    whenToUse: 'When you have unique expertise or data to share',
+    strengths: 'Builds credibility, promises valuable information',
+    considerations: 'Must actually deliver unique insights, not common knowledge'
+  },
+  {
+    id: 'story',
+    name: 'Story',
+    icon: '🎬',
+    tagline: 'Drop into a scene',
+    description: 'Start in the middle of action or an emotionally charged moment with vivid sensory details.',
+    color: 'orange',
+    examples: [
+      '"It was 3 AM when I realized we had exactly $47 left in the bank."',
+      '"The email landed with a subject line I\'ll never forget: \'We need to talk.\'"',
+      '"Picture this: A garage. Two laptops. One big idea. Zero money."'
+    ],
+    whenToUse: 'When your story has a dramatic or emotionally powerful moment',
+    strengths: 'Immediately engaging, creates empathy, vivid and memorable',
+    considerations: 'Requires strong scene-setting skills, can feel forced'
+  },
+  {
+    id: 'question',
+    name: 'Question',
+    icon: '❓',
+    tagline: 'Provoke thought',
+    description: 'Ask provocative questions that make the audience think or challenge their assumptions.',
+    color: 'green',
+    examples: [
+      '"What if the thing holding you back is actually your greatest advantage?"',
+      '"Have you ever wondered why the most resourced companies innovate the least?"',
+      '"What would you build if failure wasn\'t an option—but neither was traditional success?"'
+    ],
+    whenToUse: 'When you want to engage the audience intellectually',
+    strengths: 'Creates mental engagement, inclusive ("you"), thought-provoking',
+    considerations: 'Must follow through with answers, can feel rhetorical'
+  },
+  {
+    id: 'emotional',
+    name: 'Emotional',
+    icon: '❤️',
+    tagline: 'Universal feelings',
+    description: 'Connect through shared emotions and relatable human experiences.',
+    color: 'red',
+    examples: [
+      '"You know that sinking feeling when your best idea gets rejected?"',
+      '"I remember the exact moment I stopped feeling like an impostor."',
+      '"There\'s nothing quite like the fear of disappointing the people who believed in you."'
+    ],
+    whenToUse: 'When emotional connection is central to your story',
+    strengths: 'Creates immediate empathy, highly relatable, builds trust',
+    considerations: 'Can feel manipulative if inauthentic, must match story tone'
+  }
+];
+5.3 AI Generation Tracking
+sql-- Track hook generation requests for analytics and rate limiting
+CREATE TABLE IF NOT EXISTS hook_generations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id UUID REFERENCES stories(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id),
+  hook_types TEXT[], -- Array of requested types
+  context JSONB, -- Story context sent to AI
+  generated_count INTEGER, -- How many hooks generated
+  selected_hook_id TEXT, -- Which hook was chosen
+  generation_time_ms INTEGER, -- Performance tracking
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for user query
+CREATE INDEX idx_hook_gen_user ON hook_generations(user_id);
+CREATE INDEX idx_hook_gen_story ON hook_generations(story_id);
+```
+
+## 6. UI/UX Requirements
+
+### 6.1 Visual Design
+
+**Hook Type Selection Screen**:
+- **Grid layout**: 5 cards in responsive grid (3 cols desktop, 2 tablet, 1 mobile)
+- **Card design**: Each type has unique color accent (purple, blue, orange, green, red)
+- **Checkbox selection**: Large, clear checkboxes with visual feedback
+- **Icon prominence**: Large emoji icons (48px) at top of each card
+- **Example preview**: Show 1 example hook in smaller text
+- **Multi-select indication**: Selected cards have border highlight and checkmark
+
+**Hook Results Screen**:
+- **Grouped by type**: Clear visual separation between hook types
+- **Card-based layout**: Each hook in its own card with subtle shadow
+- **Scannable**: User can quickly read all options before deep dive
+- **Edit state**: When editing, card expands slightly with edit controls
+- **Selected state**: Chosen hook has distinct visual treatment (purple border, checkmark badge)
+
+**Responsive Behavior**:
+- **Desktop**: 2-column layout for hook cards, side-by-side comparison
+- **Tablet**: Single column, full width cards
+- **Mobile**: Stack vertically, sticky "Continue" button at bottom
+
+### 6.2 Component Structure
+```
+HookGenerator/
+├── HookTypeSelection.jsx
+│   └── HookTypeCard.jsx
+├── HookGenerationResults.jsx
+│   ├── HookTypeGroup.jsx
+│   └── HookCard.jsx
+├── HookEditor.jsx
+├── ManualHookForm.jsx
+├── HookPreview.jsx
+└── hookTypes.js (data)
+```
+
+### 6.3 Loading & Empty States
+
+**Loading State** (during AI generation):
+```
+Generating your hooks...
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Animated spinner or progress bar]
+
+✨ Crafting unexpected angles...
+🔍 Mining your expertise...
+🎬 Setting the scene...
+
+This usually takes 3-5 seconds.
+```
+
+**Empty/Error State**:
+```
+Oops! We couldn't generate hooks right now.
+
+[Retry button] or [Write your own hook]
+6.4 Accessibility
+
+Keyboard navigation: Tab through hook types, Enter to select/deselect
+Screen reader announcements: "Selected unexpected hook type", "Generated 3 hooks"
+Focus indicators: Clear visual focus rings on all interactive elements
+ARIA labels: All buttons and controls properly labeled
+Color contrast: Text meets WCAG AA standards (4.5:1) on all backgrounds
+Skip links: "Skip to generated hooks" link when results load
+
+6.5 Micro-interactions
+
+Selection animation: Checkboxes animate with smooth check transition
+Card hover: Subtle lift (translateY: -2px) and shadow enhancement
+Generate button pulse: Gentle pulse animation when enabled
+Hook card entry: Stagger animation (each card fades in with 100ms delay)
+Edit mode: Smooth height transition when card expands
+Copy-to-clipboard: Visual confirmation toast when hook is copied
+

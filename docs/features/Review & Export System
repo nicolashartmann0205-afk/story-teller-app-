@@ -1,0 +1,2064 @@
+2. Goal
+Provide writers with a comprehensive review experience to validate story completeness, generate a final polished draft using AI, and export their completed story in multiple professional formats suitable for different use cases (presentations, documents, scripts, sharing).
+Key Outcomes:
+
+Writers can review their complete story with all components visible
+Completeness checker identifies missing or weak elements
+AI generates a full, cohesive story draft from all inputs
+Multiple export formats serve different purposes (pitching, publishing, sharing)
+Export customization allows including/excluding specific sections
+Professional formatting in all export types
+One-click export to various destinations
+Story saved automatically for future editing
+
+
+3. User Story
+As a writer who has completed their story development journey
+I want to review my complete story structure, generate a polished final draft, and export it in a professional format
+So that I can ensure completeness, have a ready-to-use narrative, and share or present my story effectively in the appropriate medium
+Acceptance Criteria:
+
+User can access Review & Export from main navigation or end of workflow
+Story completeness checker shows what's done and what's missing
+Full story summary displays all key components (hook, character, structure, scenes)
+AI generates complete story draft integrating all components
+User can edit AI-generated draft before export
+Multiple export formats available (text, markdown, PDF, Word, presentation, script)
+User can customize what's included in export
+Preview shows exact export content before download
+Copy to clipboard functionality works
+Exported files have professional formatting
+Download triggers immediately on export
+Story automatically saves to library
+
+
+4. Functional Requirements
+4.1 Review Dashboard
+Purpose: Comprehensive overview of story with completeness validation
+Main Sections:
+1. Story Summary Card
+┌────────────────────────────────────────┐
+│ 📖 Your Story Overview                 │
+├────────────────────────────────────────┤
+│ Title: [Story Title]                   │
+│ Type: [Business Pitch / Novel / etc.]  │
+│ Mode: [Quick / Comprehensive]          │
+│ Structure: [Hero's Journey / etc.]     │
+│ Created: [Date]                        │
+│ Last Modified: [Date]                  │
+│ Word Count: [X,XXX words]              │
+│ Estimated Reading Time: [X minutes]    │
+└────────────────────────────────────────┘
+2. Completeness Checker
+Visual progress indicator showing completion of core components:
+Story Completeness: 85% Complete
+
+✅ Story Type Selected
+✅ Hook Generated (5 options created, 1 selected)
+✅ Character/Archetype Defined (Hero: Warrior)
+✅ Story Structure Selected (Hero's Journey)
+✅ Conflict Identified
+⚠️  Scenes Developed (3 of 12 structure beats have scenes)
+✅ Moral Dimension Added (Care vs. Harm)
+❌ Opening Scene Polish (not yet refined)
+✅ Visual Story Map Created
+
+Missing Elements:
+- 9 structure beats still need scenes
+- Opening scene needs polish
+- Closing scene needs review
+
+[Improve Completeness] button
+Status Indicators:
+
+✅ Complete (green check)
+⚠️ Partial (yellow warning)
+❌ Missing (red X)
+⏭️ Skipped (gray skip)
+
+Component Details (Expandable Sections):
+Each section can expand to show details:
+Hook Section:
+
+Hook type used
+Selected hook text
+Full hook displayed
+"Edit Hook" button
+
+Character Section:
+
+Primary archetype
+Secondary archetype (if combined)
+Character description
+Archetype gifts and dark sides
+"Edit Character" button
+
+Structure Section:
+
+Selected structure name
+Beat-by-beat outline
+Scene count per beat
+"View Story Map" button
+
+Scenes Section:
+
+List of developed scenes
+Scene titles and positions
+Emotional arc mini-graph
+"Edit Scenes" button
+
+Moral Conflict Section:
+
+Selected moral conflict
+Complexity level
+Hero/villain positions
+"Edit Moral Framework" button
+
+4.2 Full Story Draft Generation
+Purpose: AI creates cohesive narrative from all story components
+AI Draft Generator Interface:
+┌────────────────────────────────────────────────┐
+│ 🤖 Generate Full Story Draft                   │
+├────────────────────────────────────────────────┤
+│ Claude will create a complete narrative by     │
+│ integrating all your story components:         │
+│                                                │
+│ • Opening hook                                 │
+│ • Character journey with archetype voice       │
+│ • All developed scenes in sequence             │
+│ • Structure beats and transitions              │
+│ • Moral conflict woven throughout              │
+│ • Satisfying conclusion                        │
+│                                                │
+│ Draft Length: ○ Short (500-1000 words)        │
+│               ● Medium (1000-2000 words)       │
+│               ○ Long (2000-3500 words)         │
+│               ○ Very Long (3500-5000 words)    │
+│                                                │
+│ Writing Style: [Dropdown]                      │
+│ • Conversational                               │
+│ • Professional                                 │
+│ • Dramatic                                     │
+│ • Inspirational                                │
+│ • Academic                                     │
+│                                                │
+│ POV/Tense: [Dropdown]                          │
+│ • First Person, Past Tense                     │
+│ • Third Person, Past Tense                     │
+│ • First Person, Present Tense                  │
+│ • Third Person, Present Tense                  │
+│ • Second Person ("You")                        │
+│                                                │
+│      [✨ Generate Complete Story Draft]        │
+└────────────────────────────────────────────────┘
+Generation Process:
+
+User clicks "Generate Complete Story Draft"
+Loading state: "Creating your story... This may take 15-30 seconds"
+Progress indicator with phases:
+
+Analyzing story components...
+Weaving narrative threads...
+Polishing prose...
+Almost done...
+
+
+Draft appears in editable text editor
+Stats display: Word count, reading time, character count
+
+Draft Editor:
+Full-featured text editor with:
+
+Rich text editing (bold, italic, formatting)
+Paragraph styling
+Quote blocks for dialogue
+Section breaks
+Full undo/redo
+Auto-save every 30 seconds
+Word count live update
+Reading time estimate
+
+Editor Toolbar:
+[B] [I] [U] | [H1] [H2] [H3] | ["] | [•] [1.] | [←] [→]
+                                              Undo  Redo
+
+[✨ Improve Selected Text] [🔄 Regenerate Section]
+
+Words: 1,847 | Characters: 10,234 | Reading time: 7 min
+                                    [💾 Saved 2 seconds ago]
+AI Assistance Features:
+Improve Selected Text:
+
+User highlights text
+Click "Improve Selected Text"
+AI suggests improvements:
+
+Make more vivid
+Make more concise
+Add sensory details
+Strengthen emotion
+Improve dialogue
+
+
+User accepts or rejects
+Original preserved in undo history
+
+Regenerate Section:
+
+User places cursor in paragraph
+Click "Regenerate Section"
+AI rewrites just that section
+User can toggle between versions
+Keep original or use new version
+
+Version History:
+
+Save multiple draft versions
+Name versions (Draft 1, Draft 2, Final, etc.)
+Compare versions side-by-side
+Revert to any previous version
+Export any version
+
+4.3 Export Format Selection
+Export Formats:
+1. Plain Text (.txt)
+
+Simple, universal format
+No formatting
+Works anywhere
+5KB typical file size
+
+2. Markdown (.md)
+
+Text with simple formatting syntax
+Headers, bold, italic supported
+Developer-friendly
+Works with most writing tools
+8KB typical file size
+
+3. Rich Text Format (.rtf)
+
+Basic formatting preserved
+Compatible with Word, Pages, Google Docs
+15KB typical file size
+
+4. Word Document (.docx)
+
+Professional document format
+Full formatting support
+Compatible with Microsoft Word
+Headers, footers, styles
+25KB typical file size
+
+5. PDF (.pdf)
+
+Print-ready format
+Preserves exact layout
+Universal viewing
+Professional appearance
+50KB typical file size
+
+6. Google Docs (Future)
+
+Direct export to Google Drive
+OAuth integration required
+Collaborative editing enabled
+Auto-saved to cloud
+
+7. Presentation Outline (.pptx) (Future)
+
+One slide per scene/beat
+Speaker notes included
+Professional template
+Ready for presentations
+
+8. Script Format (.fountain / .pdf) (Future)
+
+Industry-standard screenplay format
+Scene headings
+Action, dialogue, parentheticals
+Proper formatting for film/TV
+
+9. JSON Export
+
+Raw story data
+All components as structured data
+For developers/integrations
+Can re-import to app
+
+Format Selection UI:
+┌────────────────────────────────────────┐
+│ Export Format                          │
+├────────────────────────────────────────┤
+│ ┌────────┐ ┌────────┐ ┌────────┐      │
+│ │  .txt  │ │  .md   │ │  .rtf  │      │
+│ │ Plain  │ │Markdown│ │  Rich  │      │
+│ │ Text   │ │        │ │  Text  │      │
+│ └────────┘ └────────┘ └────────┘      │
+│                                        │
+│ ┌────────┐ ┌────────┐ ┌────────┐      │
+│ │ .docx  │ │  .pdf  │ │ GDocs  │      │
+│ │  Word  │ │  PDF   │ │Google  │      │
+│ │Document│ │ (soon) │ │(soon)  │      │
+│ └────────┘ └────────┘ └────────┘      │
+│                                        │
+│ ┌────────┐ ┌────────┐ ┌────────┐      │
+│ │ .pptx  │ │.fountain│ │ .json  │     │
+│ │ Slides │ │ Script │ │  Data  │      │
+│ │ (soon) │ │ (soon) │ │        │      │
+│ └────────┘ └────────┘ └────────┘      │
+└────────────────────────────────────────┘
+
+Currently Selected: Markdown (.md)
+4.4 Export Content Customization
+What to Include:
+Checkbox options for export content:
+┌────────────────────────────────────────┐
+│ Customize Export Content               │
+├────────────────────────────────────────┤
+│ Story Components:                      │
+│ ☑ Story Title & Metadata               │
+│ ☑ Full Story Draft (main narrative)    │
+│ ☑ Opening Hook                         │
+│                                        │
+│ Development Materials:                 │
+│ ☐ Character Profile & Archetype        │
+│ ☐ Story Structure Outline              │
+│ ☐ Scene-by-Scene Breakdown             │
+│ ☐ Moral Conflict Framework             │
+│                                        │
+│ Visual Elements:                       │
+│ ☐ Story Map (as embedded image)        │
+│ ☐ Emotional Arc Graph                  │
+│                                        │
+│ Notes & Process:                       │
+│ ☐ Writing Notes & Ideas                │
+│ ☐ AI Suggestions (reference)           │
+│ ☐ Version History                      │
+│                                        │
+│ [Select All] [Deselect All]            │
+│ [Story Only] [Everything]              │
+└────────────────────────────────────────┘
+Presets:
+Quick selection buttons:
+
+Story Only: Just the final narrative
+Presentation Package: Story + outline + map image
+Complete Documentation: Everything including process notes
+Custom: User manually selects
+
+Content Preview:
+Shows what will be included:
+Export Preview (Markdown format, 2,847 words):
+
+# The Hero's Transformation
+Type: Personal Development Story
+Mode: Comprehensive
+Created: November 22, 2025
+
+## Opening Hook
+"She stood at the edge of the canyon, knowing that
+one more step would change everything..."
+
+## The Story
+[First 200 words of full draft shown...]
+
+## Character Profile
+Primary Archetype: The Warrior
+[Details shown if selected...]
+
+Total File Size: ~18 KB
+Estimated Pages: 8 (if printed)
+4.5 Export Preview & Download
+Preview Modal:
+Full-screen preview before export:
+┌──────────────────────────────────────────┐
+│ 📄 Export Preview          [✕ Close]     │
+├──────────────────────────────────────────┤
+│ Format: Markdown (.md)                   │
+│ Size: 18 KB | Pages: ~8 | Words: 2,847   │
+├──────────────────────────────────────────┤
+│                                          │
+│ [Preview content with exact formatting]  │
+│                                          │
+│ # The Hero's Transformation              │
+│                                          │
+│ Type: Personal Development Story         │
+│ Mode: Comprehensive                      │
+│ Created: November 22, 2025               │
+│                                          │
+│ ## Opening Hook                          │
+│                                          │
+│ "She stood at the edge of the canyon..." │
+│                                          │
+│ [Continues with full content...]         │
+│                                          │
+│                                          │
+│                                          │
+│                                          │
+├──────────────────────────────────────────┤
+│ [⬅ Back to Edit] [⬇️ Download File]      │
+│                  [📋 Copy to Clipboard]  │
+└──────────────────────────────────────────┘
+Download Process:
+
+User clicks "Download File"
+File generates (1-2 seconds for most formats)
+Browser download dialog appears
+File saved with name: [Story-Title].[format]
+Success message: "Story exported successfully!"
+Option to download in another format
+
+Copy to Clipboard:
+
+User clicks "Copy to Clipboard"
+Entire export content copied
+Success message: "Copied! Paste anywhere."
+Can paste into email, docs, etc.
+
+Share Link (Future):
+
+Generate shareable URL
+View-only link
+Password protection option
+Expiration date setting
+Track views (analytics)
+
+4.6 Story Library Integration
+Save to Library:
+After export, story automatically saved to user's library:
+✅ Story Saved to Library
+
+"The Hero's Transformation" has been saved to your
+story library. You can access it anytime to:
+
+- Edit and refine further
+- Export in different formats
+- Create variations
+- Share with others
+
+[View in Library] [Create New Story]
+Library Features:
+
+All stories listed with thumbnails
+Sort by: Recent, Title, Type, Completion
+Filter by: Mode, Type, Structure
+Quick actions: Edit, Duplicate, Export, Delete
+Story stats: Word count, scenes, last edited
+Search stories by title or content
+
+Story Card in Library:
+┌────────────────────────────────┐
+│ The Hero's Transformation      │
+│ 📘 Personal Development        │
+│ ⚙️  Comprehensive Mode         │
+│ 📅 Nov 22, 2025               │
+│ 📊 2,847 words | 12 scenes    │
+│ ⭐ Hero's Journey              │
+├────────────────────────────────┤
+│ [Edit] [Export] [Duplicate]   │
+│       [Delete]                 │
+└────────────────────────────────┘
+4.7 Mode-Specific Behavior
+Quick Mode Review:
+
+Simplified completeness checker (fewer components)
+Shorter AI draft default (500-1000 words)
+Fewer export options (text, markdown only initially)
+Streamlined review dashboard
+Quick export presets
+Faster workflow overall
+
+Comprehensive Mode Review:
+
+Full completeness checker (all components)
+Longer AI draft options (up to 5000 words)
+All export formats available
+Detailed review dashboard
+Full customization options
+Advanced export settings
+
+4.8 Success Celebration
+Completion Screen:
+After successful export:
+┌────────────────────────────────────────┐
+│                                        │
+│           🎉 Congratulations! 🎉        │
+│                                        │
+│   You've Created a Complete Story      │
+│   Using Storyteller Tactics!           │
+│                                        │
+│   "The Hero's Transformation"          │
+│   2,847 words | 12 scenes              │
+│   Hero's Journey structure             │
+│                                        │
+│   ✅ Exported as Markdown              │
+│   ✅ Saved to Your Library             │
+│                                        │
+├────────────────────────────────────────┤
+│                                        │
+│ What's Next?                           │
+│                                        │
+│ [Create Another Story]                 │
+│ [Edit This Story]                      │
+│ [View Story Library]                   │
+│ [Share Your Success] 📱                │
+│                                        │
+└────────────────────────────────────────┘
+Share Success (Social):
+
+Generate shareable achievement
+"I just created a complete story using Storyteller Tactics!"
+Story stats (word count, structure used)
+Link to app (referral tracking)
+Twitter, LinkedIn, Facebook sharing
+
+
+5. Data Requirements
+5.1 Supabase Schema
+No new tables needed - exports use existing story data
+Extends stories table with export tracking:
+sqlALTER TABLE stories ADD COLUMN IF NOT EXISTS
+  export_count INTEGER DEFAULT 0,
+  last_export_date TIMESTAMP WITH TIME ZONE,
+  last_export_format VARCHAR(20),
+  export_history JSONB DEFAULT '[]';
+
+-- Export history structure:
+-- [
+--   {
+--     "format": "markdown",
+--     "timestamp": "2025-11-22T10:30:00Z",
+--     "word_count": 2847,
+--     "content_included": ["title", "draft", "character"]
+--   }
+-- ]
+User preferences for export:
+sqlALTER TABLE users ADD COLUMN IF NOT EXISTS
+  default_export_format VARCHAR(20) DEFAULT 'markdown',
+  default_export_options JSONB DEFAULT '{
+    "includeTitle": true,
+    "includeMetadata": true,
+    "includeDraft": true,
+    "includeCharacter": false,
+    "includeStructure": false,
+    "includeScenes": false,
+    "includeMoral": false,
+    "includeMap": false
+  }';
+5.2 Data Aggregation
+For Review Dashboard:
+Query aggregates from multiple tables:
+
+Story metadata from stories
+Hook from story data
+Character from story data
+Scenes from scenes table
+Archetype from story data
+Structure from story data
+Moral conflict from story data
+
+Completeness Calculation:
+typescriptinterface CompletenessCheck {
+  overall: number; // 0-100
+  components: {
+    storyType: boolean;
+    hook: boolean;
+    character: boolean;
+    structure: boolean;
+    conflict: boolean;
+    scenes: {
+      complete: boolean;
+      count: number;
+      expected: number;
+    };
+    moral: boolean;
+    openingPolish: boolean;
+    closingPolish: boolean;
+    visualMap: boolean;
+  };
+  missing: string[];
+  warnings: string[];
+}
+5.3 Export Content Generation
+Data Sources for Export:
+typescriptinterface ExportData {
+  // Metadata
+  title: string;
+  storyType: string;
+  mode: 'quick' | 'comprehensive';
+  structure: string;
+  createdAt: string;
+  lastModified: string;
+  
+  // Core Content
+  fullDraft: string; // AI-generated + user edits
+  hook: string;
+  
+  // Components (optional)
+  character: {
+    description: string;
+    primaryArchetype: string;
+    secondaryArchetype?: string;
+    gifts: string[];
+    darkSides: { tooMuch: string; tooLittle: string };
+  };
+  
+  structure: {
+    name: string;
+    beats: Array<{
+      name: string;
+      description: string;
+      scenes: string[];
+    }>;
+  };
+  
+  scenes: Array<{
+    title: string;
+    position: number;
+    movieTime: MovieTimeData;
+    content: string;
+  }>;
+  
+  moralConflict?: {
+    primary: string;
+    complexity: string;
+    heroPosition: string;
+  };
+  
+  // Visual (if requested)
+  storyMapImage?: string; // Base64 PNG
+  emotionalArcImage?: string;
+  
+  // Process (if requested)
+  notes?: string;
+  aiSuggestions?: string[];
+  versionHistory?: Array<{
+    version: number;
+    timestamp: string;
+    wordCount: number;
+  }>;
+}
+```
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Visual Design System
+
+**Color Scheme:**
+- Primary: Green (#10B981) for completion/success
+- Secondary: Purple (#8B5CF6) for interactive elements
+- Warning: Yellow (#F59E0B) for partial completion
+- Error: Red (#EF4444) for missing elements
+- Success: Green (#10B981) for complete elements
+- Background: Light gray (#F9FAFB)
+
+**Typography:**
+- Page titles: Bold, 28px
+- Section headings: Bold, 20px
+- Body text: Regular, 16px
+- Draft editor: Serif font, 18px, line-height 1.8
+- Metadata: Regular, 14px, gray text
+
+**Icons:**
+- Review: BookOpen
+- Export: Download
+- Edit: Edit
+- Success: CheckCircle, PartyPopper
+- Copy: Copy
+- Preview: Eye
+- Warning: AlertTriangle
+- Missing: XCircle
+
+### 6.2 Layout Structure
+
+**Review Dashboard Layout:**
+```
+┌─────────────────────────────────────────────────┐
+│ 📖 Review & Export Your Story    [Export Now]  │
+├─────────────────────────────────────────────────┤
+│ ┌─────────────────┐ ┌─────────────────────────┐│
+│ │ Story Summary   │ │ Completeness Checker    ││
+│ │                 │ │ ████████░░ 85%          ││
+│ │ Title: [...]    │ │                         ││
+│ │ Type: [...]     │ │ ✅ Hook                 ││
+│ │ Mode: [...]     │ │ ✅ Character            ││
+│ │ Words: 2,847    │ │ ⚠️  Scenes (3/12)       ││
+│ │                 │ │ ❌ Opening Polish       ││
+│ └─────────────────┘ └─────────────────────────┘│
+├─────────────────────────────────────────────────┤
+│ Component Details (Expandable)                  │
+│ ▼ Hook ─────────────────────────────────────────│
+│   Selected: "She stood at the edge..."         │
+│   Type: Story Hook | [Edit]                    │
+│                                                 │
+│ ▼ Character ────────────────────────────────────│
+│   Primary: The Warrior                          │
+│   Gifts: Courage, determination... | [Edit]    │
+│                                                 │
+│ ▶ Structure (Click to expand)                  │
+│ ▶ Scenes (Click to expand)                     │
+│ ▶ Moral Conflict (Click to expand)             │
+├─────────────────────────────────────────────────┤
+│ 🤖 Full Story Draft                             │
+│ [Generate Complete Story Draft]                │
+│                                                 │
+│ OR                                              │
+│                                                 │
+│ [Edit Existing Draft]                          │
+└─────────────────────────────────────────────────┘
+```
+
+**Export Dialog Layout:**
+```
+┌─────────────────────────────────────────┐
+│ Export Your Story          [✕]          │
+├─────────────────────────────────────────┤
+│ Format Selection                        │
+│ [.txt] [.md] [.rtf] [.docx] [.pdf]     │
+│                                         │
+│ Customize Content                       │
+│ ☑ Story Draft                          │
+│ ☑ Title & Metadata                     │
+│ ☐ Character Profile                    │
+│ ☐ Structure Outline                    │
+│ ☐ Scene Breakdown                      │
+│ ☐ Story Map Image                      │
+│                                         │
+│ [Story Only] [Everything]              │
+├─────────────────────────────────────────┤
+│ Preview                                 │
+│ ┌─────────────────────────────────────┐│
+│ │ # The Hero's Transformation         ││
+│ │                                     ││
+│ │ "She stood at the edge..."          ││
+│ │ [Preview content...]                ││
+│ └─────────────────────────────────────┘│
+├─────────────────────────────────────────┤
+│     [⬇️ Download] [📋 Copy]             │
+└─────────────────────────────────────────┘
+```
+
+### 6.3 Interaction Patterns
+
+**Completeness Checker:**
+- Hover over status icon shows details
+- Click component expands full details
+- "Improve Completeness" button jumps to relevant feature
+- Progress bar animates on load
+- Warning items highlighted in yellow
+- Missing items highlighted in red
+
+**Draft Editor:**
+- Click anywhere to start editing
+- Auto-focus on mount
+- Floating toolbar follows selection
+- Save indicator always visible
+- Word count updates in real-time
+- Keyboard shortcuts (Ctrl+B for bold, etc.)
+
+**Export Process:**
+- Format selection highlights on click
+- Content checkboxes toggle instantly
+- Preview updates in real-time
+- Download triggers browser download
+- Success message with confetti animation
+- Share buttons open native share dialogs
+
+**Loading States:**
+- Draft generation: Animated progress bar
+- Export generation: Spinner with message
+- Preview: Skeleton content loader
+- Copy: Button text changes to "Copied!"
+
+### 6.4 Responsive Behavior
+
+**Desktop (>1024px):**
+- Two-column layout (summary + completeness)
+- Side-by-side draft editor and preview
+- Full export dialog
+- All features visible
+
+**Tablet (768px - 1024px):**
+- Single column stacked
+- Draft editor full width
+- Export dialog slightly reduced
+- All features accessible
+
+**Mobile (<768px):**
+- Vertical stacking
+- Simplified completeness checker
+- Draft editor optimized for touch
+- Simplified export options
+- Bottom sheet for format selection
+- Copy to clipboard primary action
+
+### 6.5 Accessibility
+
+**Keyboard Navigation:**
+- Tab through all sections
+- Enter to expand/collapse
+- Space to toggle checkboxes
+- Ctrl+S to save draft
+- Ctrl+E to export
+- Esc to close dialogs
+
+**Screen Reader:**
+- ARIA labels on all interactive elements
+- Progress announcements
+- Export success notifications
+- Draft editor with proper landmarks
+- Heading hierarchy
+
+**Visual:**
+- High contrast mode support
+- Focus indicators on all elements
+- Color not sole indicator (icons + text)
+- Adjustable text size
+- Sufficient touch targets (44x44px minimum)
+
+---
+
+## 7. Success Metrics
+
+### 7.1 Adoption Metrics
+
+**Primary:**
+- **Export Rate:** 70% of completed stories exported
+  - Target by story type varies
+  - Business pitches: 85%
+  - Personal stories: 60%
+
+- **Review Dashboard Access:** 80% of users visit review before export
+  - Indicates validation behavior
+  - Shows users checking completeness
+
+**Secondary:**
+- Full draft generation usage: 65%
+- Multiple export formats used: 30%
+- Copy to clipboard usage: 40%
+- Story library revisit rate: 35%
+
+### 7.2 Format Usage Metrics
+
+**Export Format Distribution:**
+- Markdown: 45% (developer/writer-friendly)
+- Plain text: 30% (universal)
+- PDF: 15% (professional)
+- Word: 8% (business users)
+- Other: 2%
+
+**Content Inclusion:**
+- Story draft only: 55%
+- Story + character: 25%
+- Story + structure: 15%
+- Everything: 5%
+
+### 7.3 Quality Metrics
+
+**Draft Generation:**
+- **AI Draft Acceptance:** 70% of generated drafts exported
+  - Edit rate: 60% make edits before export
+  - Regeneration rate: 20% regenerate at least once
+  - Satisfaction: 4.2+/5.0 rating
+
+**Completeness Impact:**
+- Stories with 90%+ completeness: 2x export rate
+- Average completeness at export: 85%
+- Users improve completeness after seeing checker: 40%
+
+**Export Quality:**
+- Format rendering success: 99%+
+- Download completion rate: 98%
+- File corruption rate: <0.1%
+
+### 7.4 User Behavior
+
+**Time Metrics:**
+- Time in review dashboard: 3-5 minutes average
+- Draft generation wait time: 15-30 seconds
+- Edit time after generation: 10-15 minutes
+- Total review to export: 20-25 minutes
+
+**Iteration Patterns:**
+- Single export: 60%
+- Multiple exports (different formats): 30%
+- Re-export after edits: 10%
+
+### 7.5 Business Impact
+
+**Story Completion:**
+- Review feature increases completion rate by 15%
+- Export availability motivates completion
+- Stories reach export: 70% vs 55% without review
+
+**User Satisfaction:**
+- "Export met expectations": 85%
+- "Would use export again": 92%
+- Feature satisfaction: 4.5+/5.0 stars
+- NPS contribution: +20 points
+
+**Retention:**
+- Users who export 2x more likely to return
+- Exported stories create 1.5x more stories
+- Library feature drives retention
+
+---
+
+## 8. Dependencies
+
+### 8.1 Feature Dependencies
+
+**Required (Must work first):**
+- ✅ All story creation features (Hook, Character, Structure, Scenes)
+- ✅ Story state management
+- ✅ Supabase story data storage
+- 🔲 AI full draft generation capability
+
+**Integrates With:**
+- 🔲 Scene Development Tool (scenes in export)
+- 🔲 Visual Story Map (map image in export)
+- 🔲 Archetype Builder (character details)
+- 🔲 Hook Generator (hook in export)
+- 🔲 Structure Selector (structure outline)
+- 🔲 Moral Conflict Framework (moral dimension)
+
+**Enhanced By:**
+- 🔲 Google Docs OAuth (direct export)
+- 🔲 Cloud storage (save exported files)
+- 🔲 Sharing features (social, email)
+- 🔲 Analytics (track export patterns)
+
+### 8.2 Technical Dependencies
+
+**Backend:**
+- Supabase for story data retrieval
+- Story aggregation queries
+- Export tracking updates
+- User preferences storage
+
+**Frontend:**
+- React state management
+- Rich text editor (TipTap, Slate, or Quill)
+- File download utilities
+- Clipboard API
+- Format conversion libraries:
+  - Markdown parser
+  - PDF generator (jsPDF)
+  - DOCX generator (docx.js)
+  - RTF generator
+
+**AI/API:**
+- Anthropic Claude API for full draft
+- Prompt template for story integration
+- Streaming response support
+- Error handling and retries
+
+**Third-party:**
+- Tailwind CSS for styling
+- Lucide React for icons
+- React Confetti for celebration
+- File-saver library for downloads
+- React-markdown for preview
+
+### 8.3 Data Dependencies
+
+**Requires Access To:**
+- Complete story data object
+- All scenes with content
+- Character/archetype information
+- Story structure and beats
+- Hook content
+- Moral conflict data
+- Visual map image (if generated)
+- User preferences
+
+**Provides Data To:**
+- Analytics system (export events)
+- Story library (saved stories)
+- User dashboard (recent activity)
+- Sharing system (shareable content)
+
+---
+
+## 9. User Acceptance Criteria
+
+### 9.1 Review Dashboard
+
+**Access & Display:**
+- [ ] User can access Review & Export from main navigation
+- [ ] Review dashboard loads within 2 seconds
+- [ ] Story summary displays all metadata correctly
+- [ ] Word count and reading time accurate
+- [ ] Created and modified dates display correctly
+
+**Completeness Checker:**
+- [ ] Overall completion percentage calculates correctly
+- [ ] All components show correct status (✅⚠️❌)
+- [ ] Missing elements list displays
+- [ ] Warning elements list displays
+- [ ] "Improve Completeness" button works
+- [ ] Status icons have tooltips
+- [ ] Progress bar animates on load
+
+**Component Details:**
+- [ ] Each section can expand/collapse
+- [ ] Hook section shows selected hook
+- [ ] Character section shows archetype details
+- [ ] Structure section shows selected structure
+- [ ] Scenes section lists all developed scenes
+- [ ] Moral section shows conflict if selected
+- [ ] "Edit" buttons navigate to correct features
+- [ ] Expandable sections remember state
+
+### 9.2 Full Story Draft Generation
+
+**Generator Interface:**
+- [ ] "Generate Full Story Draft" button prominent
+- [ ] Draft length options work (Short/Medium/Long/Very Long)
+- [ ] Writing style dropdown populated
+- [ ] POV/Tense dropdown populated
+- [ ] Default selections make sense for story type
+
+**Generation Process:**
+- [ ] Click generates draft
+- [ ] Loading state shows progress
+- [ ] Generation completes in <30 seconds
+- [ ] Error handling if generation fails
+- [ ] Can cancel generation mid-process
+- [ ] Success message on completion
+
+**Draft Editor:**
+- [ ] Generated draft appears in editor
+- [ ] Editor is fully functional
+- [ ] Can edit all text
+- [ ] Formatting toolbar works
+- [ ] Undo/redo functions work
+- [ ] Auto-save every 30 seconds
+- [ ] Word count updates live
+- [ ] Reading time updates live
+- [ ] Save indicator shows status
+
+**AI Assistance:**
+- [ ] "Improve Selected Text" works on highlighted text
+- [ ] Improvement suggestions appear
+- [ ] Can accept or reject suggestions
+- [ ] "Regenerate Section" works on cursor paragraph
+- [ ] Can toggle between versions
+- [ ] Version history accessible
+- [ ] Can revert to any previous version
+
+### 9.3 Export Functionality
+
+**Format Selection:**
+- [ ] All format options display
+- [ ] Selected format highlights
+- [ ] Coming soon formats show as disabled
+- [ ] Format description appears on hover
+- [ ] Can switch formats without losing data
+
+**Content Customization:**
+- [ ] All content checkboxes work
+- [ ] "Select All" button works
+- [ ] "Deselect All" button works
+- [ ] "Story Only" preset works
+- [ ] "Everything" preset works
+- [ ] Custom selection saves
+
+**Preview:**
+- [ ] Preview shows exact export content
+- [ ] Preview updates when options change
+- [ ] Preview shows correct formatting
+- [ ] File size estimate accurate
+- [ ] Word count accurate
+- [ ] Page estimate reasonable
+
+**Download:**
+- [ ] "Download" button triggers download
+- [ ] File generates within 3 seconds
+- [ ] Downloaded file has correct name
+- [ ] Downloaded file has correct format
+- [ ] File opens correctly in target app
+- [ ] File content matches preview
+- [ ] Formatting preserved appropriately
+
+**Copy to Clipboard:**
+- [ ] "Copy to Clipboard" button works
+- [ ] Success message displays
+- [ ] Content pastes correctly
+- [ ] Formatting appropriate for paste destination
+
+### 9.4 Story Library
+
+**Auto-Save:**
+- [ ] Story automatically saves to library
+- [ ] Save occurs after first export
+- [ ] Confirmation message displays
+- [ ] "View in Library" button works
+
+**Library Access:**
+- [ ] Can access library from review
+- [ ] All stories display in library
+- [ ] Story cards show correct information
+- [ ] Can sort stories (Recent, Title, Type)
+- [ ] Can filter stories (Mode, Type, Structure)
+- [ ] Can search stories
+- [ ] Quick actions work (Edit, Export, Duplicate, Delete)
+
+### 9.5 Success Celebration
+
+**Completion Screen:**
+- [ ] Success screen appears after export
+- [ ] Confetti animation plays
+- [ ] Story title and stats display
+- [ ] Export format confirmation shows
+- [ ] "Create Another Story" button works
+- [ ] "Edit This Story" button works
+- [ ] "View Library" button works
+- [ ] "Share Success" opens share options
+
+**Social Sharing:**
+- [ ] Share buttons work (Twitter, LinkedIn, Facebook)
+- [ ] Share text includes story stats
+- [ ] Referral tracking works
+- [ ] Can dismiss share options
+
+### 9.6 Mode-Specific
+
+**Quick Mode:**
+- [ ] Simplified completeness checker
+- [ ] Fewer components to check
+- [ ] Default to shorter draft length
+- [ ] Limited format options initially
+- [ ] Streamlined export process
+- [ ] Faster workflow overall
+
+**Comprehensive Mode:**
+- [ ] Full completeness checker
+- [ ] All components visible
+- [ ] All draft length options
+- [ ] All export formats available
+- [ ] Full customization options
+- [ ] Advanced settings accessible
+
+### 9.7 Error Handling
+
+**Generation Errors:**
+- [ ] Clear error message if draft fails
+- [ ] Retry button available
+- [ ] Can continue without draft
+- [ ] Previous draft preserved if exists
+
+**Export Errors:**
+- [ ] Clear error message if export fails
+- [ ] Can try different format
+- [ ] Can copy to clipboard as fallback
+- [ ] Error logged for debugging
+
+**Data Validation:**
+- [ ] Warns if story very incomplete
+- [ ] Suggests completing before export
+- [ ] Can still export incomplete story
+- [ ] Missing components flagged
+
+---
+
+## 10. Risks & Mitigations
+
+### 10.1 Technical Risks
+
+**Risk: AI Draft Generation Latency**
+- **Impact:** User frustration if draft takes >30 seconds
+- **Probability:** Medium (depends on story complexity, API load)
+- **Mitigation:**
+  - Show estimated time upfront
+  - Progress indicator with phases
+  - Allow cancellation
+  - Cache common patterns
+  - Use streaming if available
+  - Timeout at 45 seconds with retry
+  - Fallback to scene concatenation if fails
+
+**Risk: Export File Corruption**
+- **Impact:** User downloads broken file, loses trust
+- **Probability:** Low (but high impact)
+- **Mitigation:**
+  - Extensive testing of all formats
+  - Validate generated files before download
+  - Error handling for each format type
+  - Fallback to simpler formats
+  - Version control (can re-export)
+  - Preview before download
+  - Automatic bug reporting
+
+**Risk: Large File Size**
+- **Impact:** Slow downloads, storage issues
+- **Probability:** Medium (especially with images)
+- **Mitigation:**
+  - Optimize images before embedding
+  - Compress PDF output
+  - Warn if file >5MB
+  - Offer reduced quality options
+  - Cloud storage instead of download (future)
+  - Paginate very long stories
+
+**Risk: Format Compatibility Issues**
+- **Impact:** File doesn't open in target app
+- **Probability:** Medium (various app versions)
+- **Mitigation:**
+  - Test with multiple app versions
+  - Use widely-supported formats
+  - Provide compatibility info
+  - Offer multiple format options
+  - Clear instructions for opening
+  - Support documentation
+
+### 10.2 User Experience Risks
+
+**Risk: Overwhelming Export Options**
+- **Impact:** Decision paralysis, confusion
+- **Probability:** Medium
+- **Mitigation:**
+  - Clear presets ("Story Only", "Everything")
+  - Smart defaults based on story type
+  - Progressive disclosure (hide advanced options)
+  - Help tooltips on all options
+  - Preview shows exactly what's included
+  - Remember user's previous choices
+  - Quick export button with defaults
+
+**Risk: AI Draft Quality Issues**
+- **Impact:** User disappointed with generated story
+- **Probability:** Medium (subjective quality)
+- **Mitigation:**
+  - Clear expectation setting ("draft to edit")
+  - Multiple regeneration options
+  - Easy editing tools
+  - Can skip draft generation entirely
+  - Show "why" for AI choices
+  - Collect feedback on quality
+  - A/B test different prompts
+  - Style/tone options
+
+**Risk: Loss of Work During Edit**
+- **Impact:** User loses edits, very frustrating
+- **Probability:** Low (with auto-save)
+- **Mitigation:**
+  - Auto-save every 30 seconds
+  - Version history
+  - Offline support with queue
+  - "Unsaved changes" warning
+  - Restore from auto-save on crash
+  - Export at any time preserves state
+
+**Risk: Unclear Completeness Requirements**
+- **Impact:** User doesn't know what to improve
+- **Probability:** Medium
+- **Mitigation:**
+  - Clear explanations for each element
+  - "Why this matters" tooltips
+  - Direct links to complete elements
+  - Show examples of complete stories
+  - Optional vs. required clear
+  - Can export with warnings
+  - Educational content
+
+### 10.3 Business Risks
+
+**Risk: Low Export Rate**
+- **Impact:** Users create but don't export (incomplete experience)
+- **Probability:** Medium
+- **Mitigation:**
+  - Prominent export button throughout
+  - Completion prompts at natural points
+  - Celebrate completion strongly
+  - Email reminder if story incomplete
+  - Show value of exported story
+  - Make export dead simple
+  - Track where users drop off
+
+**Risk: Format Expectations**
+- **Impact:** Users expect formats we don't have (e.g., Google Docs initially)
+- **Probability:** High
+- **Mitigation:**
+  - Clear roadmap of coming formats
+  - "Notify me" for future formats
+  - Copy to clipboard as workaround
+  - Instructions for pasting into desired app
+  - Prioritize most-requested formats
+  - Beta test new formats
+
+**Risk: Quality Perception**
+- **Impact:** Exported story looks unprofessional, reflects poorly on app
+- **Probability:** Medium
+- **Mitigation:**
+  - Professional templates for all formats
+  - Careful formatting testing
+  - User testing of exports
+  - Professional design input
+  - Preview before export
+  - Example exports shown
+  - Polish over features
+
+### 10.4 Data & Privacy Risks
+
+**Risk: Sensitive Story Content**
+- **Impact:** User exports confidential information
+- **Probability:** Medium
+- **Mitigation:**
+  - Privacy reminder before export
+  - Watermark option for drafts
+  - Password-protected exports (future)
+  - Disclaimer about AI processing
+  - Clear data usage policy
+  - User owns all content
+  - No training on user stories
+
+**Risk: Accidental Public Sharing**
+- **Impact:** Private story shared unintentionally
+- **Probability:** Low (when sharing features added)
+- **Mitigation:**
+  - Confirmation before public share
+  - Private by default
+  - Expiring share links
+  - Can revoke shares
+  - Clear visibility indicators
+  - "Are you sure?" dialogs
+
+---
+
+## 11. Open Questions
+
+### 11.1 Export Format Priorities
+
+**Question: Which export formats for v1.0?**
+- ❓ Essential formats:
+  - Text: Yes (universal)
+  - Markdown: Yes (writers, developers)
+  - PDF: Should we include? (professional, but complex)
+  - Word: Should we include? (business users want it)
+  - Google Docs: OAuth complexity worth it for v1.0?
+
+**Recommendation:** 
+- v1.0: Text + Markdown (simple, reliable)
+- v1.1: PDF + Word (more complex)
+- v2.0: Google Docs, Presentation, Script
+
+**Question: Should exports include visual elements (maps, graphs)?**
+- ❓ Pros: More complete, impressive
+- ❓ Cons: File size, format complexity
+- **Recommendation:** Optional inclusion, v1.1 feature
+
+### 11.2 Draft Generation
+
+**Question: How long should generated drafts be by default?**
+- ❓ Options:
+  - Based on story type (pitches short, novels long)
+  - Based on number of scenes
+  - User always chooses
+  - Smart default with override
+
+**Recommendation:** Smart default based on type + scene count, user can override
+
+**Question: Should draft generation be mandatory or optional?**
+- ❓ Mandatory: Ensures complete story, shows AI value
+- ❓ Optional: Flexibility, some users may want manual
+- **Recommendation:** Optional but strongly encouraged (default selected)
+
+**Question: Multiple draft versions or single with edits?**
+- ❓ Version A: Save every generation as new version
+- ❓ Version B: Single draft, save edit history
+- **Recommendation:** Single draft + edit history (simpler UX)
+
+### 11.3 Review Dashboard
+
+**Question: How much detail in completeness checker?**
+- ❓ Simple: Just percentages and status icons
+- ❓ Detailed: Full breakdown with recommendations
+- **Recommendation:** Detailed for Comprehensive, Simple for Quick
+
+**Question: Should we auto-improve completeness?**
+- ❓ AI fills in missing elements automatically
+- ❓ User manually completes each element
+- **Recommendation:** Suggest but don't auto-fill (user agency)
+
+**Question: Show other users' completion rates?**
+- ❓ "80% of stories have 90%+ completeness"
+- ❓ Social proof vs. pressure
+- **Recommendation:** v2.0 feature, test with beta users
+
+### 11.4 User Experience
+
+**Question: When should users access Review & Export?**
+- ❓ Only at the end of workflow
+- ❓ Accessible anytime from menu
+- ❓ Prompts at completion milestones
+- **Recommendation:** Accessible anytime + prompts at milestones
+
+**Question: Should export require account/login?**
+- ❓ Yes: Enables library, tracking, better features
+- ❓ No: Lower friction, demo-friendly
+- **Recommendation:** Yes, but allow guest export (limited formats)
+
+**Question: Preview mandatory or optional?**
+- ❓ Always show preview before download
+- ❓ Quick download, preview optional
+- **Recommendation:** Preview by default, "Quick Export" button for repeat users
+
+### 11.5 Success & Sharing
+
+**Question: How to celebrate completion?**
+- ❓ Minimal: Simple success message
+- ❓ Moderate: Confetti + stats
+- ❓ Extensive: Achievements, badges, social sharing
+- **Recommendation:** Moderate for v1.0, extensive for v2.0
+
+**Question: Social sharing - what to share?**
+- ❓ Just achievement ("I created a story!")
+- ❓ Include story excerpt
+- ❓ Full story public
+- **Recommendation:** Achievement + stats only (privacy-safe)
+
+---
+
+## 12. Future Enhancements (v2.0+)
+
+### 12.1 Advanced Export Formats
+
+**Google Docs Direct Export:**
+- OAuth integration
+- Create doc in user's Drive
+- Maintains formatting
+- Collaborative editing enabled
+- Auto-sync on updates
+
+**PowerPoint/Keynote Presentations:**
+- One slide per story beat
+- Visual story map on overview slide
+- Speaker notes with scene details
+- Professional templates
+- Customizable themes
+
+**Screenplay Format:**
+- Industry-standard formatting
+- Scene headings (INT./EXT.)
+- Action lines
+- Dialogue with character names
+- Parentheticals
+- Export as .fountain or PDF
+
+**Audiobook Script:**
+- Formatted for narration
+- Pronunciation guides
+- Pause markers
+- Emphasis notes
+- Chapter breaks
+
+**Interactive Web Page:**
+- HTML export with styling
+- Responsive design
+- Navigation between sections
+- Shareable link
+- Password protection option
+
+### 12.2 Advanced Draft Features
+
+**Multi-Language Support:**
+- Generate draft in different languages
+- Translate existing draft
+- Maintain story structure across languages
+- Cultural adaptation suggestions
+
+**Style Variations:**
+- Generate same story in multiple styles
+- Compare side-by-side
+- Mix-and-match best parts
+- Style transfer learning
+
+**AI Co-Writing:**
+- Real-time collaboration with AI
+- Suggest next sentence
+- Alternative phrasings on demand
+- Grammar and style corrections
+- Consistency checking
+
+**Story Variations:**
+- "What if?" alternative versions
+- Different POV retellings
+- Different ending options
+- Subplot explorations
+- Character focus shifts
+
+### 12.3 Collaboration Features
+
+**Team Review:**
+- Share draft with team
+- Inline comments
+- Suggestion mode
+- Approval workflow
+- Version comparison
+
+**Beta Reader Integration:**
+- Send to beta readers
+- Collect structured feedback
+- Aggregate feedback view
+- Track revisions based on feedback
+
+**Publishing Workflow:**
+- Direct submit to platforms
+- Wattpad integration
+- Medium export
+- Substack newsletter format
+- Amazon Kindle prep
+
+### 12.4 Analytics & Insights
+
+**Story Analytics:**
+- Readability scores
+- Sentence variety analysis
+- Vocabulary richness
+- Pacing rhythm visualization
+- Emotion arc effectiveness
+
+**Comparative Analysis:**
+- Compare to successful examples
+- Genre-specific benchmarks
+- Improvement suggestions
+- Trend analysis across your stories
+
+**Export Analytics:**
+- Track which formats most used
+- A/B test export options
+- Identify drop-off points
+- Optimize export flow
+
+### 12.5 Advanced Customization
+
+**Custom Templates:**
+- User-created export templates
+- Branding (logos, colors, fonts)
+- Organization standards
+- Saved template library
+
+**Batch Export:**
+- Export multiple stories at once
+- Compile into anthology
+- Consistent formatting across stories
+- Table of contents generation
+
+**Automated Distribution:**
+- Schedule automatic exports
+- Email to recipients
+- Cloud storage sync
+- Social media posting
+
+### 12.6 Professional Features
+
+**Copyright & Licensing:**
+- Add copyright notices
+- Include licensing terms
+- Watermarking options
+- Version tracking for legal
+
+**Print Preparation:**
+- Print-ready PDF
+- ISBN integration
+- Cover page design
+- Trim marks and bleeds
+
+**Industry Submissions:**
+- Query letter generation
+- Synopsis creation
+- Logline generation
+- Pitch deck format
+
+---
+
+## 13. Implementation Guidance
+
+### 13.1 Development Phases
+
+**Phase 1: Review Dashboard (Week 1)**
+- Story summary display
+- Completeness checker logic
+- Component detail sections
+- Edit button integrations
+- Expandable/collapsible sections
+- Warning and missing element lists
+
+**Deliverable:** Functional review dashboard showing story completeness
+
+**Phase 2: AI Full Draft Generation (Week 2)**
+- AI prompt engineering for full story
+- Draft length and style options
+- Generation UI with loading states
+- Basic text editor integration
+- Save/auto-save functionality
+- Error handling and retries
+
+**Deliverable:** AI can generate complete story drafts
+
+**Phase 3: Rich Text Editor (Week 3)**
+- Full-featured editor implementation
+- Formatting toolbar
+- Undo/redo
+- Word count and reading time
+- Auto-save with indicator
+- AI assistance features (improve text, regenerate)
+- Version history
+
+**Deliverable:** Fully functional draft editor
+
+**Phase 4: Export - Basic Formats (Week 4)**
+- Text export (.txt)
+- Markdown export (.md)
+- Format selection UI
+- Content customization checkboxes
+- Preview modal
+- Download functionality
+- Copy to clipboard
+
+**Deliverable:** Working export for text and markdown
+
+**Phase 5: Export - Advanced Formats (Week 5)**
+- PDF generation
+- Word document generation (.docx)
+- RTF export
+- Format-specific styling
+- Template system
+- Format validation
+
+**Deliverable:** All v1.0 export formats working
+
+**Phase 6: Story Library Integration (Week 6)**
+- Auto-save to library
+- Library display
+- Story cards
+- Sort and filter
+- Quick actions
+- Search functionality
+
+**Deliverable:** Stories save to library, can be re-opened
+
+**Phase 7: Polish & Testing (Week 7)**
+- Success celebration screen
+- Social sharing (optional)
+- Confetti animation
+- User acceptance testing
+- Cross-browser testing
+- Format compatibility testing
+- Bug fixes
+- Performance optimization
+
+**Deliverable:** Production-ready Review & Export system
+
+### 13.2 AI Prompt Templates
+
+**Full Story Draft Generation Prompt:**
+```
+You are a professional storyteller helping to create a complete narrative.
+
+STORY CONTEXT:
+- Title: {storyTitle}
+- Type: {storyType}
+- Mode: {mode}
+- Structure: {selectedStructure}
+- Target Length: {draftLength} words
+
+STORY COMPONENTS:
+
+HOOK:
+{selectedHook}
+
+CHARACTER:
+- Primary Archetype: {primaryArchetype}
+- Secondary Archetype: {secondaryArchetype}
+- Voice: {characterVoice}
+- Gifts: {archetypeGifts}
+- Transformation: {archetypeJourney}
+
+CONFLICT:
+- Central: {centralConflict}
+- Opposing Forces: {opposingForces}
+- Stakes: {stakes}
+
+MORAL DIMENSION:
+- Primary: {moralConflict}
+- Complexity: {moralComplexity}
+- Position: {moralPosition}
+
+STRUCTURE BEATS:
+{structureBeatsArray} // Array of beats with descriptions
+
+DEVELOPED SCENES:
+{scenesArray} // Array of scenes with Movie Time content
+
+WRITING PREFERENCES:
+- Style: {writingStyle} (conversational/professional/dramatic/etc.)
+- POV: {pov} (first/third person)
+- Tense: {tense} (past/present)
+
+INSTRUCTIONS:
+Create a complete, cohesive narrative that:
+
+1. OPENS with the selected hook naturally integrated
+2. ESTABLISHES character using archetype voice and behaviors
+3. DEVELOPS through the structure beats in order
+4. INTEGRATES all developed scenes seamlessly
+5. WEAVES moral conflict throughout subtly
+6. MAINTAINS consistent voice, POV, and tense
+7. BUILDS emotional arc matching structure
+8. INCLUDES vivid sensory details (show don't tell)
+9. CREATES smooth transitions between beats/scenes
+10. CONCLUDES satisfyingly for this structure type
+
+Target word count: {draftLength} words ({lengthGuidance})
+
+Generate the complete story now. Write in {style} style, {pov}, {tense}.
+Make it compelling, coherent, and complete.
+```
+
+**Draft Improvement Prompt:**
+```
+You are a writing coach improving a specific passage.
+
+ORIGINAL TEXT:
+{selectedText}
+
+STORY CONTEXT:
+- Overall tone: {storyTone}
+- Character archetype: {archetype}
+- Current scene emotion: {sceneEmotion}
+
+IMPROVEMENT REQUEST: {improvementType}
+Options:
+- Make more vivid (add sensory details)
+- Make more concise (reduce wordiness)
+- Strengthen emotion (deeper feelings)
+- Improve dialogue (more natural)
+- Add subtext (show don't tell)
+
+Generate an improved version of this text that:
+1. Maintains the core meaning and events
+2. Improves in the requested dimension
+3. Fits the overall story tone
+4. Matches character voice
+5. Is same approximate length (unless "concise" requested)
+
+Return only the improved text, no explanations.
+```
+
+**Section Regeneration Prompt:**
+```
+You are rewriting a specific section of a story.
+
+SECTION TO REWRITE:
+{sectionText}
+
+SURROUNDING CONTEXT:
+Previous paragraph: {previousParagraph}
+Next paragraph: {nextParagraph}
+
+STORY DETAILS:
+- Character: {character}
+- Scene emotion: {emotion}
+- Story structure beat: {currentBeat}
+
+Generate a completely new version of this section that:
+1. Connects smoothly with surrounding paragraphs
+2. Covers the same narrative beats
+3. Uses fresh language and phrasing
+4. Maintains character voice
+5. Matches the emotional tone
+6. Improves on the original
+
+Return only the new version, same approximate length.
+```
+
+### 13.3 Component Architecture
+```
+ReviewAndExport/
+├── index.tsx (main container)
+├── ReviewDashboard/
+│   ├── index.tsx
+│   ├── StorySummary.tsx
+│   ├── CompletenessChecker.tsx
+│   ├── ComponentDetail.tsx (expandable sections)
+│   └── ImprovementSuggestions.tsx
+├── DraftGeneration/
+│   ├── index.tsx
+│   ├── GenerationOptions.tsx (length, style, POV)
+│   ├── DraftEditor.tsx
+│   ├── EditorToolbar.tsx
+│   ├── AIAssistance.tsx (improve, regenerate)
+│   └── VersionHistory.tsx
+├── ExportDialog/
+│   ├── index.tsx
+│   ├── FormatSelector.tsx
+│   ├── ContentCustomization.tsx
+│   ├── ExportPreview.tsx
+│   └── DownloadButton.tsx
+├── StoryLibrary/
+│   ├── index.tsx
+│   ├── StoryCard.tsx
+│   ├── LibraryFilters.tsx
+│   └── LibrarySearch.tsx
+├── SuccessCelebration/
+│   ├── index.tsx
+│   ├── ConfettiAnimation.tsx
+│   └── ShareButtons.tsx
+├── hooks/
+│   ├── useReviewData.ts
+│   ├── useFullDraft.ts
+│   ├── useExport.ts
+│   ├── useCompleteness.ts
+│   └── useStoryLibrary.ts
+└── utils/
+    ├── completenessCalculator.ts
+    ├── exportGenerators.ts
+    ├── formatConversion.ts
+    └── aiPrompts.ts
+State Management:
+typescript// Review & Export Context
+interface ReviewExportContextType {
+  // Review Data
+  storyData: StoryData;
+  completeness: CompletenessData;
+  
+  // Draft Generation
+  fullDraft: string;
+  draftOptions: DraftOptions;
+  generateDraft: (options: DraftOptions) => Promise<void>;
+  saveDraft: (content: string) => void;
+  
+  // Export
+  exportFormat: ExportFormat;
+  exportOptions: ExportOptions;
+  exportStory: () => Promise<void>;
+  copyToClipboard: () => void;
+  
+  // Version Control
+  versions: DraftVersion[];
+  currentVersion: number;
+  saveVersion: (name: string) => void;
+  revertToVersion: (version: number) => void;
+  
+  // Library
+  savedStories: Story[];
+  loadStory: (id: string) => void;
+}
+
+interface CompletenessData {
+  overall: number; // 0-100
+  components: {
+    storyType: boolean;
+    hook: boolean;
+    character: boolean;
+    structure: boolean;
+    conflict: boolean;
+    scenes: {
+      complete: boolean;
+      count: number;
+      expected: number;
+    };
+    moral: boolean;
+    openingPolish: boolean;
+    closingPolish: boolean;
+    visualMap: boolean;
+  };
+  missing: string[];
+  warnings: string[];
+}
+
+interface DraftOptions {
+  length: 'short' | 'medium' | 'long' | 'very_long';
+  style: 'conversational' | 'professional' | 'dramatic' | 'inspirational' | 'academic';
+  pov: 'first_past' | 'third_past' | 'first_present' | 'third_present' | 'second';
+}
+
+interface ExportOptions {
+  format: 'txt' | 'md' | 'rtf' | 'docx' | 'pdf';
+  includeTitle: boolean;
+  includeMetadata: boolean;
+  includeDraft: boolean;
+  includeCharacter: boolean;
+  includeStructure: boolean;
+  includeScenes: boolean;
+  includeMoral: boolean;
+  includeMap: boolean;
+  includeNotes: boolean;
+}
+13.4 Testing Strategy
+Unit Tests:
+
+Completeness calculation logic
+Export content generation
+Format conversion functions
+Clipboard operations
+Validation functions
+
+Integration Tests:
+
+Supabase story data retrieval
+AI draft generation API
+Export file generation
+Library save/load
+Version control
+
+E2E Tests (Cypress):
+
+Navigate to Review & Export
+View completeness checker
+Expand component details
+Generate full draft
+Edit draft in editor
+Select export format
+Customize export options
+Preview export
+Download file
+Copy to clipboard
+Save to library
+View success celebration
+
+Format Validation Tests:
+
+Generate each format
+Open in target application
+Verify formatting preserved
+Check special characters
+Validate file structure
+Test large stories
+Test minimal stories
+
+AI Quality Tests:
+
+Draft coherence evaluation
+Character voice consistency
+Structure adherence
+Moral integration subtlety
+Transition smoothness
+Manual review by writers
+A/B testing prompts
+
+13.5 Analytics Implementation
+Events to Track:
+javascript// Review Dashboard
+trackEvent('review_accessed', {
+  story_id: storyId,
+  completeness: completenessPercentage,
+  missing_components: missingArray,
+  entry_point: 'navigation' | 'workflow_end'
+});
+
+trackEvent('component_expanded', {
+  component: 'hook' | 'character' | 'structure' | etc.,
+  story_id: storyId
+});
+
+trackEvent('improve_clicked', {
+  component: componentName,
+  story_id: storyId
+});
+
+// Draft Generation
+trackEvent('draft_generated', {
+  story_id: storyId,
+  length: draftLength,
+  style: writingStyle,
+  pov: povSetting,
+  generation_time_ms: duration,
+  word_count: finalWordCount
+});
+
+trackEvent('draft_edited', {
+  story_id: storyId,
+  edit_count: numberOfEdits,
+  characters_changed: charDelta
+});
+
+trackEvent('ai_assistance_used', {
+  story_id: storyId,
+  type: 'improve' | 'regenerate',
+  accepted: boolean
+});
+
+// Export
+trackEvent('export_initiated', {
+  story_id: storyId,
+  format: exportFormat,
+  content_included: contentArray,
+  completeness: completenessPercentage
+});
+
+trackEvent('export_completed', {
+  story_id: storyId,
+  format: exportFormat,
+  file_size_kb: fileSize,
+  word_count: wordCount,
+  export_time_ms: duration
+});
+
+trackEvent('copy_to_clipboard', {
+  story_id: storyId,
+  word_count: wordCount
+});
+
+trackEvent('export_previewed', {
+  story_id: storyId,
+  format: exportFormat
+});
+
+// Library
+trackEvent('story_saved_to_library', {
+  story_id: storyId,
+  export_count: timesExported
+});
+
+trackEvent('story_loaded_from_library', {
+  story_id: storyId
+});
+Metrics Dashboard:
+
+Review dashboard access rate
+Average completeness at review
+Component detail expansion rate
+Draft generation usage
+Draft edit rate
+AI assistance acceptance rate
+Export format distribution
+Export completion rate
+Copy to clipboard usage
+Library save rate
+Time in review/export flow
+
+13.6 Documentation Needs
+User Documentation:
+
+"Reviewing Your Story" guide
+"Generating a Full Draft" tutorial
+"Export Formats Explained" reference
+"Editing Your Draft" tips
+Video walkthrough of review process
+Export troubleshooting
+FAQ: "My file won't open"
+Format compatibility chart
+
+Developer Documentation:
+
+Export generator API reference
+Format conversion documentation
+AI prompt customization guide
+Completeness calculator logic
+Testing export formats
+Adding new export formats
+Deployment checklist
+
+Content Guidelines:
+
+Draft generation best practices
+Prompt engineering notes
+Quality assurance for exports
+Format specifications
+Template design guidelines

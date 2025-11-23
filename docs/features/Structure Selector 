@@ -1,0 +1,2281 @@
+1. Feature Name
+Structure Selector
+2. Goal
+Enable users to select and apply proven narrative structures to their stories, choosing between deep guidance (5 curated structures with detailed beat-by-beat breakdowns) and light guidance (15+ structures with AI-generated outlines). This feature helps users organize their narrative with professional frameworks, ensuring proper pacing, emotional arcs, and satisfying story progression.
+3. User Story
+As a user developing my story,
+I want to select a narrative structure that fits my story type and provides the right level of guidance,
+So that I have a clear roadmap for organizing my narrative with proper pacing, emotional flow, and dramatic tension.
+4. Functional Requirements
+4.1 Core Functionality
+4.1.1 Mode-Specific Behavior
+Quick Mode (15-20 min):
+
+AI automatically recommends 1 structure based on story type
+Shows 3 pre-selected structure options
+Brief overview only (no deep guidance)
+AI generates simple beat-by-beat outline
+User can accept AI suggestion or choose from 3 options
+
+Comprehensive Mode (45-60 min):
+
+User chooses guidance level first:
+
+Deep Guidance: 5 structures with detailed step-by-step implementation
+Light Guidance: 15+ structures with AI-generated outlines
+
+
+Full structure exploration with examples, diagrams, and questions
+Beat-by-beat editor with detailed prompts
+Visual arc diagrams
+Pacing calculator (for applicable structures)
+
+4.1.2 Guidance Level Selection (Comprehensive Mode Only)
+How much structure guidance do you want?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────┐
+│ 📚 DEEP GUIDANCE                                            │
+│                                                             │
+│ Choose from 5 proven structures with detailed guidance:    │
+│ • Step-by-step beat breakdowns                             │
+│ • Guided questions for each beat                           │
+│ • Examples from successful stories                         │
+│ • Visual emotional arc diagrams                            │
+│ • Pacing recommendations                                   │
+│                                                             │
+│ Best for: First-time storytellers, important stories       │
+│ Time: 15-25 minutes per structure                          │
+│                                                             │
+│ [Select Deep Guidance]                                     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ ✨ LIGHT GUIDANCE                                           │
+│                                                             │
+│ Choose from 15+ structures with AI-generated outlines:     │
+│ • Brief structure overview                                 │
+│ • 3-5 key beats/touchpoints                                │
+│ • AI generates custom outline                              │
+│ • Quick implementation                                     │
+│                                                             │
+│ Best for: Experienced storytellers, exploring options      │
+│ Time: 5-10 minutes per structure                           │
+│                                                             │
+│ [Select Light Guidance]                                    │
+└─────────────────────────────────────────────────────────────┘
+
+Not sure? [Get AI Recommendation]
+4.2 The 5 Deep Guidance Structures
+Complete structure library with full beat-by-beat breakdowns:
+4.2.1 Hero's Journey (12 Stages)
+javascript{
+  id: 'herosJourney',
+  name: "Hero's Journey",
+  category: 'cycle',
+  icon: '🦸',
+  tagline: '12-stage transformation',
+  shortDesc: 'Your hero leaves the ordinary world, faces trials, and returns transformed',
+  fullDesc: 'Joseph Campbell\'s monomyth - the universal story pattern found across cultures. Perfect for stories of profound personal change, epic narratives, and transformation journeys.',
+  arcType: 'cycle',
+  difficulty: 'Advanced',
+  timeToDevlop: 'Extended',
+  bestFor: [
+    'Epic narratives',
+    'Personal transformation stories',
+    'Brand origin stories',
+    'Leadership journeys',
+    'Career change narratives'
+  ],
+  keyBenefit: 'Universal appeal through archetypal patterns that resonate across cultures',
+  visualArc: [20, 25, 15, 30, 40, 60, 50, 80, 90, 75, 85, 95], // Emotional intensity 0-100
+  beats: [
+    {
+      name: 'Ordinary World',
+      stage: 1,
+      desc: 'Establish the hero\'s normal life before the adventure',
+      duration: '5%',
+      emotion: 'Comfortable but incomplete',
+      guidance: {
+        explanation: 'Show your character\'s normal life - what\'s comfortable but also what\'s missing or at risk. This creates contrast for the journey ahead.',
+        questions: [
+          'What does a typical day look like for your character?',
+          'What\'s missing from their life?',
+          'What potential is being wasted?',
+          'What would they lose if they don\'t change?'
+        ],
+        examples: [
+          'Luke Skywalker on Tatooine: bored farm boy dreaming of adventure',
+          'Frodo in the Shire: peaceful but restless',
+          'Your brand before the "aha moment" that led to creation'
+        ],
+        aiPrompt: 'Describe the starting situation in concrete, sensory details'
+      }
+    },
+    {
+      name: 'Call to Adventure',
+      stage: 2,
+      desc: 'Something disrupts the ordinary world',
+      duration: '5%',
+      emotion: 'Curiosity, slight unease',
+      guidance: {
+        explanation: 'An event, person, or realization disrupts the status quo. The universe knocks on the door.',
+        questions: [
+          'What event changes everything?',
+          'Who or what brings the call?',
+          'What opportunity is presented?',
+          'Why now? Why this moment?'
+        ],
+        examples: [
+          'Princess Leia\'s hologram message',
+          'Gandalf arriving with a quest',
+          'Customer problem that inspired your product'
+        ],
+        aiPrompt: 'What specific event disrupts the ordinary world?'
+      }
+    },
+    {
+      name: 'Refusal of the Call',
+      stage: 3,
+      desc: 'Hero hesitates or refuses the challenge',
+      duration: '5%',
+      emotion: 'Fear, doubt, resistance',
+      guidance: {
+        explanation: 'The hero is reluctant, afraid, or uncertain. This makes them relatable and shows what they must overcome.',
+        questions: [
+          'Why does your hero resist?',
+          'What are they afraid of losing?',
+          'What doubts do they have?',
+          'What excuses do they make?'
+        ],
+        examples: [
+          'Luke: "I can\'t get involved, I have work to do"',
+          'Neo initially refusing to follow the white rabbit',
+          'Your founder\'s initial doubts about starting the company'
+        ],
+        aiPrompt: 'Why is the hero reluctant to accept the call?'
+      }
+    },
+    {
+      name: 'Meeting the Mentor',
+      stage: 4,
+      desc: 'Guidance or gift that enables the journey',
+      duration: '10%',
+      emotion: 'Hope, preparation, confidence building',
+      guidance: {
+        explanation: 'Someone or something provides wisdom, training, tools, or encouragement. This prepares the hero for the journey.',
+        questions: [
+          'Who guides your hero?',
+          'What wisdom or gift do they receive?',
+          'How does this prepare them for what\'s ahead?',
+          'What does the mentor believe about the hero?'
+        ],
+        examples: [
+          'Obi-Wan giving Luke his father\'s lightsaber',
+          'Morpheus training Neo in the Matrix',
+          'Your advisor/investor who believed in you'
+        ],
+        aiPrompt: 'Who mentors the hero and what do they provide?'
+      }
+    },
+    {
+      name: 'Crossing the Threshold',
+      stage: 5,
+      desc: 'Hero commits to the adventure',
+      duration: '10%',
+      emotion: 'Excitement, anxiety, point of no return',
+      guidance: {
+        explanation: 'The hero leaves the familiar world and enters the unknown. This is the point of no return.',
+        questions: [
+          'What moment marks the full commitment?',
+          'What does the hero leave behind?',
+          'What new world do they enter?',
+          'Is there a physical or metaphorical threshold?'
+        ],
+        examples: [
+          'Luke leaving Tatooine with Obi-Wan',
+          'Neo choosing the red pill',
+          'The day you quit your job to build your startup'
+        ],
+        aiPrompt: 'Describe the moment your hero crosses into the special world'
+      }
+    },
+    {
+      name: 'Tests, Allies, and Enemies',
+      stage: 6,
+      desc: 'Hero faces challenges and meets helpers',
+      duration: '15%',
+      emotion: 'Building tension, forming relationships',
+      guidance: {
+        explanation: 'The hero encounters obstacles, makes friends and enemies, and learns the rules of this new world.',
+        questions: [
+          'What tests does your hero face?',
+          'Who becomes allies? Who becomes enemies?',
+          'What skills are developed?',
+          'What does the hero learn about this new world?'
+        ],
+        examples: [
+          'Luke learning to use the Force, meeting Han and Chewbacca',
+          'Frodo and Sam meeting Aragorn, escaping Ringwraiths',
+          'Your early customers, advisors, and competitors'
+        ],
+        aiPrompt: 'What challenges, allies, and enemies does the hero encounter?'
+      }
+    },
+    {
+      name: 'Approach to the Inmost Cave',
+      stage: 7,
+      desc: 'Preparation for the major challenge',
+      duration: '10%',
+      emotion: 'Anticipation, fear, gathering courage',
+      guidance: {
+        explanation: 'The hero approaches the most dangerous place or the central conflict. There\'s preparation, planning, and mounting tension.',
+        questions: [
+          'What is the "inmost cave" - the scariest challenge?',
+          'How does the hero prepare?',
+          'What doubts resurface?',
+          'What\'s at stake in the coming ordeal?'
+        ],
+        examples: [
+          'Approaching the Death Star',
+          'Journey to Mount Doom',
+          'Preparing for your make-or-break product launch'
+        ],
+        aiPrompt: 'How does your hero prepare for the greatest challenge?'
+      }
+    },
+    {
+      name: 'The Ordeal',
+      stage: 8,
+      desc: 'Hero faces greatest fear or challenge',
+      duration: '10%',
+      emotion: 'Crisis, transformation, death and rebirth',
+      guidance: {
+        explanation: 'This is the central crisis. The hero faces their greatest fear, confronts death (literal or metaphorical), and is transformed.',
+        questions: [
+          'What is the life-or-death moment?',
+          'What does the hero fear most?',
+          'How close do they come to failure?',
+          'What dies so something new can be born?'
+        ],
+        examples: [
+          'Luke facing Darth Vader, learning the truth',
+          'Frodo being captured by Shelob',
+          'Your company nearly running out of money'
+        ],
+        aiPrompt: 'Describe the ordeal - the moment of greatest crisis'
+      }
+    },
+    {
+      name: 'Reward (Seizing the Sword)',
+      stage: 9,
+      desc: 'Hero gains what they sought',
+      duration: '10%',
+      emotion: 'Relief, achievement, celebration',
+      guidance: {
+        explanation: 'Having survived the ordeal, the hero claims the reward - the object of their quest, new knowledge, or reconciliation.',
+        questions: [
+          'What does the hero gain?',
+          'How have they changed?',
+          'What do they now understand?',
+          'Is the reward what they expected?'
+        ],
+        examples: [
+          'Destroying the Death Star, becoming a Jedi',
+          'Destroying the Ring, saving Middle-earth',
+          'Your first major customer win or funding round'
+        ],
+        aiPrompt: 'What reward does the hero claim after the ordeal?'
+      }
+    },
+    {
+      name: 'The Road Back',
+      stage: 10,
+      desc: 'Journey home with new knowledge',
+      duration: '10%',
+      emotion: 'Urgency, purpose, complications',
+      guidance: {
+        explanation: 'The hero must return to the ordinary world with their reward, but the journey back has its own dangers.',
+        questions: [
+          'What motivates the return?',
+          'What obstacles remain?',
+          'Are there consequences to the victory?',
+          'What\'s pulling them home?'
+        ],
+        examples: [
+          'Escaping the Death Star before it explodes',
+          'Frodo\'s journey back to the Shire',
+          'Scaling your business after initial success'
+        ],
+        aiPrompt: 'What happens on the journey back to the ordinary world?'
+      }
+    },
+    {
+      name: 'Resurrection',
+      stage: 11,
+      desc: 'Final test using lessons learned',
+      duration: '5%',
+      emotion: 'Triumph or sacrifice, ultimate test',
+      guidance: {
+        explanation: 'One final test shows that the hero has truly learned the lessons of the journey and earned their transformation.',
+        questions: [
+          'What is the final challenge?',
+          'How does the hero prove they\'ve changed?',
+          'What lessons from the journey are applied?',
+          'Is there a final temptation or test?'
+        ],
+        examples: [
+          'Luke choosing to trust the Force over technology',
+          'Frodo letting go of the Ring',
+          'Your pivot that saved the company'
+        ],
+        aiPrompt: 'What final test proves the hero\'s transformation?'
+      }
+    },
+    {
+      name: 'Return with the Elixir',
+      stage: 12,
+      desc: 'Hero returns transformed, sharing wisdom',
+      duration: '5%',
+      emotion: 'Fulfillment, wisdom, new normal',
+      guidance: {
+        explanation: 'The hero returns to the ordinary world transformed, with something valuable to share - wisdom, healing, treasure, or change.',
+        questions: [
+          'How has the hero changed?',
+          'What do they bring back?',
+          'How is the ordinary world improved?',
+          'What\'s the new normal?'
+        ],
+        examples: [
+          'Luke as a Jedi Knight, ready to rebuild the Order',
+          'Frodo writing his memoir, changed forever',
+          'Your company\'s impact on the industry'
+        ],
+        aiPrompt: 'How does the hero return transformed and what do they share?'
+      }
+    }
+  ],
+  deepGuidance: true,
+  pacingGuide: {
+    act1: '0-25%', // Stages 1-4
+    act2: '25-75%', // Stages 5-10
+    act3: '75-100%' // Stages 11-12
+  }
+}
+4.2.2 Man In A Hole (5 Beats)
+javascript{
+  id: 'manInAHole',
+  name: 'Man In A Hole',
+  category: 'cycle',
+  icon: '🕳️',
+  tagline: 'Fall down, find treasure, climb back up',
+  shortDesc: 'Someone doing OK falls into trouble, learns something valuable, climbs back wiser',
+  fullDesc: 'Kurt Vonnegut\'s most reliable story shape. Anyone can fall into a hole, but you can\'t fall out - you have to climb. This is where you show your strength and what you learned in the darkness.',
+  arcType: 'cycle',
+  difficulty: 'Simple',
+  timeToDevlop: 'Quick',
+  bestFor: [
+    'Case studies',
+    'Lessons learned stories',
+    'Recovery narratives',
+    'Business turnarounds',
+    'Personal setback stories',
+    'Before/after transformations'
+  ],
+  keyBenefit: 'Creates strong empathy and shows real growth from adversity',
+  visualArc: [60, 55, 20, 15, 25, 45, 70, 85],
+  beats: [
+    {
+      name: 'Comfort Zone',
+      desc: 'Normal life, but something is missing or at risk',
+      duration: '15%',
+      emotion: 'Stable but unfulfilled',
+      guidance: {
+        explanation: 'This isn\'t paradise, but it\'s OK. Show what\'s working but also hint at vulnerability or wasted potential.',
+        questions: [
+          'What\'s your starting situation?',
+          'What potential is being wasted?',
+          'What warning signs exist that you ignore?',
+          'What makes you complacent?'
+        ],
+        examples: [
+          'Successful business pre-pandemic',
+          'Career on autopilot before disruption',
+          'Relationship that\'s "fine" but not great'
+        ],
+        treasureInDark: 'The seed of what needs to change is already visible here'
+      }
+    },
+    {
+      name: 'Trigger',
+      desc: 'Something knocks you down into the hole',
+      duration: '15%',
+      emotion: 'Shock, denial, disbelief',
+      guidance: {
+        explanation: 'Something goes wrong. Either bad luck or you weren\'t paying attention. This disrupts the comfortable status quo.',
+        questions: [
+          'What event changes everything?',
+          'Was it bad luck or a blind spot?',
+          'How sudden was the fall?',
+          'What do you lose or risk losing?'
+        ],
+        examples: [
+          'Pandemic shutting down business',
+          'Losing a major client',
+          'Health crisis',
+          'Getting fired or failing publicly'
+        ],
+        visualMetaphor: 'The moment the ground gives way beneath your feet'
+      }
+    },
+    {
+      name: 'Crisis (The Hole)',
+      desc: 'You\'re down in the darkness, but treasure awaits',
+      duration: '30%',
+      emotion: 'Despair turning to discovery',
+      guidance: {
+        explanation: 'This is the lowest point, the dark night of the soul. But in stories, we find treasure in the dark - this is where the real learning happens.',
+        questions: [
+          'What\'s the lowest point?',
+          'What treasure do you find in the dark?',
+          'What do you learn about yourself?',
+          'What becomes clear that you couldn\'t see before?',
+          'Who or what helps you see differently?'
+        ],
+        examples: [
+          'Discovering what really matters',
+          'Finding unexpected allies',
+          'Learning hidden strengths',
+          'Gaining new perspective on old problems'
+        ],
+        criticalElement: '**The Treasure in the Dark** - this is what makes the story valuable. Without learning/discovery, this is just complaining.',
+        treasureExamples: [
+          'Realizing your priorities were wrong',
+          'Discovering resilience you didn\'t know you had',
+          'Finding a better path forward',
+          'Learning what not to do'
+        ]
+      }
+    },
+    {
+      name: 'Recovery',
+      desc: 'Put the lessons to use and start climbing',
+      duration: '25%',
+      emotion: 'Determination, hope, building momentum',
+      guidance: {
+        explanation: 'You apply what you learned in the darkness. The climb is hard, but you\'re wiser and stronger now.',
+        questions: [
+          'How do you apply what you learned?',
+          'What strengths emerge?',
+          'Who or what helps you climb?',
+          'What\'s different about your approach now?',
+          'What obstacles remain?'
+        ],
+        examples: [
+          'Pivoting business model with new understanding',
+          'Rebuilding with new priorities',
+          'Using adversity-forged skills',
+          'Making different choices based on lessons'
+        ],
+        showDontTell: 'Demonstrate the learning through action, not just stating it'
+      }
+    },
+    {
+      name: 'Better Place',
+      desc: 'Older, wiser, stronger than before',
+      duration: '15%',
+      emotion: 'Pride, wisdom, gratitude',
+      guidance: {
+        explanation: 'You\'re not back where you started - you\'re somewhere better. Show what\'s different and what can\'t knock you down again.',
+        questions: [
+          'How are you different now?',
+          'What won\'t knock you down again?',
+          'What wisdom do you share?',
+          'How is this sustainable?',
+          'What\'s your new normal?'
+        ],
+        examples: [
+          'Business stronger with lessons applied',
+          'Relationships deeper from vulnerability',
+          'Career refocused on what matters',
+          'New capabilities from adversity'
+        ],
+        avoidPitfall: 'Don\'t just return to status quo - show real transformation'
+      }
+    }
+  ],
+  deepGuidance: true,
+  emotionalGraph: {
+    type: 'U-shape',
+    key: 'The deeper the hole, the more valuable the treasure must be'
+  }
+}
+4.2.3 Three-Act Structure (3 Acts with Sub-Beats)
+javascript{
+  id: 'threeAct',
+  name: 'Three-Act Structure',
+  category: 'complex',
+  icon: '🎭',
+  tagline: 'Setup, Confrontation, Resolution',
+  shortDesc: 'The backbone of Western storytelling',
+  fullDesc: 'Act 1 sets up the world and problem (25%), Act 2 escalates conflict and complications (50%), Act 3 resolves everything (25%). Clear, professional, proven across millennia of storytelling.',
+  arcType: 'complex',
+  difficulty: 'Moderate',
+  timeToDevlop: 'Medium',
+  bestFor: [
+    'Presentations',
+    'Feature films and scripts',
+    'Brand stories',
+    'Long-form content',
+    'Professional narratives'
+  ],
+  keyBenefit: 'Clear structure that audiences intuitively understand',
+  visualArc: [20, 30, 40, 50, 60, 70, 80, 90, 70, 50, 95],
+  acts: [
+    {
+      name: 'Act 1: Setup',
+      duration: '25%',
+      purpose: 'Establish world, introduce characters, present problem',
+      emotion: 'Curiosity building to urgency',
+      subBeats: [
+        {
+          name: 'Exposition',
+          desc: 'Introduce the world and main character',
+          duration: '10%',
+          questions: [
+            'Who is the protagonist?',
+            'What\'s their world like?',
+            'What\'s normal for them?',
+            'What do they want or need?'
+          ]
+        },
+        {
+          name: 'Inciting Incident',
+          desc: 'The event that sets the story in motion',
+          duration: '10%',
+          questions: [
+            'What disrupts the normal world?',
+            'What problem or opportunity arises?',
+            'Why can\'t it be ignored?',
+            'What\'s at stake?'
+          ],
+          keyPoint: 'This typically happens around 10-12% into the story'
+        },
+        {
+          name: 'First Plot Point',
+          desc: 'Protagonist commits to addressing the problem',
+          duration: '5%',
+          questions: [
+            'What decision launches the main story?',
+            'What does the protagonist commit to?',
+            'What point of no return is crossed?',
+            'How does the world change for them?'
+          ],
+          keyPoint: 'End of Act 1 - approximately 25% mark'
+        }
+      ]
+    },
+    {
+      name: 'Act 2: Confrontation',
+      duration: '50%',
+      purpose: 'Escalate conflict, complicate situation, test protagonist',
+      emotion: 'Rising tension with setbacks and small victories',
+      subBeats: [
+        {
+          name: 'Rising Action',
+          desc: 'First attempts to solve the problem',
+          duration: '20%',
+          questions: [
+            'What obstacles appear?',
+            'What\'s the protagonist\'s plan?',
+            'What early successes occur?',
+            'What complications arise?'
+          ]
+        },
+        {
+          name: 'Midpoint',
+          desc: 'Major event that changes everything',
+          duration: '10%',
+          questions: [
+            'What big revelation or reversal occurs?',
+            'How does this raise the stakes?',
+            'What shifts in the protagonist\'s understanding?',
+            'What new information changes the game?'
+          ],
+          keyPoint: 'Occurs at the 50% mark - the story\'s center'
+        },
+        {
+          name: 'Complications & Setbacks',
+          desc: 'Things get worse, stakes rise',
+          duration: '15%',
+          questions: [
+            'What goes wrong?',
+            'How do allies turn into enemies or vice versa?',
+            'What costs become clear?',
+            'What internal flaws are revealed?'
+          ]
+        },
+        {
+          name: 'Second Plot Point (Crisis)',
+          desc: 'All seems lost - the darkest moment',
+          duration: '5%',
+          questions: [
+            'What\'s the lowest point?',
+            'What does the protagonist lose?',
+            'How close do they come to giving up?',
+            'What forces the final confrontation?'
+          ],
+          keyPoint: 'End of Act 2 - approximately 75% mark'
+        }
+      ]
+    },
+    {
+      name: 'Act 3: Resolution',
+      duration: '25%',
+      purpose: 'Final confrontation, resolve conflicts, show change',
+      emotion: 'Climax to catharsis',
+      subBeats: [
+        {
+          name: 'Climax',
+          desc: 'Final confrontation or decisive action',
+          duration: '10%',
+          questions: [
+            'What\'s the final showdown?',
+            'How does the protagonist use all they\'ve learned?',
+            'What choice do they make?',
+            'How is the central conflict resolved?'
+          ],
+          keyPoint: 'The highest point of tension'
+        },
+        {
+          name: 'Falling Action',
+          desc: 'Immediate consequences of the climax',
+          duration: '10%',
+          questions: [
+            'What are the immediate results?',
+            'What loose ends get tied up?',
+            'How do characters react?',
+            'What\'s the cost of victory?'
+          ]
+        },
+        {
+          name: 'Denouement',
+          desc: 'New normal, show lasting change',
+          duration: '5%',
+          questions: [
+            'What\'s the new status quo?',
+            'How has the protagonist changed?',
+            'What\'s different about their world?',
+            'What\'s the final message or takeaway?'
+          ],
+          keyPoint: 'Should feel satisfying and earned'
+        }
+      ]
+    }
+  ],
+  deepGuidance: true,
+  pacingCalculator: {
+    enabled: true,
+    description: 'Enter your target story length to see exact timing for each beat',
+    calculation: (totalLength) => ({
+      act1: totalLength * 0.25,
+      incitingIncident: totalLength * 0.12,
+      firstPlotPoint: totalLength * 0.25,
+      midpoint: totalLength * 0.50,
+      secondPlotPoint: totalLength * 0.75,
+      climax: totalLength * 0.85,
+      act3: totalLength * 0.25
+    })
+  }
+}
+4.2.4 Story Spine (Fill-in-the-Blank Template)
+javascript{
+  id: 'storySpine',
+  name: 'Story Spine',
+  category: 'template',
+  icon: '📝',
+  tagline: 'Fill-in-the-blank story template',
+  shortDesc: 'Pixar\'s go-to structure for story development',
+  fullDesc: 'A simple template that forces narrative logic through a series of prompts. Each prompt builds on the last, creating a complete story arc. Easy to use, surprisingly powerful, used by Pixar for story development.',
+  arcType: 'template',
+  difficulty: 'Simple',
+  timeToDevlop: 'Quick',
+  bestFor: [
+    'Quick story drafts',
+    'Pitches and presentations',
+    'Teaching storytelling',
+    'Brainstorming sessions',
+    'Children\'s stories',
+    'Rapid prototyping'
+  ],
+  keyBenefit: 'Forces narrative logic through simple template structure',
+  template: [
+    {
+      prompt: 'Once upon a time...',
+      purpose: 'Establish the normal world',
+      guidance: 'Introduce your character and their ordinary world. Keep it simple.',
+      examples: [
+        'Once upon a time, there was a small company struggling to compete with giants...',
+        'Once upon a time, I was working 80-hour weeks and burning out...',
+        'Once upon a time, there was a princess locked in a tower...'
+      ],
+      questions: [
+        'Who is your character?',
+        'What\'s their world like?',
+        'What\'s normal for them?'
+      ]
+    },
+    {
+      prompt: 'Every day...',
+      purpose: 'Show the routine',
+      guidance: 'What\'s the pattern? This establishes what\'s about to change.',
+      examples: [
+        'Every day, we lost customers to bigger competitors...',
+        'Every day, I came home exhausted with nothing left for my family...',
+        'Every day, she looked out the window hoping for rescue...'
+      ],
+      questions: [
+        'What\'s the daily routine?',
+        'What pattern exists?',
+        'What\'s predictable?'
+      ]
+    },
+    {
+      prompt: 'But one day...',
+      purpose: 'Inciting incident',
+      guidance: 'What changed? What disrupted the pattern?',
+      examples: [
+        'But one day, our biggest client asked for something the giants couldn\'t deliver...',
+        'But one day, I collapsed at my desk and realized something had to change...',
+        'But one day, a dragon landed on her windowsill...'
+      ],
+      questions: [
+        'What disrupted the routine?',
+        'What changed everything?',
+        'What was different about this day?'
+      ],
+      keyPoint: 'This is your inciting incident - the moment everything changes'
+    },
+    {
+      prompt: 'Because of that...',
+      purpose: 'First consequence',
+      guidance: 'What happened as a direct result? Show the chain of causality.',
+      examples: [
+        'Because of that, we developed a custom solution no one else could offer...',
+        'Because of that, I started saying no to projects that didn\'t matter...',
+        'Because of that, she climbed onto the dragon\'s back...'
+      ],
+      questions: [
+        'What was the immediate consequence?',
+        'What did this lead to?',
+        'What action did this prompt?'
+      ],
+      canRepeat: true,
+      note: 'You can repeat "Because of that" 2-3 times to show the chain of events'
+    },
+    {
+      prompt: 'Because of that... (repeat)',
+      purpose: 'Second consequence',
+      guidance: 'Continue the chain of causality. Each "because of that" builds tension.',
+      examples: [
+        'Because of that, word spread and more clients came to us...',
+        'Because of that, I had energy for what really mattered...',
+        'Because of that, they flew over mountains she\'d never seen...'
+      ],
+      optional: true
+    },
+    {
+      prompt: 'Because of that... (final)',
+      purpose: 'Final consequence before resolution',
+      guidance: 'The last link in the chain before the climax.',
+      examples: [
+        'Because of that, we became known as the innovative alternative...',
+        'Because of that, my relationships improved and work got better...',
+        'Because of that, they arrived at the dragon\'s kingdom...'
+      ],
+      optional: true
+    },
+    {
+      prompt: 'Until finally...',
+      purpose: 'Climax and resolution',
+      guidance: 'How does it all resolve? What\'s the final outcome?',
+      examples: [
+        'Until finally, we were competing with the giants as equals...',
+        'Until finally, I found the balance I\'d been seeking...',
+        'Until finally, she discovered she didn\'t need rescuing - she was free all along...'
+      ],
+      questions: [
+        'What\'s the final outcome?',
+        'How is everything resolved?',
+        'What\'s the climax?'
+      ],
+      keyPoint: 'This should feel like a natural conclusion to all the "because of that" steps'
+    },
+    {
+      prompt: 'And ever since then...',
+      purpose: 'New normal',
+      guidance: 'Show the lasting change. What\'s different now?',
+      examples: [
+        'And ever since then, we\'ve grown by being the company that does what others can\'t...',
+        'And ever since then, I\'ve protected my time and energy as sacred...',
+        'And ever since then, she\'s been showing other princesses they don\'t need towers...'
+      ],
+      questions: [
+        'What\'s the new normal?',
+        'How has the world changed?',
+        'What\'s different now?',
+        'What\'s the lasting impact?'
+      ]
+    }
+  ],
+  deepGuidance: true,
+  tips: [
+    'Each prompt should build logically from the previous one',
+    'Use "Because of that" to show clear cause and effect',
+    'Keep each section to 1-3 sentences',
+    'The structure forces you to think about consequences',
+    'Great for first drafts - you can expand later'
+  ]
+}
+4.2.5 Hero & Guide (Relationship Framework)
+javascript{
+  id: 'heroGuide',
+  name: 'Hero & Guide',
+  category: 'template',
+  icon: '🤝',
+  tagline: 'You are the guide, not the hero',
+  shortDesc: 'Your customer is the hero, you are the expert guide who helps them succeed',
+  fullDesc: 'Donald Miller\'s StoryBrand framework. Position your customer as the hero of their own story, with you as the expert guide who provides wisdom, tools, and support for their transformation. Perfect for customer-centric business stories.',
+  arcType: 'relationship',
+  difficulty: 'Simple',
+  timeToDevlop: 'Quick',
+  bestFor: [
+    'Marketing copy',
+    'Brand stories',
+    'Sales pitches',
+    'Customer success stories',
+    'Product launches',
+    'Service positioning'
+  ],
+  keyBenefit: 'Makes customers the hero, building connection and desire',
+  framework: [
+    {
+      element: 'The Hero',
+      role: 'Your customer/user/audience',
+      desc: 'The person with a problem or desire',
+      guidance: {
+        explanation: 'The hero is NOT you or your company - it\'s your customer. They have a problem and want to transform.',
+        questions: [
+          'Who is your customer?',
+          'What problem do they have?',
+          'What do they want to become?',
+          'What\'s their desired transformation?',
+          'What\'s stopping them?'
+        ],
+        examples: [
+          'Small business owner wanting to compete with larger companies',
+          'Busy professional seeking work-life balance',
+          'Entrepreneur needing to tell their story better'
+        ],
+        criticalMindset: 'Your customer is Luke Skywalker, not you'
+      }
+    },
+    {
+      element: 'The Problem',
+      role: 'What the hero faces',
+      desc: 'External problem, internal frustration, and philosophical villain',
+      guidance: {
+        explanation: 'Problems exist at three levels - address all three for powerful connection.',
+        levels: [
+          {
+            name: 'External Problem',
+            desc: 'The surface-level, practical problem',
+            examples: [
+              'Need better project management software',
+              'Can\'t find time to exercise',
+              'Don\'t know how to tell stories'
+            ]
+          },
+          {
+            name: 'Internal Problem',
+            desc: 'How the external problem makes them feel',
+            examples: [
+              'Feel overwhelmed and scattered',
+              'Feel guilty and unhealthy',
+              'Feel unheard and ineffective'
+            ]
+          },
+          {
+            name: 'Philosophical Problem',
+            desc: 'Why this is wrong or unjust',
+            examples: [
+              'Good work shouldn\'t require chaos',
+              'Health shouldn\'t be a luxury',
+              'Everyone deserves to be heard'
+            ]
+          }
+        ],
+        questions: [
+          'What practical problem exists?',
+          'How does this make them feel?',
+          'Why is this situation wrong?'
+        ]
+      }
+    },
+    {
+      element: 'The Guide',
+      role: 'You/your company',
+      desc: 'The wise expert who has solved this problem before',
+      guidance: {
+        explanation: 'You are Yoda, Gandalf, Mr. Miyagi - you\'ve been where they are and know the way forward.',
+        qualities: [
+          'Empathy: "I understand your problem"',
+          'Authority: "I\'ve helped others like you succeed"'
+        ],
+        questions: [
+          'How do you show you understand their problem?',
+          'What credentials/experience do you have?',
+          'Who else have you helped?',
+          'What makes you qualified to guide?'
+        ],
+        examples: [
+          'We built this after facing the same challenges',
+          'We\'ve helped 500+ companies solve this exact problem',
+          'Our founder struggled with this for years before creating the solution'
+        ],
+        avoidPitfall: 'Don\'t make yourself the hero - you are Yoda, not Luke'
+      }
+    },
+    {
+      element: 'The Plan',
+      role: 'Your solution/offering',
+      desc: 'The clear path forward that removes risk and confusion',
+      guidance: {
+        explanation: 'Heroes need a clear plan. Remove confusion with simple, actionable steps.',
+        types: [
+          {
+            name: 'Process Plan',
+            desc: 'Step-by-step how to work with you',
+            example: '1. Book a call → 2. Get custom plan → 3. Implement together → 4. See results'
+          },
+          {
+            name: 'Agreement Plan',
+            desc: 'Promises that reduce fear',
+            example: 'Money-back guarantee, Cancel anytime, Your data stays private'
+          }
+        ],
+        questions: [
+          'What are the 3-4 simple steps to success?',
+          'How do you reduce their risk?',
+          'What guarantees can you make?',
+          'What fears can you address?'
+        ],
+        makeItConcrete: '3-4 steps maximum - any more creates confusion'
+      }
+    },
+    {
+      element: 'The Call to Action',
+      role: 'What they should do next',
+      desc: 'Direct call to action AND transitional call to action',
+      guidance: {
+        explanation: 'Give two clear paths: direct purchase/commitment and low-risk next step.',
+        types: [
+          {
+            name: 'Direct CTA',
+            desc: 'The main action you want them to take',
+            examples: [
+              'Buy Now',
+              'Schedule a Call',
+              'Start Your Trial',
+              'Get Started'
+            ],
+            placement: 'Clear, prominent, repeated'
+          },
+          {
+            name: 'Transitional CTA',
+            desc: 'Lower-commitment option for those not ready',
+            examples: [
+              'Download our free guide',
+              'Watch a demo',
+              'Read case studies',
+              'Join our newsletter'
+            ],
+            purpose: 'Stays in relationship, builds trust'
+          }
+        ],
+        questions: [
+          'What\'s the ideal next step?',
+          'What\'s a lower-commitment alternative?',
+          'How can they take action right now?'
+        ]
+      }
+    },
+    {
+      element: 'Stakes (Success)',
+      role: 'Vision of success',
+      desc: 'Paint a picture of how great life is when they succeed',
+      guidance: {
+        explanation: 'Help them see and feel the transformation. Be specific about the win.',
+        questions: [
+          'What does success look like?',
+          'How will their life improve?',
+          'What will they achieve?',
+          'How will they feel?',
+          'What becomes possible?'
+        ],
+        examples: [
+          'You\'ll close deals with confidence, knowing your story resonates',
+          'You\'ll have systems that run without you, giving you freedom',
+          'You\'ll transform from scattered to strategic'
+        ],
+        makeItVivid: 'Use sensory details and emotion, not just features'
+      }
+    },
+    {
+      element: 'Stakes (Failure)',
+      role: 'Cost of inaction',
+      desc: 'Show what they\'ll lose if they don\'t take action',
+      guidance: {
+        explanation: 'People are motivated to avoid loss. Show the cost of staying where they are.',
+        questions: [
+          'What happens if they don\'t change?',
+          'What will they miss out on?',
+          'How will the problem get worse?',
+          'What opportunities will pass?'
+        ],
+        examples: [
+          'You\'ll keep losing deals to competitors who tell better stories',
+          'The chaos will only increase as you grow',
+          'You\'ll stay stuck in reactive mode, always firefighting'
+        ],
+        useCarefully: 'Don\'t fear-monger, but be honest about costs'
+      }
+    },
+    {
+      element: 'Transformation',
+      role: 'The character journey',
+      desc: 'From → To identity shift',
+      guidance: {
+        explanation: 'People buy transformations, not products. Show the identity shift.',
+        framework: 'FROM [current identity] TO [aspirational identity]',
+        examples: [
+          'From overwhelmed founder → To strategic CEO',
+          'From scattered marketer → To storytelling expert',
+          'From busy professional → To balanced leader'
+        ],
+        questions: [
+          'What identity do they have now?',
+          'What identity do they want?',
+          'How does your solution enable this shift?'
+        ],
+        powerfulWhen: 'The transformation is about WHO they become, not just what they get'
+      }
+    }
+  ],
+  deepGuidance: true,
+  worksheetTemplate: {
+    hero: '[Customer description]',
+    externalProblem: '[Practical problem they face]',
+    internalProblem: '[How it makes them feel]',
+    philosophicalProblem: '[Why this is wrong]',
+    empathy: '[How you show understanding]',
+    authority: '[Your credentials/experience]',
+    processPlan: ['Step 1', 'Step 2', 'Step 3'],
+    agreementPlan: ['Promise 1', 'Promise 2', 'Promise 3'],
+    directCTA: '[Main call to action]',
+    transitionalCTA: '[Lower-commitment option]',
+    success: '[Vision of life after transformation]',
+    failure: '[Cost of staying where they are]',
+    transformation: 'From [current state] to [desired state]'
+  }
+}
+```
+
+### 4.3 Light Guidance Structures (15+ Options)
+
+In Light Guidance mode, users see all available structures with:
+- 1-paragraph description
+- Visual arc diagram
+- 3-5 key beats
+- "Best for" recommendations
+- AI generates custom beat-by-beat outline based on their story context
+
+Additional structures beyond the Deep Guidance 5:
+
+6. **Rags to Riches** - Rise from low to high status
+7. **Tragedy** - Downward spiral from success to failure
+8. **Rebirth** - Dark transformation into better self
+9. **Quest** - Journey toward specific goal, return home
+10. **Voyage and Return** - Leave familiar, explore, return transformed
+11. **Comedy** - Rising tension, happy resolution
+12. **Overcoming the Monster** - Defeat threatening force
+13. **Nested Loops** - Stories within stories
+14. **In Media Res** - Start in middle, fill in background
+15. **False Start** - Misdirection, then pivot to real story
+16. **Converging Ideas** - Multiple threads unite
+17. **Petal Structure** - Central theme with examples radiating out
+18. **Five Ts Framework** - Completeness checker (Trigger, Tension, Transformation, Takeaway, Telling)
+
+### 4.4 Structure Selection Interface
+```
+Choose Your Story Structure
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Deep Guidance selected - showing 5 curated structures]
+
+Filter by Arc Type:
+[All] [📈 Rise] [📉 Fall] [🔄 Cycle] [🎭 Complex] [📝 Template]
+
+┌────────────────────────────────────────────────────────────┐
+│ 🦸 HERO'S JOURNEY                          ⭐ Recommended  │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ 12-stage transformation arc                               │
+│ Your hero leaves the ordinary world, faces trials, and    │
+│ returns transformed. Perfect for profound personal change. │
+│                                                            │
+│ Difficulty: Advanced  |  Time: Extended                    │
+│                                                            │
+│ Best for: Epic narratives, Personal transformation,        │
+│ Brand origin stories, Leadership journeys                  │
+│                                                            │
+│ [Emotional Arc Graph: /\__/\__/^\__]                       │
+│                                                            │
+│ [Learn More] [Select This Structure]                      │
+└────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────┐
+│ 🕳️ MAN IN A HOLE                           ⭐ Popular      │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ Fall down, find treasure, climb back up                   │
+│ Someone doing OK falls into trouble, learns something     │
+│ valuable, and climbs back wiser.                          │
+│                                                            │
+│ Difficulty: Simple  |  Time: Quick                         │
+│                                                            │
+│ Best for: Case studies, Lessons learned, Recovery,        │
+│ Business turnarounds                                       │
+│                                                            │
+│ [Emotional Arc Graph: __\__/‾‾]                            │
+│                                                            │
+│ [Learn More] [Select This Structure]                      │
+└────────────────────────────────────────────────────────────┘
+
+[3 more structure cards...]
+
+Can't decide? [Get AI Recommendation]
+4.5 AI Structure Recommendation
+When user clicks "Get AI Recommendation":
+javascriptconst recommendStructure = async (storyContext) => {
+  const prompt = `Based on this story context, recommend the best structure:
+
+Story Type: ${storyContext.storyType.type.name}
+Audience: ${storyContext.audience.primary}
+Character Archetype: ${storyContext.character.primary?.name || 'Not yet selected'}
+Time Available: ${storyContext.mode === 'quick' ? 'Quick' : 'Extended'}
+Story Purpose: ${storyContext.purpose}
+
+From these structures: ${availableStructures.map(s => s.name).join(', ')}
+
+Recommend the BEST structure and explain why in 2-3 sentences. Also suggest 2 alternatives.
+
+Return JSON:
+{
+  "primary": {
+    "structureId": "id",
+    "confidence": "high|medium|low",
+    "reasoning": "explanation"
+  },
+  "alternatives": [
+    {"structureId": "id", "reason": "why this could work"}
+  ]
+}`;
+
+  // API call to Claude
+  // Returns structured recommendation
+};
+```
+
+### 4.6 Beat-by-Beat Editor (Deep Guidance)
+
+Once structure is selected, user enters beat-by-beat editor:
+```
+Hero's Journey - Beat 1 of 12
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ ORDINARY WORLD                                             │
+│ 5% of your story  |  Emotion: Comfortable but incomplete   │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ 📖 What This Beat Is About                                 │
+│ Establish the hero's normal life before the adventure.    │
+│ Show what's working but also hint at what's missing.      │
+│                                                            │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                            │
+│ 💭 Guiding Questions                                       │
+│ • What does a typical day look like?                      │
+│ • What's missing from their life?                         │
+│ • What potential is being wasted?                         │
+│ • What would they lose if they don't change?              │
+│                                                            │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                            │
+│ 📝 Your Answer                                             │
+│ ┌────────────────────────────────────────────────────────┐│
+│ │ [Text area for user to write their beat]              ││
+│ │                                                        ││
+│ │                                                        ││
+│ │                                                        ││
+│ └────────────────────────────────────────────────────────┘│
+│                                                            │
+│ [✨ Generate AI Draft] [💡 See Examples]                  │
+│                                                            │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                            │
+│ 🎬 Examples                                                │
+│ • Luke Skywalker on Tatooine: bored farm boy dreaming     │
+│   of adventure                                            │
+│ • Your brand before the "aha moment" that led to creation│
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+
+[⬅️ Back] [Skip This Beat] [Save & Continue ➡️]
+
+Progress: ███░░░░░░░░░ 1/12 beats complete
+4.7 State Management
+javascriptstoryData.structure = {
+  // Guidance level choice (Comprehensive Mode only)
+  guidanceLevel: 'deep' | 'light', // null for Quick Mode
+  
+  // Selected structure
+  selected: {
+    id: 'herosJourney',
+    name: "Hero's Journey",
+    category: 'cycle',
+    icon: '🦸',
+    difficulty: 'Advanced',
+    totalBeats: 12
+  },
+  
+  // User's beat content (for Deep Guidance)
+  beats: [
+    {
+      beatNumber: 1,
+      beatName: 'Ordinary World',
+      userContent: 'Before we started the company, I was working...',
+      aiDraft: '[AI-generated content if requested]',
+      isEdited: true,
+      completedAt: timestamp,
+      wordCount: 87
+    },
+    // ... all beats
+  ],
+  
+  // AI-generated outline (for Light Guidance)
+  aiOutline: {
+    generated: true,
+    beats: [
+      {
+        beatName: 'Opening',
+        suggestion: 'Start with the moment you realized...',
+        duration: '10%'
+      }
+      // ... simplified beats
+    ],
+    generatedAt: timestamp
+  },
+  
+  // Selection metadata
+  selectedAt: timestamp,
+  selectionMethod: 'manual' | 'ai-recommended',
+  timeSpentOnStructure: 1240, // seconds
+  
+  // Completion tracking
+  beatsCompleted: 5,
+  totalBeats: 12,
+  progressPercentage: 42
+};
+5. Data Requirements
+5.1 Database Schema (Supabase)
+stories table - structure field already exists as JSONB:
+sql-- The structure column stores the complete structure object
+-- Example stored value (Deep Guidance):
+{
+  "guidanceLevel": "deep",
+  "selected": {
+    "id": "herosJourney",
+    "name": "Hero's Journey",
+    "category": "cycle",
+    "totalBeats": 12
+  },
+  "beats": [
+    {
+      "beatNumber": 1,
+      "beatName": "Ordinary World",
+      "userContent": "Before starting the company...",
+      "aiDraft": null,
+      "isEdited": true,
+      "completedAt": "2025-01-15T10:30:00Z",
+      "wordCount": 87
+    }
+  ],
+  "selectedAt": "2025-01-15T10:00:00Z",
+  "selectionMethod": "ai-recommended",
+  "beatsCompleted": 12,
+  "progressPercentage": 100
+}
+
+-- Example stored value (Light Guidance):
+{
+  "guidanceLevel": "light",
+  "selected": {
+    "id": "ragsToRiches",
+    "name": "Rags to Riches"
+  },
+  "aiOutline": {
+    "generated": true,
+    "beats": [
+      {
+        "beatName": "Initial Wretchedness",
+        "suggestion": "Start with your company's humble beginnings...",
+        "duration": "20%"
+      }
+    ],
+    "generatedAt": "2025-01-15T10:15:00Z"
+  },
+  "selectedAt": "2025-01-15T10:00:00Z"
+}
+
+-- Example stored value (Quick Mode):
+{
+  "guidanceLevel": null,
+  "selected": {
+    "id": "manInAHole",
+    "name": "Man In A Hole"
+  },
+  "aiOutline": {
+    "generated": true,
+    "beats": [...]
+  },
+  "selectedAt": "2025-01-15T10:00:00Z"
+}
+5.2 Structure Analytics Tracking
+sql-- Track structure selection and completion patterns
+CREATE TABLE IF NOT EXISTS structure_analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id UUID REFERENCES stories(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id),
+  structure_id TEXT NOT NULL,
+  guidance_level TEXT CHECK (guidance_level IN ('deep', 'light', NULL)),
+  story_type TEXT,
+  selection_method TEXT CHECK (selection_method IN ('manual', 'ai-recommended')),
+  beats_completed INTEGER DEFAULT 0,
+  total_beats INTEGER,
+  time_spent_seconds INTEGER,
+  completed BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_structure_id ON structure_analytics(structure_id);
+CREATE INDEX idx_structure_story_type ON structure_analytics(story_type);
+CREATE INDEX idx_structure_guidance ON structure_analytics(guidance_level);
+```
+
+### 5.3 Structures Library (Static Data)
+
+Store in `/src/data/structures.js` with complete definitions for all 18+ structures following the pattern shown in section 4.2.
+
+## 6. UI/UX Requirements
+
+### 6.1 Visual Design
+
+**Guidance Level Selection** (Comprehensive Mode):
+- **Card size**: 400px × 300px side-by-side
+- **Visual differentiation**: Deep Guidance = purple accent, Light Guidance = blue accent
+- **Clear value props**: Bullet points for each option
+- **Hover state**: Subtle lift and glow effect
+
+**Structure Grid**:
+- **Card size**: 350px × 280px
+- **Spacing**: 20px gap
+- **Layout**: 2 columns on desktop, 1 on mobile
+- **Recommended badge**: Star icon in top-right for AI recommendations
+- **Emotional arc**: Small inline graph showing structure's emotional flow
+
+**Beat-by-Beat Editor** (Deep Guidance):
+- **Full-screen focus mode** (optional toggle)
+- **Sidebar**: Beat list with completion checkmarks
+- **Main area**: Current beat with guidance
+- **Progress bar**: Visual progress through structure
+- **Auto-save**: Every 30 seconds with visual indicator
+
+### 6.2 Component Structure
+```
+StructureSelector/
+├── StructureSelectorScreen.jsx        // Main orchestrator
+├── GuidanceLevelChoice.jsx            // Deep vs Light (Comprehensive only)
+├── AIStructureRecommendation.jsx      // AI suggestion
+├── StructureGrid.jsx                  // All structures display
+│   └── StructureCard.jsx              // Individual structure card
+├── StructureDetailModal.jsx           // Full structure information
+│   ├── StructureOverview.jsx          // Description, best for
+│   ├── EmotionalArcDiagram.jsx        // Visual arc graph
+│   └── BeatsPreview.jsx               // Beat list preview
+├── BeatByBeatEditor.jsx               // Deep Guidance editor
+│   ├── BeatSidebar.jsx                // Beat navigation
+│   ├── BeatContent.jsx                // Current beat
+│   ├── BeatGuidance.jsx               // Questions, examples
+│   └── ProgressTracker.jsx            // Completion progress
+├── AIOutlineGenerator.jsx             // Light Guidance outline
+└── StructureSummary.jsx               // Confirmation view
+
+/hooks/
+├── useStructureSelection.js           // Selection state
+├── useBeatProgress.js                 // Beat completion tracking
+└── useAIOutline.js                    // AI outline generation
+
+/data/
+├── structures.js                      // All 18+ structures
+└── structureCategories.js             // Arc type categories
+```
+
+### 6.3 Responsive Behavior
+- **Desktop (≥1024px)**: 2-column grid, side-by-side beat editor
+- **Tablet (768-1023px)**: 2-column grid, full-width beat editor
+- **Mobile (<768px)**: Single column, simplified beat editor
+
+### 6.4 Accessibility
+- **Keyboard navigation**: Tab through structures, arrow keys through beats
+- **Screen reader**: Announce beat progress, guidance questions
+- **Focus indicators**: Clear visual focus on all interactive elements
+- **ARIA labels**: Beat progress, completion status, guidance sections
+- **Auto-save announcements**: Screen reader notification on save
+
+### 6.5 Loading & Empty States
+
+**AI Recommendation Loading**:
+```
+Analyzing your story...
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Animated thinking indicator]
+
+✨ Reviewing your story type...
+🎯 Understanding your audience...
+📊 Matching to structures...
+```
+
+**No Structure Selected**:
+```
+Choose a structure to organize your narrative.
+
+Not sure which structure fits?
+[Get AI Recommendation] [Browse All Structures]
+```
+
+**Beat-by-Beat Progress**:
+```
+Great progress! 5 of 12 beats complete.
+
+[Progress bar: ████░░░░░░░░ 42%]
+
+Keep going - you're building a complete story arc.
+7. AI Integration Specifications
+7.1 AI Structure Recommendation
+System Prompt:
+javascriptconst structureRecommendationPrompt = `You are an expert in narrative structures and the Storyteller Tactics framework. Your task is to recommend the most appropriate story structure based on the user's context.
+
+Consider:
+- Story type and typical structures that work well for it
+- Time constraints (quick vs. extended development)
+- Audience expectations
+- Character archetype and natural story arcs
+- Complexity tolerance
+
+Available structures:
+${structures.map(s => `${s.name}: ${s.shortDesc} - Best for: ${s.bestFor.join(', ')}`).join('\n')}
+
+Respond with JSON:
+{
+  "primary": {
+    "structureId": "id",
+    "confidence": "high" | "medium" | "low",
+    "reasoning": "2-3 sentence explanation"
+  },
+  "alternatives": [
+    {
+      "structureId": "id",
+      "reason": "Why this could also work"
+    }
+  ]
+}`;
+API Call:
+javascriptconst recommendStructure = async (storyContext, availableStructures) => {
+  const userPrompt = `Recommend the best narrative structure for this story:
+
+Story Type: ${storyContext.storyType.type.name}
+Category: ${storyContext.storyType.category}
+Audience: ${storyContext.audience.primary}
+Character: ${storyContext.character.primary?.name || 'Not selected'}
+Mode: ${storyContext.mode} (${storyContext.mode === 'quick' ? 'needs quick structure' : 'can handle complex structure'})
+Purpose: ${storyContext.purpose}
+
+Which structure would work best?`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: structureRecommendationPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  const data = await response.json();
+  const textContent = data.content.find(c => c.type === 'text')?.text || '{}';
+  const cleaned = textContent.replace(/```json\n?|```\n?/g, '').trim();
+  return JSON.parse(cleaned);
+};
+7.2 AI Beat Draft Generation (Deep Guidance)
+javascriptconst generateBeatDraft = async (beat, storyContext, previousBeats) => {
+  const prompt = `You are a storytelling expert helping someone write a beat in their story.
+
+Structure: ${storyContext.structure.selected.name}
+Current Beat: ${beat.name} (${beat.stage} of ${storyContext.structure.selected.totalBeats})
+Beat Description: ${beat.desc}
+Emotion: ${beat.emotion}
+
+Story Context:
+- Type: ${storyContext.storyType.type.name}
+- Character: ${storyContext.character.primary?.name}
+- Audience: ${storyContext.audience.primary}
+
+Previous Beats (for continuity):
+${previousBeats.map(b => `${b.beatName}: ${b.userContent}`).join('\n')}
+
+Guiding Questions for this beat:
+${beat.guidance.questions.join('\n')}
+
+Write a 2-4 sentence draft for this beat that:
+1. Answers the guiding questions
+2. Maintains continuity with previous beats
+3. Uses concrete, vivid language
+4. Fits the emotional tone: ${beat.emotion}
+5. Is appropriate for the story type and audience
+
+Return only the draft text, no explanation.`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  return data.content.find(c => c.type === 'text')?.text.trim();
+};
+7.3 AI Outline Generation (Light Guidance)
+javascriptconst generateStructureOutline = async (structure, storyContext) => {
+  const prompt = `Generate a story outline using the ${structure.name} structure.
+
+Story Context:
+- Type: ${storyContext.storyType.type.name}
+- Character: ${storyContext.character.primary?.name}
+- Audience: ${storyContext.audience.primary}
+- Purpose: ${storyContext.purpose}
+- Conflict: ${storyContext.conflict?.central}
+
+Structure: ${structure.name}
+Key Beats: ${structure.beats.map(b => b.name).join(', ')}
+
+Create a custom outline with ${structure.beats.length} beats. For each beat:
+1. Use the beat name from the structure
+2. Write a 1-2 sentence suggestion specific to their story
+3. Indicate approximate duration as percentage
+
+Return JSON array:
+[
+  {
+    "beatName": "Beat name",
+    "suggestion": "Specific suggestion for their story",
+    "duration": "20%"
+  }
+]`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  const textContent = data.content.find(c => c.type === 'text')?.text || '[]';
+  const cleaned = textContent.replace(/```json\n?|```\n?/g, '').trim();
+  return JSON.parse(cleaned);
+};
+8. Success Metrics
+8.1 Primary Metrics
+
+Usage rate: 85%+ of users select a structure
+Completion rate by guidance level:
+
+Deep Guidance: 70%+ complete all beats
+Light Guidance: 85%+ accept AI outline
+Quick Mode: 90%+ accept AI recommendation
+
+
+Structure distribution: Track which structures are most popular
+
+Expected: Man In A Hole (30%), Three-Act (25%), Hero's Journey (20%), Others (25%)
+
+
+AI acceptance: 65%+ accept AI recommendations/drafts with minimal editing
+
+8.2 Secondary Metrics
+
+Guidance level choice (Comprehensive Mode):
+
+Deep: 40%
+Light: 60%
+
+
+Time spent per guidance level:
+
+Deep: 20-30 minutes average
+Light: 8-12 minutes average
+
+
+Beat completion patterns: Which beats take longest? Which are skipped?
+AI draft usage: 60%+ request AI draft for at least one beat
+
+8.3 Quality Metrics
+
+Beat word count: Average 50-150 words per beat
+Structure-story alignment: Do selected structures make sense for story types?
+User satisfaction: "Does this structure help organize your story?" >4/5
+Retention: 90%+ keep selected structure through completion
+
+8.4 Analytics Events
+javascriptanalytics.track('structure_selector_entered', {
+  story_type: storyData.storyType.type.id,
+  mode: storyData.mode
+});
+
+analytics.track('guidance_level_selected', {
+  level: 'deep' | 'light',
+  mode: storyData.mode
+});
+
+analytics.track('ai_structure_recommended', {
+  recommended: 'herosJourney',
+  confidence: 'high',
+  alternatives: ['manInAHole', 'threeAct']
+});
+
+analytics.track('structure_selected', {
+  structure_id: 'herosJourney',
+  structure_name: "Hero's Journey",
+  guidance_level: 'deep',
+  selection_method: 'ai-recommended' | 'manual',
+  time_to_selection_seconds: 120
+});
+
+analytics.track('beat_completed', {
+  structure_id: 'herosJourney',
+  beat_number: 1,
+  beat_name: 'Ordinary World',
+  used_ai_draft: true,
+  word_count: 87,
+  time_spent_seconds: 240
+});
+
+analytics.track('ai_beat_draft_generated', {
+  beat_name: 'Ordinary World',
+  accepted: true | false,
+  edited: true | false
+});
+
+analytics.track('structure_outline_generated', {
+  structure_id: 'ragsToRiches',
+  guidance_level: 'light',
+  beats_count: 5,
+  generation_time_ms: 2300
+});
+
+analytics.track('beat_editor_exited', {
+  beats_completed: 5,
+  total_beats: 12,
+  progress_percentage: 42,
+  will_return: true
+});
+
+analytics.track('structure_completed', {
+  structure_id: 'herosJourney',
+  guidance_level: 'deep',
+  total_beats: 12,
+  total_time_seconds: 1800,
+  ai_drafts_used: 8
+});
+```
+
+## 9. Dependencies
+
+### 9.1 Technical Dependencies
+- **React Context API**: Story state management
+- **Anthropic Claude API**: Structure recommendations, beat drafts, outline generation
+- **Supabase Client**: Saving structure data, auto-save
+- **Tailwind CSS**: Styling
+- **React Router**: Navigation between beats
+- **Recharts or similar** (optional): Emotional arc diagrams
+
+### 9.2 Feature Dependencies
+
+**Must be completed first**:
+- ✅ Mode Selection (determines Quick vs. Comprehensive features)
+- ✅ Story Type Selection (informs structure recommendations)
+- ✅ Audience Questions (helps AI recommend appropriate structures)
+
+**Optional but enhances**:
+- 🔄 Character/Archetype Builder (archetypes can inform structure choice and beat development)
+- 🔄 Moral Conflict Framework (moral conflicts can integrate into beats)
+
+**Depends on Structure Selector**:
+- ⏭️ Scene Development Tool (scenes are built based on structure beats)
+- ⏭️ Visual Story Map (visualizes the selected structure)
+- ⏭️ Full Story Draft (uses structure as backbone)
+
+### 9.3 Data Dependencies
+- **Complete structures library**: All 18+ structures with full beat definitions
+- **Story context**: Story type, audience, character for AI recommendations
+- **Examples database**: Real-world examples for each structure and beat
+
+## 10. User Acceptance Criteria
+
+### 10.1 Acceptance Tests
+
+**Test 1: Quick Mode - Auto Structure**
+- ✅ User in Quick Mode enters structure selector
+- ✅ AI automatically recommends structure based on story type
+- ✅ Shows simple 3-beat outline
+- ✅ User can accept or choose from 3 alternatives
+- ✅ Selection saves and advances to next step
+
+**Test 2: Comprehensive Mode - Deep Guidance**
+- ✅ User chooses "Deep Guidance"
+- ✅ Sees 5 curated structures with detailed info
+- ✅ Clicks "Learn More" on Hero's Journey
+- ✅ Modal shows full structure with all 12 beats
+- ✅ User selects Hero's Journey
+- ✅ Enters beat-by-beat editor
+- ✅ Beat 1 displays with questions, examples, guidance
+- ✅ User clicks "Generate AI Draft"
+- ✅ AI generates 2-3 sentence draft
+- ✅ User edits draft, saves, continues to Beat 2
+- ✅ Progress bar shows 1/12 complete
+- ✅ User completes all 12 beats
+- ✅ All beats save to database
+
+**Test 3: Comprehensive Mode - Light Guidance**
+- ✅ User chooses "Light Guidance"
+- ✅ Sees 15+ structures with brief descriptions
+- ✅ Selects "Rags to Riches"
+- ✅ AI generates custom 5-beat outline
+- ✅ Each beat has specific suggestion for user's story
+- ✅ User reviews outline
+- ✅ Can edit beat suggestions inline
+- ✅ Saves outline and continues
+
+**Test 4: AI Structure Recommendation**
+- ✅ User clicks "Get AI Recommendation"
+- ✅ AI analyzes story context
+- ✅ Recommends structure with confidence level
+- ✅ Explains reasoning (2-3 sentences)
+- ✅ Shows 2 alternative options
+- ✅ User can accept recommendation or browse manually
+
+**Test 5: Beat Progress & Auto-Save**
+- ✅ User enters beat-by-beat editor
+- ✅ Completes Beat 1
+- ✅ Progress bar updates: 1/12 (8%)
+- ✅ Auto-save occurs after 30 seconds
+- ✅ Visual indicator shows "Saved"
+- ✅ User closes browser mid-beat
+- ✅ Returns later, work is preserved
+- ✅ Can continue from where they left off
+
+**Test 6: Guidance Questions & Examples**
+- ✅ Each beat shows 3-5 guiding questions
+- ✅ Questions are specific to the beat
+- ✅ Examples section shows real-world instances
+- ✅ Examples relevant to story type when possible
+- ✅ "Tips" section provides additional guidance
+- ✅ User can toggle examples on/off
+
+**Test 7: Structure-Archetype Integration**
+- ✅ User has selected "Warrior" archetype
+- ✅ User selects "Hero's Journey" structure
+- ✅ AI beat drafts incorporate Warrior qualities
+- ✅ Guidance suggests Warrior-appropriate actions
+- ✅ Examples reference similar Warrior journeys
+
+**Test 8: Mobile Responsiveness**
+- ✅ Structure grid displays 1 column on mobile
+- ✅ Beat editor is full-screen on mobile
+- ✅ Sidebar collapses to hamburger menu
+- ✅ Progress bar remains visible at top
+- ✅ All touch interactions work smoothly
+- ✅ Text remains readable at mobile sizes
+
+### 10.2 Edge Cases
+
+**Incomplete Beat Content**:
+- ✅ User tries to skip beat without content
+- ✅ Warning: "This beat is empty. Skip anyway?"
+- ✅ User can confirm skip or go back to complete
+
+**Very Long Beat Content**:
+- ✅ User writes 500+ word beat
+- ✅ Character counter shows current count
+- ✅ Gentle suggestion: "Beats work best at 50-150 words. Consider condensing."
+- ✅ No hard limit, allows saving
+
+**API Failure During Beat Generation**:
+- ✅ AI service fails or times out
+- ✅ Error message: "Couldn't generate draft. Please write manually or try again."
+- ✅ Retry button available
+- ✅ Beat editor remains functional for manual writing
+
+**Switching Structures Mid-Process**:
+- ✅ User has completed 5 beats of Hero's Journey
+- ✅ User wants to switch to Man In A Hole
+- ✅ Warning dialog: "You'll lose progress on current structure. Continue?"
+- ✅ User can cancel or proceed
+- ✅ If proceed, old beats are archived, new structure starts fresh
+
+**No Story Context Available**:
+- ✅ User somehow reaches structure selector without prior steps
+- ✅ AI recommendations use generic prompts
+- ✅ Encourages completing story type and audience first
+- ✅ Manual selection still works fully
+
+**Beat Navigation**:
+- ✅ User can jump between beats using sidebar
+- ✅ Incomplete beats show hollow circle
+- ✅ Completed beats show filled checkmark
+- ✅ Current beat is highlighted
+- ✅ Can revisit and edit previous beats
+
+## 11. Open Questions & Risks
+
+### 11.1 Open Questions
+
+1. **Should we allow custom structure creation?**
+   - Pro: Ultimate flexibility for advanced users
+   - Con: Loses framework benefits, hard to guide
+   - **Recommendation**: No for MVP, consider for Phase 2
+
+2. **Should beats be reorderable?**
+   - Some structures are sequential, others flexible
+   - **Recommendation**: Lock order for sequential structures, allow flexibility for others
+
+3. **How to handle very long stories?**
+   - 12-beat Hero's Journey for a novel = lots of content
+   - **Recommendation**: Allow beat expansion (sub-beats) in Phase 2
+
+4. **Should we show structure recommendations from other users?**
+   - "85% of business pitches use Three-Act Structure"
+   - **Recommendation**: Test in Phase 2 after gathering data
+
+5. **Multi-structure stories?**
+   - Some stories use multiple structures for different parts
+   - **Recommendation**: MVP = single structure, Phase 2 = nested structures
+
+### 11.2 Risks & Mitigations
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Users overwhelmed by structure complexity | High | Medium | Clear guidance levels, AI recommendations, examples |
+| Structure feels too restrictive | Medium | Medium | Emphasize as guide not formula, allow skipping beats |
+| Deep Guidance too time-consuming | Medium | Medium | Auto-save, clear progress indicators, ability to pause |
+| AI beat drafts are generic | High | Low | Context-aware prompts, user editing always available |
+| Users don't complete all beats | Medium | High | Show progress, celebrate milestones, allow partial completion |
+| Structure-story mismatch | High | Low | AI recommendations, detailed "best for" guidance |
+
+### 11.3 Technical Risks
+
+**Auto-Save Conflicts**:
+- Risk: User edits on multiple devices, conflicting saves
+- Mitigation: Last-write-wins with conflict detection, show warning
+
+**AI Cost for Beat Drafts**:
+- Risk: 12 beats × many users = high API costs
+- Mitigation: Optional feature, caching common patterns, smart prompting
+
+**Performance with Large Beat Content**:
+- Risk: Rich text editor slows with long beats
+- Mitigation: Text area instead of rich editor, pagination for very long content
+
+## 12. Implementation Notes
+
+### 12.1 Vibe Coding Approach
+
+This feature can be built in **5-6 development sessions**:
+
+**Session 1: Guidance Level Selection & Structure Grid** (120 min)
+```
+Prompt to Claude:
+"Build the Structure Selector for Storyteller Tactics.
+
+Requirements:
+GUIDANCE LEVEL (Comprehensive Mode only):
+- Two cards: Deep Guidance vs. Light Guidance
+- Clear value propositions for each
+- AI recommendation option
+
+STRUCTURE GRID:
+- Display structure cards in responsive grid
+- Each card shows: icon, name, short desc, difficulty, time, best for
+- Emotional arc mini-graph
+- Filter by arc type (Rise, Fall, Cycle, Complex, Template)
+- "Learn More" opens detail modal
+
+Structures data: [provide 5 Deep Guidance structures]
+Use Tailwind, purple theme.
+"
+```
+
+**Session 2: Structure Detail Modal & AI Recommendation** (120 min)
+```
+Prompt to Claude:
+"Build Structure Detail Modal and AI Recommendation.
+
+Requirements:
+MODAL:
+- Full structure overview with description
+- Complete beat list with names and descriptions
+- Emotional arc diagram (visual graph)
+- Examples section
+- "Best for" use cases
+- Select button
+
+AI RECOMMENDATION:
+- Analyze story context
+- Call Claude API for structure recommendation
+- Display primary recommendation with reasoning
+- Show 2 alternatives
+- User can accept or browse manually
+
+API structure: [provide from section 7.1]
+"
+```
+
+**Session 3: Beat-by-Beat Editor (Deep Guidance)** (150 min)
+```
+Prompt to Claude:
+"Build Beat-by-Beat Editor for Deep Guidance mode.
+
+Requirements:
+- Beat sidebar with navigation (all beats listed)
+- Main content area with current beat
+- Beat guidance section:
+  - Description
+  - Guiding questions
+  - Examples
+  - Tips
+- Text area for user content
+- Generate AI Draft button
+- Progress indicator (X of Y beats complete)
+- Save & Continue navigation
+- Auto-save every 30 seconds
+
+Show completion status (checkmarks for completed beats).
+Allow jumping between beats via sidebar.
+"
+```
+
+**Session 4: AI Outline Generator (Light Guidance)** (90 min)
+```
+Prompt to Claude:
+"Build AI Outline Generator for Light Guidance mode.
+
+Requirements:
+- Call Claude API with story context + selected structure
+- Generate custom outline with beats
+- Display outline in editable format
+- Each beat: name, suggestion, duration
+- User can edit suggestions inline
+- Save outline to state
+- Visual progress indicator
+
+API structure: [provide from section 7.3]
+"
+```
+
+**Session 5: Structure Integration & State Management** (120 min)
+```
+Prompt to Claude:
+"Integrate Structure Selector with story flow.
+
+Requirements:
+- Save structure selection to global state
+- Handle Quick Mode (auto-recommendation)
+- Handle Comprehensive Mode (deep vs. light)
+- Progress tracking across beats
+- Auto-save implementation
+- Integration with Supabase for persistence
+- Handle navigation between beats
+- Beat completion validation
+
+State structure: [provide from section 4.7]
+"
+```
+
+**Session 6: Polish, Testing & Edge Cases** (90 min)
+```
+Prompt to Claude:
+"Polish Structure Selector and handle edge cases.
+
+Requirements:
+- Responsive design validation
+- Accessibility improvements (keyboard nav, screen readers)
+- Loading states for AI generation
+- Error handling (API failures, no content)
+- Empty states
+- Confirmation dialogs (switching structures)
+- Mobile optimization
+- Performance testing
+
+Add micro-interactions, smooth transitions.
+"
+```
+
+### 12.2 Code Structure
+```
+/components/structure-selector/
+├── StructureSelectorScreen.jsx          // Main orchestrator
+├── GuidanceLevelChoice.jsx              // Deep vs Light
+├── StructureGrid.jsx                    // Structure cards display
+│   ├── StructureCard.jsx                // Individual card
+│   └── StructureFilterBar.jsx           // Arc type filters
+├── StructureDetailModal.jsx             // Full structure details
+│   ├── StructureOverview.jsx
+│   ├── EmotionalArcDiagram.jsx
+│   ├── BeatsList.jsx
+│   └── ExamplesSection.jsx
+├── AIStructureRecommendation.jsx        // AI suggestion
+├── BeatByBeatEditor.jsx                 // Deep Guidance editor
+│   ├── BeatSidebar.jsx                  // Beat navigation
+│   ├── BeatContent.jsx                  // Current beat display
+│   ├── BeatGuidance.jsx                 // Questions & examples
+│   ├── BeatTextArea.jsx                 // User input
+│   └── BeatProgress.jsx                 // Progress tracking
+├── AIOutlineGenerator.jsx               // Light Guidance outline
+├── StructureSummary.jsx                 // Confirmation view
+└── components/
+    ├── EmotionalArcGraph.jsx            // Reusable arc visualization
+    ├── ProgressBar.jsx                  // Reusable progress
+    └── AutoSaveIndicator.jsx            // Save status
+
+/hooks/
+├── useStructureSelection.js             // Selection logic
+├── useBeatEditor.js                     // Beat editing state
+├── useAutoSave.js                       // Auto-save logic
+├── useAIStructure.js                    // AI recommendation
+└── useAIBeatDraft.js                    // AI beat generation
+
+/data/
+├── structures/
+│   ├── deepGuidance.js                  // 5 detailed structures
+│   ├── lightGuidance.js                 // 15+ brief structures
+│   └── index.js                         // Combined export
+└── structureCategories.js               // Arc type definitions
+12.3 State Management Pattern
+javascript// In StoryContext
+const [storyData, setStoryData] = useState({
+  // ... other story data
+  structure: {
+    guidanceLevel: null,
+    selected: null,
+    beats: [],
+    aiOutline: null,
+    selectedAt: null,
+    beatsCompleted: 0,
+    progressPercentage: 0
+  }
+});
+
+// Helper functions
+const selectStructure = (structure, guidanceLevel) => {
+  setStoryData(prev => ({
+    ...prev,
+    structure: {
+      ...prev.structure,
+      selected: structure,
+      guidanceLevel,
+      selectedAt: new Date().toISOString(),
+      totalBeats: structure.beats?.length || 0
+    }
+  }));
+};
+
+const updateBeat = (beatNumber, content) => {
+  setStoryData(prev => {
+    const updatedBeats = [...prev.structure.beats];
+    const beatIndex = updatedBeats.findIndex(b => b.beatNumber === beatNumber);
+    
+    if (beatIndex >= 0) {
+      updatedBeats[beatIndex] = {
+        ...updatedBeats[beatIndex],
+        userContent: content,
+        isEdited: true,
+        wordCount: content.split(/\s+/).length
+      };
+    } else {
+      updatedBeats.push({
+        beatNumber,
+        beatName: prev.structure.selected.beats[beatNumber - 1].name,
+        userContent: content,
+        isEdited: true,
+        completedAt: new Date().toISOString(),
+        wordCount: content.split(/\s+/).length
+      });
+    }
+    
+    const completed = updatedBeats.filter(b => b.userContent?.length > 0).length;
+    
+    return {
+      ...prev,
+      structure: {
+        ...prev.structure,
+        beats: updatedBeats,
+        beatsCompleted: completed,
+        progressPercentage: Math.round((completed / prev.structure.totalBeats) * 100)
+      }
+    };
+  });
+};
+
+const generateAIOutline = async (structure) => {
+  const outline = await generateStructureOutline(structure, storyData);
+  setStoryData(prev => ({
+    ...prev,
+    structure: {
+      ...prev.structure,
+      aiOutline: {
+        generated: true,
+        beats: outline,
+        generatedAt: new Date().toISOString()
+      }
+    }
+  }));
+};
+12.4 Auto-Save Implementation
+javascript// useAutoSave hook
+import { useEffect, useRef } from 'react';
+import { debounce } from 'lodash';
+
+const useAutoSave = (data, saveFunction, delay = 30000) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
+  
+  const debouncedSave = useRef(
+    debounce(async (dataToSave) => {
+      setIsSaving(true);
+      try {
+        await saveFunction(dataToSave);
+        setLastSaved(new Date());
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    }, delay)
+  ).current;
+
+  useEffect(() => {
+    if (data) {
+      debouncedSave(data);
+    }
+  }, [data, debouncedSave]);
+
+  return { isSaving, lastSaved };
+};
+
+// Usage in BeatEditor
+const { isSaving, lastSaved } = useAutoSave(
+  storyData.structure,
+  saveStoryToDatabase,
+  30000 // 30 seconds
+);
+12.5 Testing Checklist
+
+ All 18+ structures display correctly
+ Guidance level selection works (Comprehensive Mode)
+ Structure detail modal shows complete information
+ AI structure recommendation calls API and displays result
+ Beat-by-beat editor displays all beats with guidance
+ AI beat draft generation works
+ User can edit beats and content saves
+ Progress tracking updates correctly
+ Auto-save triggers every 30 seconds
+ AI outline generation works (Light Guidance)
+ Quick Mode auto-recommendation works
+ Beat navigation via sidebar works
+ Can jump between beats without losing data
+ Switching structures shows confirmation
+ State persists across page refreshes
+ Saves to Supabase correctly
+ Responsive on mobile/tablet/desktop
+ Keyboard navigation works
+ Screen reader accessibility
+ All animations smooth
+
+
+13. Next Steps
+13.1 Immediate Actions
+
+Validate structures library: Review all 18+ structures with stakeholders
+Content creation: Write complete guidance for all Deep Guidance structures
+Design review: Finalize UI for beat editor and emotional arc diagrams
+AI prompt testing: Generate sample outlines and beat drafts
+
+13.2 Post-MVP Enhancements
+
+Structure templates: Pre-filled structures for common story types
+Collaborative editing: Multiple users working on same structure
+Structure remix: Combine elements from multiple structures
+Visual structure builder: Drag-and-drop beat arrangement
+Structure effectiveness tracking: Which structures lead to better stories
+Custom structure creation: Advanced users can define their own
+Nested structures: Apply different structures to story sections
+AI structure coaching: Real-time suggestions as user writes beats
+
+13.3 Success Criteria for Launch
+
+✅ 85%+ usage rate (users select a structure)
+✅ 70%+ completion rate for Deep Guidance beats
+✅ 65%+ accept AI recommendations
+✅ <5% error rate on structure selection
+✅ Positive feedback (4+/5 satisfaction)
+✅ Clear differentiation between guidance levels
+
+
+Document Version: 1.0
+Last Updated: November 22, 2025
+Owner: Product Team
+Status: Ready for Development
+Priority: B (High)

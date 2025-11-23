@@ -1,0 +1,10 @@
+Implement a NextJS webapp.
+Tech Stack:
+
+- Vercel for hosting
+- Supabase for Database and User Authentication
+- Use React Three Fiber for rendering 3d effects and particles.
+
+The key feature of the app is that users can log in and user can create a great story
+
+

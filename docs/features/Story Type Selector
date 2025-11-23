@@ -1,0 +1,420 @@
+# FReD #2: Story Type Selector
+
+## 1. Feature Name
+**Story Type Selector**
+
+## 2. Goal
+Guide users to select the specific type of story they want to create (e.g., pitch, brand story, novel, speech) from a curated, categorized library. This selection informs all subsequent tactical recommendations, AI prompts, archetypes, structures, and export formats.
+
+## 3. User Story
+**As a** user beginning my story,  
+**I want to** select what kind of story I'm creating,  
+**So that** I receive tailored guidance, frameworks, and suggestions appropriate for my story type.
+
+## 4. Functional Requirements
+
+### 4.1 Core Functionality
+- **Display 5 major story categories** on initial screen:
+  1. Business Stories (pitch, presentation, case study, vision statement)
+  2. Marketing Stories (brand story, campaign, customer story, product launch)
+  3. Creative Stories (novel, screenplay, short story, memoir)
+  4. Personal Stories (speech, toast, personal narrative, biography)
+  5. Educational Stories (lesson, explanation, tutorial, case study)
+- **Category-first navigation**: User clicks category, then sees specific types
+- **Search/filter functionality** for finding story types quickly
+- **"Custom" option** for stories that don't fit categories
+- **Type detail view** showing:
+  - Description and best use cases
+  - Typical length/duration
+  - Recommended structures
+  - Recommended archetypes
+  - Key elements to include
+  - Real-world examples
+
+### 4.2 Category Display
+Each category card shows:
+- **Icon** (emoji or SVG representing category)
+- **Category name** (large, bold)
+- **Short description** (1 sentence)
+- **Number of types** included ("5 story types")
+- **Color coding** (unique color per category)
+
+### 4.3 Story Type Display
+When category is selected, show grid of types with:
+- **Type name** (e.g., "Business Pitch")
+- **Icon/illustration**
+- **1-sentence description**
+- **"Best for"** snippet
+- **"Typical length"** indicator
+- **Select button**
+
+### 4.4 Type Detail Modal/View
+When user clicks a type for more info:
+```
+Story Type: Business Pitch
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Description:
+A concise presentation of a business idea, product, or service designed 
+to persuade investors, customers, or partners.
+
+Best For:
+• Fundraising presentations
+• Investor meetings
+• Startup competitions
+• Partnership proposals
+
+Typical Length: 5-10 minutes (or 10-15 slides)
+
+Key Elements:
+✓ Problem statement
+✓ Solution overview
+✓ Market opportunity
+✓ Competitive advantage
+✓ Business model
+✓ Team credentials
+✓ Financial projections
+✓ Clear ask
+
+Recommended Structures:
+• Man In A Hole (problem → solution → success)
+• Hero's Journey (transformation narrative)
+• Three-Act Structure (setup → conflict → resolution)
+
+Recommended Archetypes:
+• The Warrior (determined, fighting obstacles)
+• The Explorer (discovering new opportunities)
+• The Sage (expertise and credibility)
+
+Examples:
+• Airbnb's original pitch deck
+• Uber's Series A pitch
+• Dropbox demo video pitch
+
+[Select This Type] [Browse More Types]
+```
+
+### 4.5 Search & Filter
+- **Search bar**: Type keywords to filter types (e.g., "presentation" shows pitch, keynote, etc.)
+- **Filter by category**: Checkboxes to show/hide categories
+- **Filter by length**: Quick/Medium/Extended
+- **Filter by difficulty**: Beginner/Intermediate/Advanced
+
+### 4.6 Custom Story Type
+If user selects "Custom":
+- **Text input**: "Describe your story type in a few words"
+- **Purpose question**: "What's the main goal of this story?"
+- **Audience question**: "Who will experience this story?"
+- **AI suggestion**: Based on input, suggest closest matching type
+- **Manual override**: User can confirm custom or choose suggested type
+
+### 4.7 State Management
+```javascript
+storyData.storyType = {
+  category: 'business' | 'marketing' | 'creative' | 'personal' | 'educational' | 'custom',
+  type: {
+    id: 'pitch',
+    name: 'Business Pitch',
+    description: '...',
+    bestFor: '...',
+    typicalLength: '5-10 minutes',
+    keyElements: [...],
+    recommendedStructures: [...],
+    recommendedArchetypes: [...]
+  },
+  customDescription: string | null, // Only if category is 'custom'
+  selectedAt: timestamp
+};
+```
+
+## 5. Data Requirements
+
+### 5.1 Story Types Library (Static Data)
+Store in `/src/data/storyTypes.js`:
+```javascript
+export const storyTypesData = {
+  business: {
+    id: 'business',
+    name: 'Business Stories',
+    icon: '💼',
+    color: 'blue',
+    description: 'Strategic narratives for professional contexts',
+    types: [
+      {
+        id: 'pitch',
+        name: 'Business Pitch',
+        description: 'Persuasive presentation of an idea or product',
+        bestFor: 'Fundraising, investor meetings, startup competitions',
+        typicalLength: '5-10 minutes or 10-15 slides',
+        difficulty: 'intermediate',
+        keyElements: ['Problem', 'Solution', 'Market', 'Business Model', 'Team', 'Ask'],
+        recommendedStructures: ['manInAHole', 'herosJourney', 'threeAct'],
+        recommendedArchetypes: ['warrior', 'explorer', 'sage'],
+        examples: ['Airbnb pitch deck', 'Uber Series A pitch']
+      },
+      // ... more business types
+    ]
+  },
+  // ... more categories
+};
+```
+
+### 5.2 Database Schema (Supabase)
+**stories table** - Already has story_type field:
+```sql
+-- story_type column stores full type object as JSONB
+-- Example value:
+{
+  "category": "business",
+  "type": {
+    "id": "pitch",
+    "name": "Business Pitch",
+    "recommendedStructures": ["manInAHole", "herosJourney"]
+  },
+  "customDescription": null,
+  "selectedAt": "2025-01-15T10:30:00Z"
+}
+```
+
+### 5.3 Analytics Tracking
+```sql
+-- Track story type popularity
+CREATE TABLE IF NOT EXISTS story_type_analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_type_id TEXT NOT NULL,
+  category TEXT NOT NULL,
+  selected_at TIMESTAMPTZ DEFAULT NOW(),
+  user_id UUID REFERENCES users(id),
+  completed BOOLEAN DEFAULT false
+);
+
+-- Index for querying popular types
+CREATE INDEX idx_story_type_analytics_type ON story_type_analytics(story_type_id);
+```
+
+## 6. UI/UX Requirements
+
+### 6.1 Visual Design
+
+**Category Screen**:
+- 5 large category cards in a responsive grid
+- Each card has distinct color (blue, orange, purple, green, yellow)
+- Hover effect: subtle lift and shadow
+- Icons: Large (48px) emoji or SVG icons
+- Clean, minimal design with ample whitespace
+
+**Type Selection Screen**:
+- Breadcrumb: Home > [Category] > Select Type
+- Grid layout: 2-3 columns on desktop, 1 on mobile
+- Each type card: compact but informative
+- Quick glance info: name, icon, best for, length
+
+**Detail View**:
+- Modal or slide-in panel (user preference)
+- Structured layout with clear sections
+- Visual hierarchy: name → description → details → action
+- Example imagery where applicable
+
+### 6.2 Component Structure
+```
+StoryTypeSelector/
+├── CategorySelection.jsx
+│   └── CategoryCard.jsx
+├── TypeSelection.jsx
+│   ├── TypeCard.jsx
+│   └── TypeDetailModal.jsx
+├── SearchFilter.jsx
+├── CustomTypeForm.jsx
+└── storyTypesConfig.js
+```
+
+### 6.3 Responsive Behavior
+- **Desktop**: 3-column grid for types, 2-column for categories
+- **Tablet**: 2-column grid
+- **Mobile**: Single column, full-width cards
+
+### 6.4 Accessibility
+- **Semantic HTML**: Use `<section>`, `<article>` for categories/types
+- **ARIA labels**: All interactive elements labeled
+- **Keyboard navigation**: Tab through cards, Enter to select
+- **Screen reader friendly**: Card descriptions announced properly
+- **Color not sole differentiator**: Icons + text labels for categories
+
+## 7. Success Metrics
+
+### 7.1 Primary Metrics
+- **Selection completion rate**: 95%+ users select a type (vs. bouncing)
+- **Time to selection**: Average <60 seconds
+- **Type distribution**: Track which types are most popular
+  - Target: Balanced across categories (no single category >40%)
+- **Detail view usage**: 40%+ click for detailed info before selecting
+- **Custom type usage**: <10% (indicates good coverage of types)
+
+### 7.2 Secondary Metrics
+- **Search usage**: 20%+ use search function
+- **Filter usage**: 15%+ use filters
+- **Type switching**: <5% change type after initial selection
+- **Return pattern**: Do users consistently choose same category?
+
+### 7.3 Analytics Events
+```javascript
+analytics.track('story_type_category_selected', { category: 'business' });
+analytics.track('story_type_selected', { 
+  category: 'business', 
+  type: 'pitch', 
+  time_to_selection: seconds,
+  viewed_details: boolean 
+});
+analytics.track('story_type_detail_viewed', { type: 'pitch' });
+analytics.track('custom_type_created', { description: text });
+analytics.track('search_used', { query: text, results_count: number });
+```
+
+## 8. Dependencies
+
+### 8.1 Technical Dependencies
+- **React Router**: For category → type navigation flow
+- **Story Context**: To save selected type to global state
+- **Supabase**: To persist story type with story record
+- **Search library**: Optional (Fuse.js for fuzzy search)
+
+### 8.2 Feature Dependencies
+- **Mode Selection**: Must be completed first
+- **Authentication**: User logged in to save selection
+- **Story creation flow**: Next steps adapt based on selected type
+
+### 8.3 Content Dependencies
+- **Complete story types library**: All 25+ types documented
+- **Examples curated**: Real-world examples for each type
+- **Recommendations validated**: Archetypes/structures tested
+
+## 9. User Acceptance Criteria
+
+### 9.1 Acceptance Tests
+
+**Test 1: Category to Type Selection**
+- ✅ User sees 5 category cards clearly displayed
+- ✅ User clicks "Business Stories" category
+- ✅ Screen transitions to show business story types
+- ✅ User sees "Business Pitch" type with description
+- ✅ User clicks "Select This Type" button
+- ✅ Selection is saved to state and database
+- ✅ User advances to next step (Audience Questions)
+
+**Test 2: Detailed Type Information**
+- ✅ User clicks on a type card to see details
+- ✅ Modal/panel opens with complete type information
+- ✅ User sees recommended structures and archetypes
+- ✅ User sees examples of this story type
+- ✅ User can select from detail view or browse more
+
+**Test 3: Search Functionality**
+- ✅ User types "presentation" in search bar
+- ✅ Types containing "presentation" are filtered and shown
+- ✅ User sees "Business Presentation", "Keynote", etc.
+- ✅ User can select from filtered results
+
+**Test 4: Custom Story Type**
+- ✅ User selects "Custom" option
+- ✅ Form appears asking for description and purpose
+- ✅ User enters "Product demo video"
+- ✅ AI suggests "Product Launch" as closest match
+- ✅ User can accept suggestion or proceed with custom
+- ✅ Custom type is saved with user description
+
+### 9.2 Edge Cases
+- **No search results**: Show "No matches found" with suggestion to browse categories
+- **User clicks back**: Returns to category selection without losing progress
+- **Incomplete story types data**: Gracefully handle missing fields
+- **Very long custom description**: Truncate and store full text separately
+
+## 10. Open Questions & Risks
+
+### 10.1 Open Questions
+1. Should we allow users to change story type mid-creation? What's the impact?
+2. Should popular types be featured/highlighted on the category screen?
+3. Should we add a "Recently used" section for returning users?
+4. Should custom types be shared/suggested to other users (crowd-sourced library)?
+5. Should we add user ratings/reviews for each type ("Was this helpful?")?
+
+### 10.2 Risks & Mitigations
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Too many types overwhelm users | Medium | Medium | Clear categorization, search/filter, featured types |
+| Types don't match user needs | High | Low | Custom option, comprehensive library, user feedback |
+| Users unsure which type to choose | High | Medium | Detailed descriptions, examples, AI suggestion helper |
+| Type recommendations are inaccurate | Medium | Medium | User testing, iterative refinement of mappings |
+| Search returns poor results | Low | Low | Implement fuzzy search, synonym handling |
+
+## 11. Implementation Notes
+
+### 11.1 Vibe Coding Approach
+This feature can be built in **2-3 development sessions**:
+
+**Session 1**: Category Selection UI
+- Create category cards component
+- Build static data structure
+- Implement category selection logic
+- Style with Tailwind
+
+**Session 2**: Type Selection & Details
+- Build type cards grid
+- Create type detail modal
+- Implement selection state management
+- Connect to story context
+
+**Session 3**: Search, Filter & Custom
+- Add search functionality
+- Build filter UI
+- Create custom type form
+- Add AI suggestion for custom types
+
+### 11.2 Code Example (Category Card)
+```jsx
+const CategoryCard = ({ category, onSelect }) => {
+  const { id, name, icon, description, types, color } = category;
+  
+  return (
+    <button
+      onClick={() => onSelect(id)}
+      className={`
+        p-8 rounded-2xl border-2 border-gray-200 
+        bg-white hover:shadow-lg hover:scale-105 
+        transition-all duration-200 text-left
+        focus:outline-none focus:ring-4 focus:ring-${color}-300
+      `}
+    >
+      <div className="text-6xl mb-4">{icon}</div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">{name}</h3>
+      <p className="text-gray-600 mb-4">{description}</p>
+      <div className="flex items-center text-sm text-gray-500">
+        <FileText className="w-4 h-4 mr-1" />
+        {types.length} story types
+      </div>
+    </button>
+  );
+};
+```
+
+---
+
+## Summary
+
+These two FReD examples demonstrate the comprehensive structure for documenting features in your Storyteller Tactics app. Each FReD includes:
+
+1. ✅ Clear feature name and goal
+2. ✅ User story with context
+3. ✅ Detailed functional requirements
+4. ✅ Data/database requirements with SQL
+5. ✅ UI/UX specifications with accessibility
+6. ✅ Success metrics and analytics
+7. ✅ Dependencies and relationships
+8. ✅ Acceptance criteria and test cases
+9. ✅ Risks and mitigations
+10. ✅ Implementation guidance for vibe coding
+
+**Next steps**: Would you like me to:
+- Create FReDs for the remaining 9 features?
+- Refine these two examples further?
+- Proceed with a specific subset (e.g., Priority A features first)?

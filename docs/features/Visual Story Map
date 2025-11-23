@@ -1,0 +1,2056 @@
+
+2. Goal
+Provide writers with an interactive, visual representation of their complete story structure that enables intuitive manipulation of scenes, visualization of emotional arcs, tracking of character journeys, and identification of structural issues through AI-powered analysis.
+Key Outcomes:
+
+Writers can see their entire story at a glance
+Structural problems become immediately visible (pacing issues, missing beats, uneven emotional arcs)
+Scene reordering is intuitive via drag-and-drop
+Character journeys and archetype transformations are trackable
+Multiple visualization modes support different story structures
+Export capability allows sharing and presentation
+AI analysis provides actionable insights for improvement
+
+
+3. User Story
+As a writer developing a complex story
+I want to visualize my entire story structure on an interactive map with scenes, emotional arcs, and character journeys
+So that I can identify pacing issues, ensure structural integrity, track character development, and intuitively reorganize my story for maximum impact
+Acceptance Criteria:
+
+User can view their story in three visualization modes: Timeline, Emotional Arc, Character Tracks
+Scene cards display key information and are draggable for reordering
+Emotional arc shows tension/emotion levels across the story
+Character tracks show when characters appear and their archetype status
+Structure overlay options match selected story structure
+AI analysis identifies pacing issues and missing beats
+Map can be zoomed, panned, and filtered
+Export as PNG or PDF for presentations
+Clicking scene opens Scene Development Tool
+All changes save automatically to database
+
+
+4. Functional Requirements
+4.1 View Modes
+Mode 1: Timeline View (Default)
+Purpose: Linear visualization of scenes in story order
+Display:
+
+Horizontal timeline with scene cards
+Structure beat markers underneath timeline
+Scene duration represented by card width
+Tension level shown as color intensity bar
+Character presence chips on each scene card
+
+Scene Cards:
+Each card displays:
+
+Scene number (e.g., "Scene 3")
+Scene title (editable inline)
+Thumbnail emotional icon
+Tension/emotion level (1-10 scale)
+Duration percentage
+Character avatars/names
+Structure beat tag (if linked)
+Quick action buttons (Edit, Delete)
+
+Timeline Features:
+
+Drag-and-drop scene reordering
+Horizontal scroll for long stories
+Structure beat sections (visual dividers for Acts, phases)
+Zoom in/out to show more or less detail
+Snap-to-grid for alignment
+Auto-save on reorder
+
+Mode 2: Emotional Arc View
+Purpose: Graph visualization of story's emotional journey
+Display:
+
+Line/area graph showing tension over time
+X-axis: Story progression (scenes)
+Y-axis: Emotional intensity (1-10)
+Color gradient: Blue (low) → Yellow (mid) → Red (high)
+Structure beat markers on graph
+Hover reveals scene details
+
+Graph Features:
+
+Visual representation of each scene as point on graph
+Connect-the-dots between scenes shows flow
+Shaded area under curve for visual impact
+Peak and valley identification
+Average tension line overlay
+Click point to select/edit scene
+Adjustable scene tension via drag-up/down
+
+AI Analysis Panel:
+
+Identifies pacing issues
+
+"Act 2 feels slow - consider raising tension"
+"Three consecutive high-tension scenes may exhaust reader"
+
+
+Suggests optimal emotional rhythm
+Compares to successful story patterns
+Highlights missing emotional beats
+
+Mode 3: Character Tracks View
+Purpose: Multi-character journey visualization
+Display:
+
+Horizontal swim lanes (one per major character)
+Character name and archetype icon per lane
+Scene cards appear in relevant character lanes
+Archetype transformation markers
+Character entry/exit points
+Relationship connection lines
+
+Character Lane Features:
+
+Shows when character is present in scenes
+Archetype badge displays character's current archetype
+Transformation markers: ⚡ indicates archetype shift
+Color-coded by character (consistent throughout app)
+Entry point: "→" indicator where character enters story
+Exit point: "←" indicator where character leaves
+Ghost scenes (character absent) shown dimmed
+
+Multi-character Relationships:
+
+Connection lines between characters in shared scenes
+Line style indicates relationship:
+
+Solid line: Allies/friends
+Dashed line: Neutral
+Jagged line: Antagonists/conflict
+
+
+Relationship intensity by line thickness
+
+4.2 Scene Card Interactions
+Scene Card Details:
+┌────────────────────────────────┐
+│ Scene 3                    [×] │
+│ The Confrontation              │
+├────────────────────────────────┤
+│ 😠 Anger | Tension: 8/10      │
+│ [████████░░] 80%              │
+│ Duration: 12% of story         │
+├────────────────────────────────┤
+│ 👤 Sarah  👤 Marcus            │
+│ 🏷️ Rising Action              │
+├────────────────────────────────┤
+│ [Edit Scene] [Quick View]      │
+└────────────────────────────────┘
+Interactions:
+
+Click: Select card (highlight)
+Double-click: Open in Scene Development Tool
+Drag: Reorder scene position
+Hover: Show scene preview tooltip
+Right-click: Context menu (Edit, Duplicate, Delete, Add Note)
+Edit Scene button: Opens Scene Development Tool
+Quick View: Inline expansion showing scene summary
+× Delete: Removes scene (with confirmation)
+
+Inline Editing:
+
+Scene title: Click to edit inline
+Tension slider: Adjust 1-10 scale
+Duration slider: Adjust scene length percentage
+Emotion dropdown: Change emotional tone
+Character chips: Add/remove characters
+
+Visual Indicators:
+
+🟢 Complete scene (all Movie Time sections filled)
+🟡 In progress (partial completion)
+⚪ Empty scene (placeholder)
+🔵 Drafted (AI content generated)
+🔴 Missing structure beat (if beat required but no scene)
+
+4.3 Structure Overlay System
+Purpose: Visualize selected story structure on map
+Overlay Types Based on Structure:
+1. Linear Structures (Three-Act, Story Spine, Quest)
+
+Horizontal timeline with act divisions
+Vertical lines separating acts
+Act labels (Act 1, Act 2, Act 3)
+Beat markers along timeline
+Percentage indicators (25% / 50% / 25%)
+
+2. Circular Structures (Hero's Journey)
+
+Circular/mandala visualization option
+12-stage wheel with scene placement
+Departure → Initiation → Return sections
+Radial arrangement of scenes
+Can switch between circular and linear view
+
+3. Graph Structures (Man In A Hole, Rags to Riches)
+
+Overlay graph shape on emotional arc
+Expected trajectory vs. actual trajectory
+Comparison visualization
+Highlight divergences from pattern
+
+4. Complex Structures (Nested Loops, Converging Ideas)
+
+Multi-layer timeline
+Branch visualizations for parallel plots
+Convergence points highlighted
+Color-coded threads
+
+Structure Beat Markers:
+
+Visual pins on timeline
+Labels with beat names (e.g., "Call to Adventure")
+Green checkmark if scene assigned to beat
+Yellow warning if beat missing scene
+Red alert if critical beat missing
+Click marker to create scene for beat
+
+Toggle Structure Overlay:
+
+Button: "Show/Hide Structure"
+Dropdown: Select different structure view
+Opacity slider for overlay strength
+Lock option: Prevent accidental structure change
+
+4.4 Interactive Controls
+Zoom & Pan:
+
+Zoom in: Show more scene detail (200%, 150%, 100%)
+Zoom out: Show more scenes at once (75%, 50%, 25%)
+Pan: Click-and-drag background to navigate
+Keyboard: +/- keys for zoom, arrow keys for pan
+Fit to screen: Auto-zoom to show all scenes
+Reset view button: Return to default zoom/position
+
+Collapse & Expand:
+
+Collapse act/section: Minimize to title bar
+Expand act/section: Show all scenes
+Collapse all: Quick overview of structure only
+Expand all: Show all detail
+Per-character collapse in Character Tracks view
+
+Filter System:
+
+Filter by emotion: Show only scenes with specific tone
+Filter by character: Show only scenes featuring character
+Filter by structure beat: Show only specific beat type
+Filter by completion status: Show empty, in-progress, or complete
+Filter by tension level: Show high/low tension scenes
+Active filters displayed as chips (removable)
+
+Selection & Bulk Actions:
+
+Click to select single scene
+Shift+click to select range
+Ctrl/Cmd+click for multi-select
+Bulk actions on selected:
+
+Assign to structure beat
+Change emotion tone
+Add character to all
+Adjust tension levels
+Delete multiple scenes
+
+
+
+4.5 AI Story Analysis
+Purpose: AI-powered insights on story structure and pacing
+Analysis Button: "🤖 Analyze Story Map"
+AI Analysis Categories:
+1. Pacing Analysis:
+
+Overall pacing assessment (too fast, balanced, too slow)
+Act-by-act pacing evaluation
+Scene density analysis (too many scenes in one section)
+Recommendations:
+
+"Act 2 has 12 scenes vs. 5 in Act 1 - consider rebalancing"
+"Long stretch of low-tension scenes may lose reader interest"
+"Three climactic moments too close together - space them out"
+
+
+
+2. Emotional Arc Analysis:
+
+Arc shape evaluation (satisfying curve?)
+Emotional variety check (too much of same emotion?)
+Peak placement analysis (climax at right point?)
+Valley timing (recovery scenes needed?)
+Recommendations:
+
+"Strong opening hook, but Act 1 plateaus—add tension"
+"Excellent peak placement at 85% mark"
+"Consider low-tension scene after high-stakes climax"
+
+
+
+3. Structural Integrity:
+
+Missing required beats identification
+Beat order validation
+Structure-specific checks:
+
+Hero's Journey: All 12 stages present?
+Three-Act: Proper act length ratios?
+Man In A Hole: Clear crisis and recovery?
+
+
+Recommendations:
+
+"Missing 'Meeting the Mentor' beat in Hero's Journey"
+"Act 2 should be ~50% of story, currently only 35%"
+"No clear inciting incident scene identified"
+
+
+
+4. Character Journey Analysis:
+
+Character screen time balance
+Archetype transformation tracking
+Character introduction/exit timing
+Recommendations:
+
+"Sarah appears in 85% of scenes, Marcus only 30%—intentional?"
+"Marcus's archetype never transforms—consider journey"
+"New character introduced at 90%—too late for investment"
+
+
+
+5. Scene Reordering Suggestions:
+
+AI suggests alternative scene orders
+"Consider moving Scene 8 (revelation) before Scene 6 (conflict) for better impact"
+"Scene 4 feels out of place—try after Scene 7?"
+One-click accept/reject suggestions
+
+Analysis Display:
+
+Expandable panel at bottom of map
+Category tabs for different analysis types
+Traffic light scoring (🔴🟡🟢) for each category
+Detailed recommendations with examples
+"Apply Suggestion" buttons for structural changes
+"Explain More" for detailed reasoning
+Dismissible (user can ignore suggestions)
+
+4.6 Export & Sharing
+Export as Image:
+
+Format: PNG (raster) or PDF (vector)
+Resolution: 72dpi (screen), 300dpi (print)
+Size presets: Slide (16:9), Document (8.5x11), Wide (custom)
+Include options:
+
+☑️ Scene cards with details
+☑️ Emotional arc overlay
+☑️ Structure markers
+☑️ Character tracks
+☑️ Legend/key
+☑️ Title and metadata
+
+
+
+Export Process:
+
+Click "Export Map" button
+Select format and options
+Preview before export
+Download file
+Optional: Save to Google Drive (if integrated)
+
+Presentation Mode:
+
+Full-screen map view
+Hide editing controls
+Polished visual style
+Slide-by-slide progression through acts
+Print-friendly layout
+
+Share Link (Future):
+
+Generate shareable URL
+View-only or comment-enabled
+Password protection option
+Embed code for websites
+
+4.7 Mode-Specific Behavior
+Quick Mode:
+
+Timeline view only (simplified)
+Basic emotional arc overlay
+Limited to 3-5 structure beats
+No character tracks
+Simplified AI analysis (3 top recommendations)
+Basic drag-and-drop only
+Auto-layout scenes
+
+Comprehensive Mode:
+
+All three view modes available
+Full structure overlays
+Character tracks with transformations
+Detailed AI analysis (all categories)
+Advanced filtering and bulk actions
+Custom structure layouts
+Manual scene positioning
+
+
+5. Data Requirements
+5.1 Supabase Schema
+story_maps table:
+sqlCREATE TABLE story_maps (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  story_id UUID UNIQUE REFERENCES stories(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  
+  -- View Settings
+  current_view VARCHAR(20) DEFAULT 'timeline', -- 'timeline', 'arc', 'characters'
+  zoom_level NUMERIC(3,2) DEFAULT 1.0, -- 0.25 to 2.0
+  pan_position JSONB DEFAULT '{"x": 0, "y": 0}',
+  
+  -- Structure Overlay Settings
+  structure_overlay_visible BOOLEAN DEFAULT true,
+  structure_view_type VARCHAR(30), -- 'linear', 'circular', 'graph', 'custom'
+  overlay_opacity NUMERIC(3,2) DEFAULT 0.7,
+  
+  -- Scene Layout (for custom positioning)
+  scene_positions JSONB DEFAULT '{}', -- { "scene_id": {"x": 100, "y": 200} }
+  
+  -- Filter State
+  active_filters JSONB DEFAULT '[]', -- Array of active filter objects
+  
+  -- Character Track Settings
+  visible_characters JSONB DEFAULT '[]', -- Character IDs to show in tracks
+  character_track_order JSONB DEFAULT '[]', -- Ordered character IDs
+  
+  -- Emotional Arc Settings
+  arc_smoothing BOOLEAN DEFAULT true,
+  show_average_line BOOLEAN DEFAULT true,
+  arc_color_scheme VARCHAR(20) DEFAULT 'gradient', -- 'gradient', 'emotion', 'custom'
+  
+  -- AI Analysis
+  last_analysis JSONB, -- Most recent AI analysis results
+  analysis_version INTEGER DEFAULT 1, -- Increment on story changes
+  analysis_timestamp TIMESTAMP WITH TIME ZONE,
+  
+  -- Export Settings
+  last_export_settings JSONB, -- Remember user's export preferences
+  
+  -- Timestamps
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_story_maps_story_id ON story_maps(story_id);
+CREATE INDEX idx_story_maps_user_id ON story_maps(user_id);
+
+-- RLS Policies
+ALTER TABLE story_maps ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own story maps"
+  ON story_maps FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own story maps"
+  ON story_maps FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own story maps"
+  ON story_maps FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own story maps"
+  ON story_maps FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_story_maps_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER story_maps_updated_at
+  BEFORE UPDATE ON story_maps
+  FOR EACH ROW
+  EXECUTE FUNCTION update_story_maps_updated_at();
+Extends scenes table with map-specific fields:
+sql-- Add map-specific columns to scenes table
+ALTER TABLE scenes ADD COLUMN IF NOT EXISTS
+  map_position_x NUMERIC(10,2),
+  map_position_y NUMERIC(10,2),
+  card_width_percent NUMERIC(5,2) DEFAULT 10.0, -- Scene duration as % of story
+  visual_style JSONB DEFAULT '{}'; -- Custom styling for scene card
+```
+
+### 5.2 Data Relationships
+
+**Dependencies:**
+- story_maps.story_id → stories table
+- Pulls scenes from scenes table (filtered by story_id)
+- Pulls character data from story.character (archetypes)
+- Pulls structure data from story.selectedStructure
+
+**Computed Data:**
+- Scene positions calculated from order
+- Emotional arc derived from scene tensions
+- Character presence from scene.movieTime.emotion.characters
+- Structure beat coverage from scene.structure_beat
+
+### 5.3 Data Validation
+
+**Required Fields:**
+- story_id (must exist)
+- user_id (must match authenticated user)
+
+**Field Constraints:**
+- zoom_level: Between 0.25 and 2.0
+- overlay_opacity: Between 0.0 and 1.0
+- current_view: Must be 'timeline', 'arc', or 'characters'
+- structure_view_type: Must match valid structure types
+
+**Auto-calculated:**
+- scene_positions: Calculated if not custom positioned
+- analysis_version: Incremented when scenes change
+- updated_at: Auto-updated on any change
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Visual Design System
+
+**Color Scheme:**
+- Primary: Purple (#8B5CF6) for interactive elements
+- Timeline background: Light gray (#F3F4F6)
+- Scene cards: White with colored accents
+- Structure overlay: Semi-transparent purple (#8B5CF650)
+- Emotional arc:
+  - Low (1-3): Blue (#3B82F6)
+  - Medium (4-7): Yellow (#F59E0B)
+  - High (8-10): Red (#EF4444)
+  - Gradient between values
+
+**Emotion Color Mapping:**
+- Joy: Yellow (#FCD34D)
+- Fear: Purple (#A78BFA)
+- Anger: Red (#F87171)
+- Sadness: Blue (#60A5FA)
+- Surprise: Orange (#FB923C)
+- Anticipation: Pink (#F472B6)
+- Trust: Teal (#5EEAD4)
+- Disgust: Green (#86EFAC)
+- Neutral: Gray (#9CA3AF)
+
+**Character Colors:**
+- Auto-assigned from palette
+- Consistent across all views
+- High contrast for accessibility
+- 12 distinct colors available
+
+**Typography:**
+- Scene titles: Bold, 14px
+- Beat labels: Medium, 12px
+- Statistics: Regular, 12px
+- Analysis text: Regular, 14px, line-height 1.6
+
+### 6.2 Layout Structure
+
+**Full Screen Layout:**
+```
+┌──────────────────────────────────────────────────────────┐
+│ 🗺️ Visual Story Map         [Timeline][Arc][Characters] │
+│                             [Zoom: 100%] [Export] [AI]   │
+├──────────────────────────────────────────────────────────┤
+│ [Filter: All] [Structure: Hero's Journey ▼] [+ Add Scene]│
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│            [Main Visualization Area]                     │
+│         (Timeline/Arc/Characters View)                   │
+│                                                          │
+│                                                          │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│ Story Summary Panel (Right Side, Collapsible)           │
+│ • Total Scenes: 12                                       │
+│ • Avg Tension: 6.5/10                                    │
+│ • Peak Scene: #8                                         │
+│ • Structural Coverage: 9/12 beats                        │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Timeline View Layout:**
+```
+├─────────────────────────────────────────────────────┤
+│ Act 1 (25%)            │ Act 2 (50%)     │ Act 3    │
+├────────┬────────┬──────┴──┬───┬───┬──────┴───┬──────┤
+│ Scene1 │ Scene2 │ Scene3  │S4 │S5 │ Scene6   │Scene7│
+│  😊5   │  😠7   │  😢8    │😮9│😊4│  😡10    │ 😌6  │
+└────────┴────────┴─────────┴───┴───┴──────────┴──────┘
+     ↑        ↑         ↑       ↑   ↑      ↑       ↑
+  Opening  Incite   Rising   Mid  Test  Climax  Resolve
+```
+
+**Emotional Arc View Layout:**
+```
+  10 │                    *
+     │                 *     *
+   8 │              *           *
+     │           *                 *
+   6 │        *                       *
+     │     *                             *
+   4 │  *                                   *
+     │                                         *
+   2 │
+     └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴──
+      S1  S2  S3  S4  S5  S6  S7  S8  S9 S10 S11
+      
+[Act 1 (calm)][    Act 2 (rising)    ][Act 3 (peak+resolve)]
+```
+
+**Character Tracks View Layout:**
+```
+Sarah (Hero)    │──●──●──●─────●──●──●──●──●──●───●─────│
+                   ↑        ⚡(Warrior)     ↑
+Marcus (Guide)  │─────────●──●──●──●────────────────────│
+                          ↑     ⚡(Sage)
+Villain         │────────────────────●──●──●──●──────────│
+                                    ↑
+Timeline        │──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──────│
+Scenes           S1 S2 S3 S4 S5 S6 S7 S8 S9 S10S11S12
+```
+
+### 6.3 Interaction Patterns
+
+**Drag-and-Drop Scene Reordering:**
+- Click and hold scene card (cursor: grab)
+- Drag to new position (cursor: grabbing)
+- Ghost/outline shows destination
+- Other scenes shift to make room
+- Drop to commit (auto-save)
+- Undo available (Ctrl/Cmd+Z)
+- Smooth animations for repositioning
+
+**Hover States:**
+- Scene cards: Subtle lift shadow
+- Beat markers: Tooltip with beat description
+- Graph points: Scene details popup
+- Character chips: Character info card
+- Buttons: Color change + slight scale
+
+**Loading States:**
+- Initial map load: Skeleton scene cards
+- AI analysis: "Analyzing..." with progress
+- Export: "Generating image..." progress bar
+- Scene reorder: Instant (optimistic update)
+
+**Empty States:**
+- No scenes: "Add your first scene to begin mapping"
+- No characters: "Character tracks will appear when you add characters to scenes"
+- Missing structure: "Select a story structure to enable overlays"
+
+**Error States:**
+- Failed analysis: "Analysis failed. Try again?" with retry button
+- Failed export: "Export failed. Check your settings."
+- Failed reorder: Revert to previous state with notification
+
+### 6.4 Responsive Behavior
+
+**Desktop (>1280px):**
+- Three-column layout (map + 2 sidebars)
+- All features visible
+- Side-by-side panels
+- Large scene cards with full details
+
+**Laptop (1024px - 1280px):**
+- Two-column layout (map + 1 sidebar)
+- Collapsible panels
+- Medium scene cards
+- All features accessible
+
+**Tablet (768px - 1024px):**
+- Single column stacked
+- Swipeable view mode tabs
+- Bottom sheet for details
+- Simplified scene cards
+- Touch-optimized drag-drop
+
+**Mobile (<768px):**
+- Timeline view only
+- Vertical card list
+- No drag-drop (use reorder buttons)
+- Tap card for quick actions
+- Simplified AI analysis
+- Limited zoom/pan
+
+### 6.5 Accessibility
+
+**Keyboard Navigation:**
+- Tab: Move between scene cards
+- Enter: Open selected scene
+- Arrow keys: Navigate scenes
+- Space: Select/deselect scene
+- Shift+arrows: Multi-select range
+- Delete: Remove selected scene
+- Ctrl/Cmd+Z: Undo
+- +/-: Zoom in/out
+- Escape: Cancel drag, close panels
+
+**Screen Reader Support:**
+- ARIA labels on all interactive elements
+- Scene card structure announcements
+- Chart data tables for arc view
+- Status announcements for reordering
+- Live regions for AI analysis updates
+- Skip links to main sections
+
+**Visual Accessibility:**
+- High contrast mode support
+- Colorblind-friendly palettes
+- Pattern overlays in addition to colors
+- Adjustable text sizes
+- Focus indicators (2px solid outline)
+- Minimum touch targets: 44x44px
+
+**Motion Accessibility:**
+- Respect prefers-reduced-motion
+- Disable animations if requested
+- Instant transitions option
+- Static alternative for arc view
+
+---
+
+## 7. Success Metrics
+
+### 7.1 Adoption Metrics
+
+**Primary:**
+- **Map Usage Rate:** 50% of Comprehensive Mode users access Visual Story Map
+  - Target: 70% by Month 3
+  - Quick Mode: 25% (simplified version)
+
+- **Time Spent on Map:** Average 8-12 minutes per session
+  - Indicates engagement and value
+  - Quick Mode: 3-5 minutes
+
+**Secondary:**
+- Map opens per story: 5+ sessions average
+- Users who reorder scenes via map: 40%
+- Multi-view usage: 60% try all three views
+- Return rate: 75% use map in subsequent stories
+
+### 7.2 Feature Usage Metrics
+
+**View Modes:**
+- Timeline view: 85% of map sessions
+- Emotional Arc view: 45% of sessions
+- Character Tracks view: 30% of sessions (multi-character stories)
+- View switching: Average 2.3 view changes per session
+
+**Interactive Features:**
+- Scene reordering: Used in 35% of map sessions
+- AI Analysis: Requested in 50% of sessions
+- Structure overlay: Toggle in 40% of sessions
+- Zoom/pan: Used in 60% of sessions
+- Filters: Applied in 25% of sessions
+- Export: Used in 20% of completed stories
+
+**AI Analysis Adoption:**
+- Analysis request rate: 50% of map users
+- Suggestion acceptance rate: 35%
+- Reorder suggestion acceptance: 25%
+- Analysis helpful rating: 4.0+/5.0
+
+### 7.3 Quality Metrics
+
+**Story Improvement:**
+- **Structural Completeness:** Stories using map have 90% structure beat coverage
+  - vs. 70% without map
+  
+- **Emotional Arc Quality:** Map users have more balanced arcs
+  - Measured by standard deviation of tension levels
+  - Target: <2.5 standard deviation
+
+- **Scene Count Appropriateness:** Map users achieve optimal scene count more often
+  - Quick Mode: 5-7 scenes (85% hit target)
+  - Comprehensive: 10-15 scenes (75% hit target)
+
+**User Perception:**
+- "Map helped me see story problems": 80% agree
+- "Reordering scenes improved story": 65% agree
+- "Would use map for future stories": 85% yes
+- Feature satisfaction: 4.3+/5.0 stars
+
+### 7.4 Business Impact
+
+**Story Completion:**
+- Stories with map usage: 15% higher completion rate
+- Time to complete story: 10% faster with map
+- Stories exported: 75% (vs. 60% without map)
+
+**User Retention:**
+- Map users 1.8x more likely to return
+- Map users create 2.3x more stories
+- Map users upgrade to premium: 2x rate (future monetization)
+
+**Referrals:**
+- Map feature mentioned in 40% of user testimonials
+- NPS contribution: +15 points
+- Social sharing of map images: 20% of exports
+
+### 7.5 Performance Metrics
+
+**Technical:**
+- Map initial load time: <2 seconds
+- Scene reorder responsiveness: <100ms
+- AI analysis completion: <5 seconds
+- Export generation: <3 seconds (PNG), <5 seconds (PDF)
+- Real-time sync latency: <500ms
+
+**Stability:**
+- Map crash rate: <0.1%
+- Failed reorder rate: <1%
+- Failed export rate: <2%
+- Data loss incidents: 0
+
+---
+
+## 8. Dependencies
+
+### 8.1 Feature Dependencies
+
+**Required (Must be completed first):**
+- ✅ Structure Selector (Priority B) - Determines overlay type
+- 🔲 Scene Development Tool (Priority D) - Scenes to visualize
+- ✅ Archetype Builder (Priority B) - Character data for tracks
+- 🔲 Basic Story State - Scene order, tension data
+
+**Integrates With:**
+- 🔲 Scene Development Tool - Click scene opens editor
+- 🔲 Archetype Builder - Click character opens builder
+- 🔲 Moral Conflict Framework (Priority E) - Conflict markers on map
+- 🔲 Review & Export - Map included in story package
+
+**Enhanced By:**
+- 🔲 Full AI Integration - Better analysis
+- 🔲 Collaboration Features - Multi-user map editing
+- 🔲 Animation System - Smoother transitions
+
+### 8.2 Technical Dependencies
+
+**Backend:**
+- Supabase database with story_maps table
+- Real-time subscriptions for live updates
+- RLS policies for security
+- Scene data aggregation queries
+
+**Frontend:**
+- React with Context API for state
+- Drag-and-drop library (React Beautiful DnD or dnd-kit)
+- Chart library (Recharts or Chart.js) for arc view
+- Canvas/SVG for custom visualizations
+- Image export library (html2canvas + jsPDF)
+
+**AI/API:**
+- Anthropic Claude API for analysis
+- Prompt templates for each analysis type
+- Rate limiting and caching
+- Error handling and retries
+
+**Third-party:**
+- Tailwind CSS for styling
+- Lucide React for icons
+- Framer Motion for animations (optional)
+- React Zoom Pan Pinch for zoom/pan controls
+
+### 8.3 Data Dependencies
+
+**Requires Access To:**
+- All scenes for current story
+- Scene metadata (title, tension, emotion, characters, duration)
+- Story structure selection and beats
+- Character/archetype data
+- Story mode (Quick/Comprehensive)
+- User preferences (theme, layout)
+
+**Provides Data To:**
+- Scene editor (selected scene context)
+- Analytics (usage patterns)
+- Export system (map images)
+- AI system (story structure data for prompts)
+
+---
+
+## 9. User Acceptance Criteria
+
+### 9.1 Core Functionality
+
+**Map Access & Loading:**
+- [ ] User can access Visual Story Map from main navigation
+- [ ] Map loads within 2 seconds on first access
+- [ ] All scenes from story appear on map
+- [ ] Map remembers last view mode and zoom level
+- [ ] Empty state displays helpful message when no scenes exist
+
+**View Mode Switching:**
+- [ ] User can switch between Timeline, Arc, and Character views
+- [ ] View mode changes without data loss
+- [ ] Active view mode clearly indicated
+- [ ] Keyboard shortcut (1, 2, 3) switches views
+- [ ] Mobile shows view mode tabs at top
+
+**Scene Card Display:**
+- [ ] Each scene displays as card with title, emotion, tension
+- [ ] Cards show correct scene number
+- [ ] Emotion icon matches scene emotion tone
+- [ ] Tension bar visually represents 1-10 scale
+- [ ] Character chips appear for scenes with characters
+- [ ] Structure beat tag displays when scene linked to beat
+
+### 9.2 Interactive Features
+
+**Drag-and-Drop Reordering:**
+- [ ] User can drag scene card to new position
+- [ ] Ghost/outline shows drop destination
+- [ ] Other scenes shift smoothly to accommodate
+- [ ] Drop commits reorder and auto-saves
+- [ ] Scene numbers update after reorder
+- [ ] Undo reverts to previous order
+- [ ] Can't drag scene outside valid bounds
+- [ ] Mobile uses reorder buttons instead
+
+**Scene Selection:**
+- [ ] Click selects single scene (highlighted border)
+- [ ] Shift+click selects range
+- [ ] Ctrl/Cmd+click toggles multi-select
+- [ ] Selected count displays (e.g., "3 scenes selected")
+- [ ] Bulk actions available for multi-select
+- [ ] Escape clears selection
+
+**Zoom & Pan:**
+- [ ] Zoom controls work (+/- buttons)
+- [ ] Zoom range: 25% to 200%
+- [ ] Current zoom level displays
+- [ ] Pan by dragging background
+- [ ] "Fit to Screen" button works
+- [ ] Reset view button returns to default
+- [ ] Keyboard shortcuts work (+/- keys)
+
+### 9.3 Timeline View
+
+**Timeline Display:**
+- [ ] Scenes arranged horizontally in order
+- [ ] Timeline scrolls horizontally for many scenes
+- [ ] Structure beat markers appear below scenes
+- [ ] Act divisions clearly visible
+- [ ] Scene width represents duration percentage
+- [ ] Tension color bar shows on each card
+
+**Timeline Interactions:**
+- [ ] Click scene opens Scene Development Tool
+- [ ] Double-click expands scene details inline
+- [ ] Hover shows scene preview tooltip
+- [ ] Right-click shows context menu
+- [ ] Beat markers clickable to create scene for beat
+
+### 9.4 Emotional Arc View
+
+**Arc Display:**
+- [ ] Line graph shows tension over story
+- [ ] X-axis shows scenes in order
+- [ ] Y-axis shows tension scale (1-10)
+- [ ] Color gradient applies (blue-yellow-red)
+- [ ] Points connect between scenes
+- [ ] Peak and valley clearly visible
+- [ ] Structure beat markers on graph
+
+**Arc Interactions:**
+- [ ] Hover point shows scene details popup
+- [ ] Click point selects scene
+- [ ] Drag point up/down adjusts tension
+- [ ] Average tension line toggleable
+- [ ] Smoothing option available
+- [ ] Grid lines help read values
+
+### 9.5 Character Tracks View
+
+**Track Display:**
+- [ ] One horizontal lane per major character
+- [ ] Character name and archetype icon on left
+- [ ] Scenes appear in character's lane when present
+- [ ] Entry/exit points marked with arrows
+- [ ] Archetype transformation markers (⚡) display
+- [ ] Absent scenes shown dimmed
+- [ ] Character colors consistent throughout
+
+**Track Interactions:**
+- [ ] Click character name opens Archetype Builder
+- [ ] Click scene in lane opens Scene Development Tool
+- [ ] Hover transformation marker shows details
+- [ ] Can reorder scenes within track
+- [ ] Show/hide individual character tracks
+- [ ] Rearrange track order
+
+### 9.6 Structure Overlay
+
+**Overlay Display:**
+- [ ] Structure overlay matches selected structure
+- [ ] Beat markers at correct positions
+- [ ] Act divisions clearly marked
+- [ ] Overlay semi-transparent (adjustable)
+- [ ] Can switch between structure views (linear/circular)
+- [ ] Legend explains overlay elements
+
+**Overlay Interactions:**
+- [ ] Toggle overlay visibility
+- [ ] Adjust overlay opacity (slider)
+- [ ] Click beat marker creates scene for beat
+- [ ] Missing beats highlighted in yellow/red
+- [ ] Complete beats marked green
+- [ ] Can lock overlay to prevent changes
+
+### 9.7 AI Analysis
+
+**Analysis Request:**
+- [ ] "Analyze Story Map" button prominent
+- [ ] Analysis completes within 5 seconds
+- [ ] Loading state shows progress
+- [ ] Error message if analysis fails with retry
+- [ ] Analysis can be cancelled mid-process
+
+**Analysis Display:**
+- [ ] Results appear in expandable panel
+- [ ] Five analysis categories (Pacing, Emotional Arc, Structure, Character, Reordering)
+- [ ] Traffic light scoring (🔴🟡🟢) for each
+- [ ] Detailed recommendations listed
+- [ ] Specific examples provided
+- [ ] "Apply Suggestion" buttons work
+- [ ] "Explain More" shows detailed reasoning
+- [ ] Panel dismissible and recallable
+
+**Suggestion Application:**
+- [ ] Clicking "Apply" executes suggestion
+- [ ] Confirmation required for major changes
+- [ ] Undo available after application
+- [ ] Visual indication of applied changes
+- [ ] Can apply multiple suggestions sequentially
+
+### 9.8 Export
+
+**Export Process:**
+- [ ] "Export Map" button accessible
+- [ ] Export options dialog appears
+- [ ] Format selection (PNG/PDF)
+- [ ] Resolution options (screen/print)
+- [ ] Size presets available
+- [ ] Include/exclude toggles work
+- [ ] Preview shows before export
+- [ ] Export completes within 5 seconds
+- [ ] Download prompts automatically
+- [ ] Success confirmation displays
+
+**Export Quality:**
+- [ ] Exported image high quality
+- [ ] All visible elements included
+- [ ] Colors accurate
+- [ ] Text readable at size
+- [ ] Legend/key included
+- [ ] Title and metadata present
+- [ ] PDF maintains vector quality
+
+### 9.9 Mode-Specific
+
+**Quick Mode:**
+- [ ] Only Timeline view available
+- [ ] Simplified scene cards (fewer details)
+- [ ] Basic emotional arc overlay
+- [ ] 3-5 structure beats only
+- [ ] Simplified AI analysis (top 3 recommendations)
+- [ ] No character tracks
+- [ ] Faster load time (<1 second)
+
+**Comprehensive Mode:**
+- [ ] All three views available
+- [ ] Detailed scene cards
+- [ ] Full structure overlays
+- [ ] Character tracks with transformations
+- [ ] Complete AI analysis
+- [ ] Advanced filtering
+- [ ] Bulk actions enabled
+
+### 9.10 Integration
+
+**Scene Development Tool:**
+- [ ] Clicking scene card opens Scene Development Tool
+- [ ] Context maintained (returns to map after editing)
+- [ ] Scene changes reflect on map immediately
+- [ ] Can navigate scenes within tool from map selection
+
+**Archetype Builder:**
+- [ ] Clicking character name/chip opens Archetype Builder
+- [ ] Character archetype changes update on map
+- [ ] Transformation markers auto-update
+
+**Structure Selector:**
+- [ ] Selected structure determines overlay type
+- [ ] Changing structure updates map display
+- [ ] Structure beats sync with map markers
+
+---
+
+## 10. Risks & Mitigations
+
+### 10.1 Technical Risks
+
+**Risk: Performance Degradation with Many Scenes**
+- **Impact:** Slow rendering, laggy interactions with 50+ scenes
+- **Probability:** Medium (depends on implementation)
+- **Mitigation:**
+  - Virtualization for long timelines (only render visible scenes)
+  - Canvas rendering instead of DOM for 20+ scenes
+  - Lazy loading of scene details
+  - Optimize drag-and-drop calculations
+  - Add pagination for extreme cases (100+ scenes)
+  - Performance monitoring and alerts
+  - Scene limit warnings at 50 scenes
+
+**Risk: Complex Drag-and-Drop Bugs**
+- **Impact:** Scenes get stuck, data corruption, poor UX
+- **Probability:** Medium (common in drag-drop implementations)
+- **Mitigation:**
+  - Use well-tested library (react-beautiful-dnd or dnd-kit)
+  - Extensive testing across browsers
+  - Fallback to buttons on mobile
+  - Optimistic updates with rollback on failure
+  - Clear drop zone indicators
+  - Prevent invalid drops (outside bounds)
+  - Auto-save with version history
+
+**Risk: Browser Compatibility Issues**
+- **Impact:** Features break in older browsers, Safari quirks
+- **Probability:** Medium (complex visualizations)
+- **Mitigation:**
+  - Target modern browsers (last 2 versions)
+  - Feature detection and graceful degradation
+  - Canvas fallback for unsupported features
+  - Polyfills for critical functionality
+  - Cross-browser testing in CI/CD
+  - Clear browser requirements communicated
+
+**Risk: Export Quality Issues**
+- **Impact:** Low-res images, missing elements, broken PDFs
+- **Probability:** Medium (complex rendering to image)
+- **Mitigation:**
+  - Use proven libraries (html2canvas, jsPDF)
+  - Preview before export
+  - Multiple export attempts on failure
+  - Resolution options (let user choose)
+  - Test exports across devices
+  - Fallback to screenshot instructions
+  - Save export settings for consistency
+
+### 10.2 User Experience Risks
+
+**Risk: Overwhelming Complexity**
+- **Impact:** Users confused by too many options, abandon feature
+- **Probability:** High (feature-rich interface)
+- **Mitigation:**
+  - Progressive disclosure (show basics first)
+  - Onboarding tutorial specific to map
+  - Quick Mode has simplified version
+  - Default to Timeline view (simplest)
+  - Contextual help tooltips
+  - "What's This?" button for explanations
+  - Hide advanced features initially
+  - Success stories/examples shown
+
+**Risk: Unclear Value Proposition**
+- **Impact:** Users don't understand why map is useful
+- **Probability:** Medium (visualization value not obvious to all)
+- **Mitigation:**
+  - Clear "Why use the map?" explainer
+  - Before/after examples
+  - Highlight problems map solves (pacing issues, structure gaps)
+  - Prompt to use map at natural points ("View your story visually?")
+  - Success metrics shown (stories with maps complete faster)
+  - Testimonials from beta users
+  - Quick wins (immediate value)
+
+**Risk: AI Analysis Feels Judgmental**
+- **Impact:** Users defensive about criticism, ignore analysis
+- **Probability:** Medium (depends on tone)
+- **Mitigation:**
+  - Friendly, encouraging language
+  - Frame as "observations" not "problems"
+  - Always offer alternatives, not mandates
+  - Show what's working well too (positive feedback)
+  - Make all suggestions optional
+  - "This is one approach..." framing
+  - Test language with writers
+
+**Risk: Drag-and-Drop Not Discoverable**
+- **Impact:** Users don't realize they can reorder scenes
+- **Probability:** High (not obvious from static view)
+- **Mitigation:**
+  - Cursor changes to grab on hover
+  - Subtle animation hint (card slightly lifts)
+  - Tooltip on first visit: "Drag to reorder"
+  - Tutorial explicitly demonstrates
+  - Alternative reorder method (buttons) visible
+  - Onboarding checklist includes "Reorder a scene"
+
+### 10.3 Data & Integration Risks
+
+**Risk: Scene Data Inconsistency**
+- **Impact:** Map shows outdated scene info, confusing to user
+- **Probability:** Medium (real-time sync challenges)
+- **Mitigation:**
+  - Supabase real-time subscriptions for live updates
+  - Optimistic UI updates (assume success)
+  - Conflict resolution strategy
+  - "Refresh Map" button if needed
+  - Version numbers to detect conflicts
+  - Periodic background sync
+  - Clear timestamps on last update
+
+**Risk: Structure Changes Break Map**
+- **Impact:** Overlay becomes invalid, confuses user
+- **Probability:** Low (but possible)
+- **Mitigation:**
+  - Validate structure selection before applying
+  - Graceful fallback to linear view
+  - Warning when structure change affects map
+  - Re-assign scenes to new beats (suggested)
+  - Keep previous overlay option
+  - Undo structure change if breaks badly
+
+**Risk: Missing Scene Data**
+- **Impact:** Cards show incomplete info, poor visualization
+- **Probability:** Medium (users may not fill all fields)
+- **Mitigation:**
+  - Default values for missing data
+  - Visual indicator for incomplete scenes
+  - Prompt to complete scenes from map
+  - Still show scene even if incomplete
+  - Estimation for missing tension values
+  - "Quick complete" feature from map
+
+### 10.4 Business Risks
+
+**Risk: Low Feature Adoption**
+- **Impact:** Development effort doesn't translate to usage
+- **Probability:** Medium (if not well-positioned)
+- **Mitigation:**
+  - Prominent placement in navigation
+  - Automatic prompts at key story points
+  - Showcase in onboarding
+  - Make part of Comprehensive Mode workflow
+  - Success stories from beta users
+  - Track drop-off points and optimize
+  - A/B test different entry points
+
+**Risk: Feature Scope Creep**
+- **Impact:** Timeline extends, delays launch
+- **Probability:** High (many possible enhancements)
+- **Mitigation:**
+  - Strict adherence to FReD scope for v1.0
+  - MVP: Timeline view + basic arc view only
+  - Park Character Tracks for v1.1
+  - Park advanced AI analysis for v1.1
+  - Focus on core value: visualize + reorder
+  - Ruthlessly cut "nice to have" features
+  - Time-box implementation sprints
+
+**Risk: Performance Limits Scalability**
+- **Impact:** Can't support power users with long stories
+- **Probability:** Low (but high impact if occurs)
+- **Mitigation:**
+  - Test with 100+ scene stories
+  - Scene limits with upgrade path
+  - Performance mode for large stories
+  - Pagination/chapters for very long works
+  - Warn users at scale limits
+  - Optimize continuously
+  - Consider premium tier for large stories
+
+---
+
+## 10. Open Questions
+
+### 10.1 Design Decisions
+
+**Circular Hero's Journey View:**
+- ❓ Should we implement circular visualization for Hero's Journey?
+  - Option A: Yes, but v2.0 (complex to build)
+  - Option B: Linear only, note circular option coming
+  - Option C: Linear with circular mini-preview
+  - **Recommendation:** Option A - v2.0 feature (focus linear v1.0)
+
+**Scene Card Information Density:**
+- ❓ How much information should scene cards show by default?
+  - Option A: Minimal (title, emotion icon only)
+  - Option B: Medium (title, emotion, tension bar)
+  - Option C: Maximum (all metadata)
+  - Option D: User preference/zoom-dependent
+  - **Recommendation:** Option D - show more at higher zoom levels
+
+**Default View Mode:**
+- ❓ Which view should be default?
+  - Timeline: Most intuitive, linear
+  - Arc: Most insightful for pacing
+  - Characters: Most interesting for multi-char stories
+  - **Recommendation:** Timeline default, with prompt to try Arc after first viewing
+
+**Auto-Layout vs Manual Positioning:**
+- ❓ Should users be able to manually position scenes or always auto-layout?
+  - v1.0: Auto-layout only (simpler)
+  - v2.0: Custom positioning option
+  - **Recommendation:** Auto-layout v1.0, manual v2.0
+
+### 10.2 AI Analysis Questions
+
+**Analysis Frequency:**
+- ❓ How often should we suggest running analysis?
+  - After every scene add/edit (too frequent?)
+  - After 3+ scene changes
+  - On user request only
+  - Daily (first map open)
+  - **Recommendation:** After 3+ changes + on request
+
+**Analysis Tone:**
+- ❓ How directive should AI suggestions be?
+  - Strong recommendations ("You should...")
+  - Gentle suggestions ("Consider...")
+  - Questions ("What if...")
+  - **Recommendation:** Gentle suggestions + questions (empowering, not prescriptive)
+
+**Suggestion Auto-Apply:**
+- ❓ Should any suggestions auto-apply without confirmation?
+  - All require confirmation (safest)
+  - Low-impact changes auto-apply (risky)
+  - Never auto-apply (user always decides)
+  - **Recommendation:** Never auto-apply (respect user agency)
+
+### 10.3 Technical Questions
+
+**Real-time Collaboration:**
+- ❓ Should multiple users see live updates on shared maps?
+  - v1.0: Single user only
+  - Future: Real-time collaboration
+  - **Recommendation:** Single user v1.0, collaboration v3.0+
+
+**Map State Persistence:**
+- ❓ What map settings should persist across sessions?
+  - View mode, zoom level, filter state
+  - Also remember pan position?
+  - Also remember selected scenes?
+  - **Recommendation:** View mode + zoom, but reset pan + selection
+
+**Canvas vs DOM Rendering:**
+- ❓ When should we switch from DOM to Canvas rendering?
+  - Always DOM (simpler, more accessible)
+  - Canvas for 20+ scenes (performance)
+  - Canvas for arc view only
+  - **Recommendation:** DOM for v1.0, optimize to Canvas if needed
+
+**Mobile Experience:**
+- ❓ How simplified should mobile map be?
+  - Timeline view only (simplest)
+  - All views but simplified (compromise)
+  - Full parity (complex)
+  - View-only, no editing (safest)
+  - **Recommendation:** Timeline + simplified Arc, no character tracks
+
+### 10.4 Feature Scope Questions
+
+**Character Tracks in v1.0?**
+- ❓ Should Character Tracks view be in initial release?
+  - Pros: Complete feature, high value for multi-character stories
+  - Cons: Complex implementation, extends timeline
+  - **Recommendation:** Include if time permits, otherwise v1.1
+
+**Export Formats:**
+- ❓ Which export formats for v1.0?
+  - PNG only (simplest)
+  - PNG + PDF (more useful)
+  - PNG + PDF + SVG (most complete)
+  - **Recommendation:** PNG + PDF v1.0, SVG v2.0
+
+**Bulk Scene Actions:**
+- ❓ Should bulk actions be in v1.0?
+  - Selection yes, but limited actions
+  - Full bulk editing suite
+  - **Recommendation:** Selection + bulk delete only v1.0, expand v1.1
+
+---
+
+## 11. Future Enhancements (v2.0+)
+
+### 11.1 Advanced Visualizations
+
+**Circular Hero's Journey View:**
+- Mandala-style visualization
+- 12 stages arranged in circle
+- Scenes placed at corresponding positions
+- Rotation to any starting point
+- Zoom into individual stages
+- Animated journey progression
+
+**3D Story Structure:**
+- Z-axis for parallel plotlines
+- Multiple timelines in 3D space
+- Interactive rotation and navigation
+- Subplot intersections visible
+- Export as animated video
+
+**Heatmap Visualizations:**
+- Conflict intensity heatmap
+- Pacing rhythm heatmap
+- Character presence density
+- Dialogue vs. action balance
+- Scene purpose distribution
+
+**Animated Story Flow:**
+- Play button to watch story unfold
+- Animated emotional arc progression
+- Character entry/exit animations
+- Structure beat highlights in sequence
+- Adjustable playback speed
+
+### 11.2 Advanced AI Features
+
+**Comparative Analysis:**
+- Compare your story to successful examples
+- Genre-specific structure recommendations
+- "Stories like yours that worked well..."
+- Pattern matching with story database
+
+**Predictive Suggestions:**
+- AI predicts next likely scene based on pattern
+- Suggests scene types needed for balance
+- Identifies setup opportunities for payoffs
+- Recommends subplot introduction points
+
+**Style Analysis:**
+- Scene length variation analysis
+- Dialogue/action ratio tracking
+- POV consistency checking
+- Tense consistency monitoring
+
+**Automated Scene Generation:**
+- AI generates missing structure beat scenes
+- Transition scene suggestions
+- Filler scene recommendations for pacing
+
+### 11.3 Collaboration Features
+
+**Multi-User Editing:**
+- Real-time collaborative map editing
+- User cursors show active editors
+- Scene assignment (this person writes that scene)
+- Comment threads on scenes
+- Suggestion mode for changes
+- Version history with author tracking
+
+**Reviewer Mode:**
+- Share read-only map with editors/beta readers
+- Inline comments on scenes
+- Voting on scene order
+- Suggestions for improvements
+- Consolidated feedback view
+
+**Team Templates:**
+- Shared structure templates for writing teams
+- Organization-wide best practices
+- Collaborative scene libraries
+
+### 11.4 Advanced Interactions
+
+**Manual Scene Positioning:**
+- Freeform canvas mode
+- Drag scenes anywhere on 2D plane
+- Custom connections between scenes
+- Mind-map style organization
+- Non-linear structure support
+
+**Scene Splitting & Merging:**
+- Split one scene into multiple from map
+- Merge adjacent scenes
+- Scene grouping (chapters)
+- Nested scene hierarchies
+
+**Advanced Filters:**
+- Complex filter combinations (AND/OR)
+- Saved filter presets
+- Custom filter creation
+- Filter by custom tags
+- Temporal filters (scenes added this week)
+
+**Keyboard Shortcuts:**
+- Full keyboard navigation
+- Custom shortcut configuration
+- Vim-style navigation modes
+- Quick command palette (Cmd+K)
+
+### 11.5 Export & Integration
+
+**Advanced Export Formats:**
+- Animated GIF of story progression
+- Video export with narration
+- Interactive HTML export
+- PowerPoint/Keynote export
+- Screenplay format with map
+
+**Integration Exports:**
+- Scrivener project import/export
+- Final Draft format
+- Google Docs with embedded map
+- Notion page with synced map
+
+**Publishing Integration:**
+- Kindle Direct Publishing preview
+- Wattpad chapter mapper
+- Medium story planner
+- Substack serial structuring
+
+### 11.6 Gamification & Learning
+
+**Achievement System:**
+- "Well-Structured" badge for complete structure
+- "Balanced Arc" for optimal emotional pacing
+- "Character Master" for complex character journeys
+- "Speed Mapper" for quick story planning
+
+**Learning Mode:**
+- Guided tour of successful story maps
+- Structure-specific tutorials
+- Expert commentary on map examples
+- Interactive challenges ("Fix this pacing")
+
+**Story Diagnostics:**
+- Overall "health score" for story
+- Detailed report card by category
+- Improvement tracking over time
+- Comparison to user's previous stories
+
+---
+
+## 12. Implementation Guidance
+
+### 12.1 Development Phases
+
+**Phase 1: Foundation (Week 1-2)**
+- Database schema for story_maps table
+- Basic map component shell
+- Scene data loading from database
+- Timeline view layout (no interactions)
+- Simple scene cards with minimal data
+- View mode tabs (skeleton only)
+
+**Deliverable:** Static map displays scenes in timeline
+
+**Phase 2: Timeline View (Week 3)**
+- Drag-and-drop scene reordering
+- Scene card full details
+- Structure overlay (basic linear)
+- Zoom and pan controls
+- Scene selection (single)
+- Click scene opens Scene Dev Tool integration
+- Auto-save on changes
+
+**Deliverable:** Fully interactive Timeline view
+
+**Phase 3: Emotional Arc View (Week 4)**
+- Line graph rendering
+- Tension data visualization
+- Color gradient application
+- Hover interactions
+- Click to select scene
+- Drag point to adjust tension
+- Structure beat markers on graph
+
+**Deliverable:** Working Emotional Arc visualization
+
+**Phase 4: AI Analysis (Week 5)**
+- AI analysis API integration
+- Analysis prompts for each category
+- Results parsing and display
+- Analysis panel UI
+- Suggestion application logic
+- "Apply Suggestion" functionality
+- Error handling and retry
+
+**Deliverable:** AI-powered story analysis
+
+**Phase 5: Character Tracks (Week 6)**
+- Character swim lanes layout
+- Character data integration
+- Scene placement in lanes
+- Archetype badges and transformations
+- Entry/exit markers
+- Track reordering
+- Show/hide tracks
+
+**Deliverable:** Character Tracks view (if included in v1.0)
+
+**Phase 6: Export & Polish (Week 7)**
+- Export to PNG implementation
+- Export to PDF implementation
+- Export options dialog
+- Preview before export
+- Filter system implementation
+- Bulk actions for selected scenes
+- Performance optimization
+- Responsive design implementation
+
+**Deliverable:** Complete, polished Visual Story Map
+
+**Phase 7: Testing & Launch (Week 8)**
+- User acceptance testing
+- Cross-browser testing
+- Performance testing (50+ scenes)
+- Accessibility audit
+- Bug fixes
+- Documentation
+- Analytics implementation
+
+**Deliverable:** Production-ready Visual Story Map
+
+### 12.2 AI Prompt Templates
+
+**Pacing Analysis Prompt:**
+```
+You are a story structure expert analyzing pacing in a narrative map.
+
+STORY CONTEXT:
+- Story Type: {storyType}
+- Structure: {structureName}
+- Total Scenes: {sceneCount}
+- Mode: {mode}
+
+SCENE DATA:
+{sceneArray} // Array of scenes with: position, title, tension, duration, beat
+
+STRUCTURE BEATS:
+{structureBeats} // Expected beats for this structure
+
+Analyze this story's pacing and provide:
+
+1. OVERALL PACING ASSESSMENT (1 sentence)
+- Is the story too fast, balanced, or too slow overall?
+
+2. ACT-BY-ACT ANALYSIS (for each act/section):
+- Scene count and distribution
+- Average tension level
+- Pacing assessment (rushed, good, dragging)
+
+3. SPECIFIC ISSUES (identify 3-5):
+- Scene density problems ("12 scenes in Act 2 vs 5 in Act 1")
+- Tension plateaus ("4 consecutive scenes at tension 6")
+- Missing beats or transitions
+- Rushed sections
+
+4. RECOMMENDATIONS (3-5 actionable):
+- Specific scene movements ("Move Scene 8 earlier")
+- Tension adjustments ("Raise tension in Scene 4-6")
+- Scene additions/removals needed
+- Pacing rhythm improvements
+
+Format as JSON for easy parsing.
+Be specific and constructive. Focus on craft, not criticism.
+```
+
+**Emotional Arc Analysis Prompt:**
+```
+You are a story coach analyzing emotional journey.
+
+TENSION DATA:
+{tensionArray} // Array of [scene_position, tension_value]
+
+STRUCTURE: {structureName}
+
+Analyze the emotional arc:
+
+1. ARC SHAPE (1-2 sentences):
+- What shape does this arc take?
+- Is it satisfying for this structure type?
+
+2. EMOTIONAL VARIETY:
+- Range of emotions (too narrow? good spread?)
+- Dominant emotional tones
+- Missing emotional beats
+
+3. PEAK & VALLEY TIMING:
+- Where are the peaks? (appropriate timing?)
+- Where are the valleys? (needed for recovery?)
+- Balance between high and low
+
+4. RECOMMENDATIONS (3-4):
+- Specific tension adjustments
+- Emotional variety suggestions
+- Peak/valley timing improvements
+
+Be encouraging. Highlight what works well, then suggest improvements.
+```
+
+**Structural Integrity Prompt:**
+```
+You are a structural editor checking beat coverage.
+
+SELECTED STRUCTURE: {structureName}
+REQUIRED BEATS: {requiredBeats} // Array of beat names
+
+ASSIGNED SCENES:
+{beatSceneMapping} // Which scenes assigned to which beats
+
+Analyze structural integrity:
+
+1. BEAT COVERAGE:
+- Which required beats have scenes assigned?
+- Which required beats are missing?
+- Any beats with multiple scenes? (is that appropriate?)
+
+2. BEAT ORDER:
+- Are beats in correct sequence?
+- Any out-of-order issues?
+
+3. RECOMMENDATIONS (3-5):
+- "Missing 'Meeting the Mentor' beat - add scene around 25%"
+- "Inciting Incident at 40% is too late - consider 10-15%"
+- Beat assignment corrections
+
+Be specific about positioning (% through story).
+```
+
+**Character Journey Analysis Prompt:**
+```
+You are a character development expert.
+
+CHARACTERS:
+{characterArray} // Array with: name, archetype, scene_appearances
+
+SCENES: {sceneCount}
+
+Analyze character journeys:
+
+1. SCREEN TIME BALANCE:
+- Distribution across characters
+- Protagonist vs supporting balance
+- Any character underutilized or overused?
+
+2. ARCHETYPE TRANSFORMATIONS:
+- Which characters transform? When?
+- Are transformations earned (enough scenes)?
+- Missing transformation opportunities?
+
+3. INTRODUCTION/EXIT TIMING:
+- When do characters enter story? (too late?)
+- When do they exit? (too early? unresolved?)
+
+4. RECOMMENDATIONS (3-5):
+- Balance adjustments
+- Transformation timing
+- Character arc improvements
+
+Focus on story craft principles.
+```
+
+### 12.3 Component Architecture
+```
+VisualStoryMap/
+├── index.tsx (main container, mode routing)
+├── ViewModes/
+│   ├── TimelineView/
+│   │   ├── index.tsx
+│   │   ├── SceneCard.tsx
+│   │   ├── StructureOverlay.tsx
+│   │   ├── ActDivider.tsx
+│   │   └── BeatMarker.tsx
+│   ├── EmotionalArcView/
+│   │   ├── index.tsx
+│   │   ├── ArcChart.tsx
+│   │   ├── TensionGraph.tsx
+│   │   └── PointTooltip.tsx
+│   └── CharacterTracksView/
+│       ├── index.tsx
+│       ├── CharacterLane.tsx
+│       ├── TransformationMarker.tsx
+│       └── RelationshipLine.tsx
+├── Controls/
+│   ├── ViewModeSelector.tsx
+│   ├── ZoomControls.tsx
+│   ├── FilterPanel.tsx
+│   └── ExportButton.tsx
+├── AIAnalysis/
+│   ├── AnalysisPanel.tsx
+│   ├── AnalysisCategory.tsx
+│   ├── Recommendation.tsx
+│   └── ApplySuggestionButton.tsx
+├── ExportDialog/
+│   ├── index.tsx
+│   ├── FormatSelector.tsx
+│   ├── OptionsPanel.tsx
+│   └── PreviewArea.tsx
+├── SummarySidebar/
+│   ├── index.tsx
+│   ├── StoryStats.tsx
+│   └── SelectedSceneDetail.tsx
+├── hooks/
+│   ├── useStoryMap.ts
+│   ├── useSceneDragDrop.ts
+│   ├── useAIAnalysis.ts
+│   ├── useMapExport.ts
+│   └── useMapControls.ts
+└── utils/
+    ├── mapCalculations.ts
+    ├── structureLayouts.ts
+    ├── exportHelpers.ts
+    └── aiPrompts.ts
+State Management:
+typescript// Map Context
+interface MapContextType {
+  // Current View
+  viewMode: 'timeline' | 'arc' | 'characters';
+  setViewMode: (mode: ViewMode) => void;
+  
+  // Map State
+  zoom: number;
+  pan: { x: number; y: number };
+  selectedScenes: string[];
+  activeFilters: Filter[];
+  
+  // Map Controls
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetView: () => void;
+  selectScene: (id: string, multi?: boolean) => void;
+  applyFilter: (filter: Filter) => void;
+  
+  // Scene Interactions
+  reorderScene: (sceneId: string, newPosition: number) => void;
+  updateSceneTension: (sceneId: string, tension: number) => void;
+  openSceneEditor: (sceneId: string) => void;
+  
+  // AI Analysis
+  analyzeMap: () => Promise<void>;
+  applyAnalysisSuggestion: (suggestion: Suggestion) => void;
+  
+  // Export
+  exportMap: (options: ExportOptions) => Promise<void>;
+  
+  // Structure Overlay
+  structureOverlayVisible: boolean;
+  toggleStructureOverlay: () => void;
+}
+
+// Story Map Data Structure
+interface StoryMap {
+  id: string;
+  story_id: string;
+  current_view: ViewMode;
+  zoom_level: number;
+  pan_position: { x: number; y: number };
+  structure_overlay_visible: boolean;
+  structure_view_type: string;
+  overlay_opacity: number;
+  scene_positions: Record<string, Position>;
+  active_filters: Filter[];
+  visible_characters: string[];
+  character_track_order: string[];
+  arc_smoothing: boolean;
+  show_average_line: boolean;
+  arc_color_scheme: string;
+  last_analysis?: AIAnalysis;
+  analysis_version: number;
+  analysis_timestamp?: string;
+  last_export_settings?: ExportOptions;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AIAnalysis {
+  pacing: PacingAnalysis;
+  emotional_arc: ArcAnalysis;
+  structural_integrity: StructureAnalysis;
+  character_journeys: CharacterAnalysis;
+  reorder_suggestions: ReorderSuggestion[];
+  overall_score: {
+    pacing: 'good' | 'warning' | 'issue';
+    arc: 'good' | 'warning' | 'issue';
+    structure: 'good' | 'warning' | 'issue';
+    characters: 'good' | 'warning' | 'issue';
+  };
+}
+12.4 Testing Strategy
+Unit Tests:
+
+Scene reordering calculations
+Tension graph data transformations
+Character presence tracking
+Structure beat matching
+Filter application logic
+Export configuration validation
+
+Integration Tests:
+
+Supabase map data CRUD
+Scene data synchronization
+Real-time updates
+AI analysis API calls
+Export generation end-to-end
+Structure overlay rendering
+
+E2E Tests (Cypress):
+
+Load map from story
+Switch between view modes
+Drag-and-drop scene reorder
+Select single and multiple scenes
+Apply filters
+Request AI analysis
+Apply AI suggestions
+Export map as PNG
+Export map as PDF
+Zoom and pan navigation
+Click scene opens editor
+Undo scene reorder
+
+Visual Regression Tests:
+
+Timeline view layouts
+Emotional arc graph rendering
+Character tracks display
+Scene card appearance
+Structure overlay positions
+Export image quality
+
+Performance Tests:
+
+Load time with 50+ scenes
+Drag-and-drop responsiveness
+Graph rendering speed
+AI analysis completion time
+Export generation time
+Memory usage monitoring
+
+12.5 Analytics Implementation
+Events to Track:
+javascript// Map Access
+trackEvent('map_opened', {
+  story_id: storyId,
+  scene_count: sceneCount,
+  mode: userMode,
+  entry_point: 'navigation' | 'story_prompt' | 'scene_editor'
+});
+
+// View Mode
+trackEvent('map_view_changed', {
+  from_view: previousView,
+  to_view: newView,
+  session_time_in_previous: seconds
+});
+
+// Scene Interactions
+trackEvent('scene_reordered', {
+  scene_id: sceneId,
+  from_position: oldPos,
+  to_position: newPos,
+  method: 'drag_drop' | 'button'
+});
+
+trackEvent('scene_clicked', {
+  scene_id: sceneId,
+  action: 'open_editor' | 'select' | 'quick_view',
+  view_mode: currentView
+});
+
+// AI Analysis
+trackEvent('ai_analysis_requested', {
+  story_id: storyId,
+  scene_count: sceneCount
+});
+
+trackEvent('ai_suggestion_applied', {
+  suggestion_type: 'reorder' | 'tension' | 'add_scene' | 'remove_scene',
+  category: 'pacing' | 'arc' | 'structure' | 'character'
+});
+
+trackEvent('ai_suggestion_dismissed', {
+  suggestion_type: type,
+  category: category
+});
+
+// Export
+trackEvent('map_exported', {
+  format: 'png' | 'pdf',
+  resolution: resolutionSetting,
+  view_mode: currentView,
+  includes: exportOptions
+});
+
+// Filters & Controls
+trackEvent('filter_applied', {
+  filter_type: filterType,
+  filter_value: value
+});
+
+trackEvent('zoom_changed', {
+  from_level: oldZoom,
+  to_level: newZoom,
+  method: 'button' | 'keyboard'
+});
+Metrics Dashboard:
+
+Map usage rate (% of stories)
+Average time in each view mode
+Scene reorder frequency
+AI analysis request rate
+Suggestion acceptance rate
+Export usage rate
+Filter usage patterns
+Zoom/pan usage
+Scene selection patterns
+View mode switching behavior
+
+12.6 Documentation Needs
+User Documentation:
+
+"Introduction to Visual Story Map" guide
+Video tutorial: "Your First Story Map"
+View mode comparison chart
+AI analysis interpretation guide
+Export best practices
+Keyboard shortcuts reference
+Troubleshooting common issues
+FAQ section
+
+Developer Documentation:
+
+Component API reference
+State management patterns
+Drag-and-drop implementation details
+AI prompt customization guide
+Export system architecture
+Performance optimization notes
+Testing procedures
+Deployment checklist
+
+API Documentation:
+
+Supabase functions for maps
+Real-time subscription setup
+AI analysis endpoint specs
+Export service API
+Error codes and handling

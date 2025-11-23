@@ -1,0 +1,1906 @@
+Feature Request Document (FReD)
+AI Generation Engine
+
+1. Feature Name
+AI Generation Engine
+Priority: Critical (Core Infrastructure)
+Status: Documented - Ready for Implementation
+Version: 1.0
+Last Updated: November 22, 2025
+
+2. Goal
+Provide a robust, intelligent AI-powered content generation system that assists users throughout their story creation journey by generating hooks, character profiles, scene content, structure suggestions, and complete story drafts using the Anthropic Claude API while maintaining quality, performance, and cost-effectiveness.
+Key Outcomes:
+
+AI generates contextually relevant content at each story creation phase
+Response time under 5 seconds for most generations
+85%+ user acceptance rate for AI-generated content
+Seamless integration across all story creation features
+Intelligent prompt engineering optimized for storytelling
+Cost-effective token usage through caching and optimization
+Graceful error handling and fallback strategies
+User control over AI suggestions (edit, regenerate, reject)
+
+
+3. User Story
+As a writer using Storyteller Tactics
+I want AI to intelligently assist me throughout my story creation process by generating contextual suggestions, drafts, and improvements
+So that I can overcome writer's block, explore creative possibilities, and craft compelling stories faster while maintaining full creative control
+Acceptance Criteria:
+
+AI generates relevant content based on story context
+Generations complete within 5 seconds (80% of cases)
+User can edit all AI-generated content
+User can regenerate content with one click
+AI maintains consistency with established story elements
+Multiple generation options provided (user chooses best)
+"Why this works" explanations accompany suggestions
+Clear loading states during generation
+Error messages are helpful and actionable
+Offline/error mode allows continued work
+AI "learns" from user preferences over time
+
+
+4. Functional Requirements
+4.1 AI Generation Types
+Type 1: Hook Generation
+Purpose: Generate compelling opening hooks for stories
+Input Context:
+
+Story type (business pitch, novel, etc.)
+Target audience
+Character archetype
+Central conflict
+Emotional goal
+Selected hook types (Unexpected, Knowledge, Story, Question, Emotional)
+
+Output:
+
+3 hooks per selected type (max 15 total if all 5 types selected)
+Each hook: 1-3 sentences, 20-75 words
+"Why this works" explanation (1 sentence)
+Estimated reading time
+Tone indicator (professional, conversational, dramatic, etc.)
+
+Generation Settings:
+typescriptinterface HookGenerationParams {
+  storyContext: StoryContext;
+  hookTypes: ('unexpected' | 'knowledge' | 'story' | 'question' | 'emotional')[];
+  count: number; // 3 per type
+  tone?: 'professional' | 'conversational' | 'dramatic' | 'inspirational';
+  maxLength?: number; // words
+}
+
+interface HookResult {
+  hooks: Array<{
+    type: string;
+    text: string;
+    explanation: string;
+    wordCount: number;
+    tone: string;
+  }>;
+  generationTime: number; // ms
+  tokensUsed: number;
+}
+Example API Call:
+typescriptconst generateHooks = async (params: HookGenerationParams) => {
+  const prompt = buildHookPrompt(params);
+  
+  const response = await callClaudeAPI({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 2000,
+    temperature: 0.8, // More creative for hooks
+    system: HOOK_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: prompt }]
+  });
+  
+  return parseHookResponse(response);
+};
+Type 2: Character/Archetype Suggestions
+Purpose: Suggest character archetypes and provide character development ideas
+Input Context:
+
+Story type
+Target audience
+Central conflict
+Desired character role (hero, guide, villain, etc.)
+User-provided character description (optional)
+
+Output:
+
+Primary archetype suggestion with reasoning
+Secondary archetype pairing suggestion
+Combined archetype name and description
+Character voice examples (3 quotes)
+Motivations and fears
+Archetype-specific behaviors (5 examples)
+Potential character arc
+Dark side warnings (too much/too little)
+
+Generation Settings:
+typescriptinterface CharacterGenerationParams {
+  storyContext: StoryContext;
+  characterRole: 'hero' | 'guide' | 'villain' | 'companion';
+  userDescription?: string;
+  existingArchetypes?: string[]; // For secondary pairing
+}
+
+interface CharacterResult {
+  primaryArchetype: {
+    id: string;
+    name: string;
+    reasoning: string;
+    confidence: number; // 0-1
+  };
+  secondaryArchetype?: {
+    id: string;
+    name: string;
+    combinedName: string;
+  };
+  characterProfile: {
+    voiceExamples: string[];
+    motivations: string[];
+    fears: string[];
+    behaviors: string[];
+    arc: string;
+    darkSides: {
+      tooMuch: string;
+      tooLittle: string;
+    };
+  };
+}
+Type 3: Scene Generation (Movie Time Framework)
+Purpose: Generate full scene prose using Action → Emotion → Meaning
+Input Context:
+
+Story type
+Character(s) in scene
+Scene position in structure
+Desired emotion
+Movie Time framework answers:
+
+What happens? (Action)
+How does it feel? (Emotion)
+What does it mean? (Meaning)
+
+
+Preceding scene context
+Following scene context
+
+Output:
+
+Full scene prose (200-500 words)
+Sensory details woven in
+Dialogue (if appropriate)
+Emotional subtext
+Scene-appropriate pacing
+Transition hints to next scene
+
+Generation Settings:
+typescriptinterface SceneGenerationParams {
+  storyContext: StoryContext;
+  sceneData: {
+    position: number;
+    title: string;
+    movieTime: {
+      action: string;
+      emotion: string;
+      meaning: string;
+    };
+    characters: string[];
+    setting?: string;
+  };
+  precedingScene?: string;
+  followingScene?: string;
+  style: 'show' | 'tell' | 'balanced';
+  length: 'short' | 'medium' | 'long';
+  pov: 'first_past' | 'third_past' | 'first_present' | 'third_present';
+}
+
+interface SceneResult {
+  prose: string;
+  wordCount: number;
+  readingTime: number; // seconds
+  sensoryDetails: string[]; // Extracted for reference
+  dialogueCount: number;
+  pacing: 'fast' | 'medium' | 'slow';
+}
+Type 4: Structure Suggestions
+Purpose: Suggest story structure beats and scene placement
+Input Context:
+
+Story type
+Selected structure (Hero's Journey, Three-Act, etc.)
+Character arc
+Central conflict
+Desired story length
+
+Output:
+
+Beat-by-beat outline
+Suggested scenes for each beat
+Pacing recommendations
+Emotional intensity per beat
+Key transition points
+Estimated word count per beat
+
+Generation Settings:
+typescriptinterface StructureGenerationParams {
+  storyContext: StoryContext;
+  structureType: string;
+  storyLength: 'short' | 'medium' | 'long' | 'epic';
+}
+
+interface StructureResult {
+  beats: Array<{
+    name: string;
+    description: string;
+    suggestedScenes: string[];
+    emotionalIntensity: number; // 1-10
+    pacingNote: string;
+    estimatedWords: number;
+  }>;
+  transitions: string[];
+  totalEstimatedWords: number;
+}
+Type 5: Full Story Draft
+Purpose: Generate complete cohesive narrative from all components
+Input Context:
+
+ALL story components:
+
+Title
+Story type
+Hook
+Character profile
+Structure with beats
+All developed scenes
+Moral conflict
+Emotional arc
+
+
+Writing preferences:
+
+Length (500-5000 words)
+Style
+POV and tense
+Tone
+
+
+
+Output:
+
+Complete story draft
+Integrated hook opening
+Character voice consistency
+Scene transitions
+Archetype-appropriate language
+Moral conflict woven throughout
+Satisfying conclusion
+
+Generation Settings:
+typescriptinterface FullDraftParams {
+  storyData: CompleteStoryData;
+  preferences: {
+    length: 'short' | 'medium' | 'long' | 'very_long';
+    style: 'conversational' | 'professional' | 'dramatic' | 'inspirational';
+    pov: string;
+    tense: string;
+    targetWordCount?: number;
+  };
+}
+
+interface FullDraftResult {
+  draft: string;
+  wordCount: number;
+  readingTime: number;
+  structure: {
+    sections: number;
+    paragraphs: number;
+    avgWordsPerSection: number;
+  };
+  qualityMetrics: {
+    hookStrength: number; // 1-10
+    characterConsistency: number;
+    pacing: number;
+    emotionalArc: number;
+  };
+}
+Type 6: Improvement Suggestions
+Purpose: Improve user-selected text
+Input Context:
+
+Selected text
+Improvement type (vivid, concise, emotion, dialogue, subtext)
+Story context
+Character voice
+
+Output:
+
+Improved version of text
+Specific changes made
+Explanation of improvements
+Alternative versions (2-3 options)
+
+Generation Settings:
+typescriptinterface ImprovementParams {
+  originalText: string;
+  improvementType: 'vivid' | 'concise' | 'emotion' | 'dialogue' | 'subtext';
+  storyContext: StoryContext;
+  characterVoice?: string;
+}
+
+interface ImprovementResult {
+  suggestions: Array<{
+    text: string;
+    changes: string[];
+    explanation: string;
+  }>;
+}
+Type 7: Real-Time Coaching
+Purpose: Provide contextual writing advice
+Input Context:
+
+Current writing
+Story phase
+Common issues detected
+User's coaching level preference
+
+Output:
+
+Contextual tips (non-intrusive)
+"Consider..." suggestions
+Examples
+Storytelling principles
+Toggle on/off per suggestion
+
+Generation Settings:
+typescriptinterface CoachingParams {
+  currentText: string;
+  phase: string;
+  coachingLevel: 'minimal' | 'moderate' | 'extensive';
+  issuesDetected: string[];
+}
+
+interface CoachingResult {
+  tips: Array<{
+    category: string;
+    suggestion: string;
+    example?: string;
+    priority: 'low' | 'medium' | 'high';
+  }>;
+}
+```
+
+### 4.2 Prompt Engineering System
+
+**System Prompts (By Generation Type):**
+
+**Hook Generation System Prompt:**
+```
+You are an expert storyteller specializing in creating compelling opening hooks. You understand the Storyteller Tactics framework and the five hook types:
+
+1. UNEXPECTED: Contrarian views, surprising facts, zags when others zig
+2. KNOWLEDGE: Expertise-based, "secrets of", listicles, insider information
+3. STORY: Scene-based, action-oriented, dialogue openers, in medias res
+4. QUESTION: Provocative questions, "what if" scenarios, challenges assumptions
+5. EMOTIONAL: Relatable feelings, universal experiences, vulnerability
+
+Your task is to generate hooks that:
+- Match the story type and audience
+- Align with the character's archetype voice
+- Connect to the central conflict
+- Create immediate intrigue or connection
+- Are appropriate in tone and length
+- Follow the selected hook type's principles
+
+Always provide:
+- The hook itself (1-3 sentences, 20-75 words)
+- A brief "why this works" explanation
+- Maintain consistency with the story context
+
+Generate hooks that are original, specific, and compelling.
+```
+
+**Character Generation System Prompt:**
+```
+You are an expert in Jungian archetypes and the Storyteller Tactics framework. You understand all 12 primary archetypes:
+
+The Ruler, The Caregiver, The Innocent, The Jester, The Sage, The Explorer, The Rebel, The Magician, The Hero/Warrior, The Companion/Everyperson, The Lover, The Creator
+
+You also understand archetype combinations and how to create rich, multi-dimensional characters by pairing primary and secondary archetypes.
+
+Your task is to:
+1. Analyze the story context and character role
+2. Suggest the most appropriate primary archetype with clear reasoning
+3. Recommend a compatible secondary archetype for depth
+4. Provide a combined archetype name (e.g., "The Warrior-Sage" or "The Compassionate Rebel")
+5. Generate character voice examples that demonstrate the archetype
+6. Identify core motivations and fears
+7. Suggest archetype-specific behaviors
+8. Map a potential character arc
+9. Warn about dark sides (too much/too little of the archetype)
+
+Be specific, insightful, and aligned with Storyteller Tactics principles.
+```
+
+**Scene Generation System Prompt:**
+```
+You are a master scene writer who uses the Movie Time framework (Action → Emotion → Meaning) to create vivid, engaging scenes.
+
+Movie Time Principles:
+- ACTION: What literally happens in the scene
+- EMOTION: How the characters and audience feel
+- MEANING: The deeper significance, theme, or revelation
+
+Your task is to write a complete scene that:
+1. Opens with a strong action beat
+2. Uses "Show Don't Tell" - sensory details, not exposition
+3. Maintains the character's archetype voice
+4. Builds emotional resonance
+5. Reveals meaning through action and dialogue
+6. Paces appropriately for the scene's position in structure
+7. Transitions smoothly to the next beat
+8. Includes specific, vivid details (sights, sounds, smells, textures)
+9. Uses dialogue that sounds natural and reveals character
+
+Write in the specified POV and tense. Match the story's overall tone. Create prose that is engaging, visual, and emotionally resonant.
+```
+
+**Full Draft Generation System Prompt:**
+```
+You are a professional storyteller creating a complete, cohesive narrative using the Storyteller Tactics framework.
+
+You have access to ALL story components:
+- Hook: The compelling opening
+- Character: Archetype-driven protagonist/guide
+- Structure: The narrative framework with beats
+- Scenes: Fully developed key moments using Movie Time
+- Moral Conflict: The ethical dimension
+- Emotional Arc: The feeling journey
+
+Your task is to weave these components into a seamless, compelling story that:
+
+1. OPENS with the hook naturally integrated
+2. ESTABLISHES character using archetype voice and behaviors
+3. DEVELOPS through structure beats in proper sequence
+4. INTEGRATES all developed scenes smoothly
+5. WEAVES moral conflict throughout subtly
+6. MAINTAINS consistent POV, tense, and voice
+7. BUILDS emotional arc matching the structure
+8. INCLUDES transitions that feel natural, not mechanical
+9. CREATES satisfying conclusion appropriate to structure
+10. PRESERVES user-written content when provided
+
+Quality Standards:
+- Vivid, specific details (show don't tell)
+- Natural dialogue that reveals character
+- Smooth transitions between beats
+- Consistent tone and style
+- Proper pacing (varied sentence length, scene rhythm)
+- Emotional resonance
+- Thematic coherence
+
+Write a complete, polished narrative that feels like a unified whole, not disconnected parts assembled.
+```
+
+**Improvement System Prompt:**
+```
+You are a writing coach helping improve specific passages. When asked to make text more:
+
+VIVID: Add sensory details (sight, sound, smell, touch, taste), specific nouns, active verbs
+CONCISE: Remove redundancy, tighten language, eliminate filler, strengthen verbs
+EMOTIONAL: Deepen feelings, add interiority, show physical manifestations, use metaphor
+DIALOGUE: Make speech patterns natural, add subtext, use interruptions/pauses, reveal character
+SUBTEXT: Show don't tell, imply rather than state, use action/reaction, layer meaning
+
+Provide the improved text and briefly explain what changed and why.
+4.3 Context Building
+Story Context Structure:
+typescriptinterface StoryContext {
+  // Core Identity
+  storyId: string;
+  title?: string;
+  storyType: string;
+  mode: 'quick' | 'comprehensive';
+  
+  // Audience & Purpose
+  audience: {
+    primary: string;
+    demographics?: string;
+    emotionalGoal?: string;
+    knowledgeLevel?: string;
+  };
+  purpose?: string;
+  context?: string;
+  
+  // Character
+  character?: {
+    primary: {
+      archetype: string;
+      name?: string;
+      description?: string;
+      voice?: string;
+    };
+    secondary?: {
+      archetype: string;
+      relationship: string;
+    };
+    motivations?: string[];
+    fears?: string[];
+  };
+  
+  // Conflict & Stakes
+  conflict?: {
+    central: string;
+    opposing: string;
+    type: string;
+  };
+  stakes?: string;
+  
+  // Structure
+  structure?: {
+    type: string;
+    beats: Array<{
+      name: string;
+      description: string;
+      position: number;
+    }>;
+  };
+  
+  // Moral Dimension
+  moralConflict?: {
+    primary: string;
+    complexity: string;
+    heroPosition: string;
+    villainPosition: string;
+  };
+  
+  // Scenes
+  scenes?: Array<{
+    id: string;
+    title: string;
+    position: number;
+    content?: string;
+    movieTime?: {
+      action: string;
+      emotion: string;
+      meaning: string;
+    };
+  }>;
+  
+  // Previous Generations
+  previousGenerations?: {
+    hooks?: string[];
+    drafts?: string[];
+    userEdits?: string[];
+  };
+}
+Context Formatting for Prompts:
+typescriptconst formatContextForPrompt = (context: StoryContext): string => {
+  let formatted = `STORY CONTEXT:\n\n`;
+  
+  formatted += `Type: ${context.storyType}\n`;
+  formatted += `Mode: ${context.mode}\n\n`;
+  
+  if (context.audience) {
+    formatted += `AUDIENCE:\n`;
+    formatted += `Primary: ${context.audience.primary}\n`;
+    if (context.audience.emotionalGoal) {
+      formatted += `Emotional Goal: ${context.audience.emotionalGoal}\n`;
+    }
+    formatted += `\n`;
+  }
+  
+  if (context.character) {
+    formatted += `CHARACTER:\n`;
+    formatted += `Primary Archetype: ${context.character.primary.archetype}\n`;
+    if (context.character.primary.voice) {
+      formatted += `Voice: ${context.character.primary.voice}\n`;
+    }
+    if (context.character.secondary) {
+      formatted += `Secondary: ${context.character.secondary.archetype}\n`;
+    }
+    formatted += `\n`;
+  }
+  
+  if (context.conflict) {
+    formatted += `CONFLICT:\n`;
+    formatted += `Central: ${context.conflict.central}\n`;
+    formatted += `Opposing: ${context.conflict.opposing}\n\n`;
+  }
+  
+  if (context.structure) {
+    formatted += `STRUCTURE: ${context.structure.type}\n`;
+    formatted += `Beats:\n`;
+    context.structure.beats.forEach((beat, i) => {
+      formatted += `${i + 1}. ${beat.name}: ${beat.description}\n`;
+    });
+    formatted += `\n`;
+  }
+  
+  if (context.scenes && context.scenes.length > 0) {
+    formatted += `DEVELOPED SCENES:\n`;
+    context.scenes.forEach((scene, i) => {
+      formatted += `Scene ${i + 1}: ${scene.title}\n`;
+      if (scene.movieTime) {
+        formatted += `  Action: ${scene.movieTime.action}\n`;
+        formatted += `  Emotion: ${scene.movieTime.emotion}\n`;
+        formatted += `  Meaning: ${scene.movieTime.meaning}\n`;
+      }
+      if (scene.content) {
+        formatted += `  Content: ${scene.content.substring(0, 200)}...\n`;
+      }
+    });
+  }
+  
+  return formatted;
+};
+4.4 API Call Architecture
+Core API Service:
+typescriptclass ClaudeAPIService {
+  private apiKey: string;
+  private baseURL = 'https://api.anthropic.com/v1/messages';
+  private model = 'claude-sonnet-4-20250514';
+  
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
+  }
+  
+  async generate(params: GenerationParams): Promise<GenerationResult> {
+    const startTime = Date.now();
+    
+    try {
+      const response = await fetch(this.baseURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: this.model,
+          max_tokens: params.maxTokens || 4000,
+          temperature: params.temperature || 0.7,
+          system: params.systemPrompt,
+          messages: params.messages
+        })
+      });
+      
+      if (!response.ok) {
+        throw new APIError(response.status, await response.text());
+      }
+      
+      const data = await response.json();
+      const generationTime = Date.now() - startTime;
+      
+      return {
+        content: this.extractContent(data),
+        tokensUsed: {
+          input: data.usage.input_tokens,
+          output: data.usage.output_tokens,
+          total: data.usage.input_tokens + data.usage.output_tokens
+        },
+        generationTime,
+        model: data.model,
+        stopReason: data.stop_reason
+      };
+      
+    } catch (error) {
+      return this.handleError(error, params);
+    }
+  }
+  
+  private extractContent(response: any): string {
+    const textBlock = response.content.find((block: any) => block.type === 'text');
+    return textBlock?.text || '';
+  }
+  
+  private async handleError(error: any, params: GenerationParams): Promise<GenerationResult> {
+    // Implement retry logic
+    if (this.shouldRetry(error)) {
+      await this.wait(this.getBackoffDelay(params.retryCount || 0));
+      return this.generate({
+        ...params,
+        retryCount: (params.retryCount || 0) + 1
+      });
+    }
+    
+    throw error;
+  }
+  
+  private shouldRetry(error: any): boolean {
+    // Retry on rate limits and temporary failures
+    return error.status === 429 || error.status === 500 || error.status === 503;
+  }
+  
+  private getBackoffDelay(retryCount: number): number {
+    // Exponential backoff: 1s, 2s, 4s, 8s
+    return Math.min(1000 * Math.pow(2, retryCount), 8000);
+  }
+  
+  private wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+Generation Manager:
+typescriptclass AIGenerationManager {
+  private apiService: ClaudeAPIService;
+  private cache: GenerationCache;
+  private rateLimiter: RateLimiter;
+  
+  constructor(apiKey: string) {
+    this.apiService = new ClaudeAPIService(apiKey);
+    this.cache = new GenerationCache();
+    this.rateLimiter = new RateLimiter({ maxPerMinute: 50 });
+  }
+  
+  async generateHooks(params: HookGenerationParams): Promise<HookResult> {
+    // Check cache first
+    const cacheKey = this.getCacheKey('hooks', params);
+    const cached = await this.cache.get(cacheKey);
+    if (cached) return cached;
+    
+    // Rate limit check
+    await this.rateLimiter.waitIfNeeded();
+    
+    // Build prompt
+    const systemPrompt = SYSTEM_PROMPTS.hooks;
+    const userPrompt = this.buildHookPrompt(params);
+    
+    // Generate
+    const result = await this.apiService.generate({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxTokens: 2000,
+      temperature: 0.8
+    });
+    
+    // Parse and validate
+    const hooks = this.parseHookResponse(result.content, params);
+    
+    // Cache result
+    await this.cache.set(cacheKey, hooks, 3600); // 1 hour
+    
+    // Track usage
+    this.trackUsage('hooks', result.tokensUsed, result.generationTime);
+    
+    return hooks;
+  }
+  
+  async generateScene(params: SceneGenerationParams): Promise<SceneResult> {
+    const systemPrompt = SYSTEM_PROMPTS.scene;
+    const userPrompt = this.buildScenePrompt(params);
+    
+    const result = await this.apiService.generate({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxTokens: this.getSceneTokens(params.length),
+      temperature: 0.7
+    });
+    
+    const scene = this.parseSceneResponse(result.content, params);
+    this.trackUsage('scene', result.tokensUsed, result.generationTime);
+    
+    return scene;
+  }
+  
+  async generateFullDraft(params: FullDraftParams): Promise<FullDraftResult> {
+    const systemPrompt = SYSTEM_PROMPTS.fullDraft;
+    const userPrompt = this.buildFullDraftPrompt(params);
+    
+    const result = await this.apiService.generate({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxTokens: this.getDraftTokens(params.preferences.length),
+      temperature: 0.7
+    });
+    
+    const draft = this.parseFullDraftResponse(result.content, params);
+    this.trackUsage('fullDraft', result.tokensUsed, result.generationTime);
+    
+    return draft;
+  }
+  
+  private buildHookPrompt(params: HookGenerationParams): string {
+    const context = formatContextForPrompt(params.storyContext);
+    
+    return `${context}
+
+TASK: Generate compelling hooks for this story.
+
+Hook types requested: ${params.hookTypes.join(', ')}
+Desired tone: ${params.tone || 'match story type'}
+Maximum length: ${params.maxLength || 75} words per hook
+
+For each hook type, generate ${params.count} unique hooks.
+
+Output format (JSON):
+{
+  "hooks": [
+    {
+      "type": "unexpected",
+      "text": "The hook text here...",
+      "explanation": "Why this works...",
+      "wordCount": 42
+    }
+  ]
+}
+
+Generate creative, specific hooks that align with the story context. Make them compelling and appropriate for the audience.`;
+  }
+  
+  private buildScenePrompt(params: SceneGenerationParams): string {
+    const context = formatContextForPrompt(params.storyContext);
+    
+    return `${context}
+
+SCENE TO WRITE:
+Title: ${params.sceneData.title}
+Position: Beat ${params.sceneData.position}
+
+MOVIE TIME FRAMEWORK:
+Action: ${params.sceneData.movieTime.action}
+Emotion: ${params.sceneData.movieTime.emotion}
+Meaning: ${params.sceneData.movieTime.meaning}
+
+Characters in scene: ${params.sceneData.characters.join(', ')}
+${params.sceneData.setting ? `Setting: ${params.sceneData.setting}` : ''}
+
+${params.precedingScene ? `Previous scene context:\n${params.precedingScene.substring(0, 200)}...\n` : ''}
+${params.followingScene ? `Next scene preview:\n${params.followingScene.substring(0, 200)}...\n` : ''}
+
+LENGTH: ${params.length} (${this.getSceneWordCount(params.length)} words)
+POV: ${params.pov}
+STYLE: ${params.style}
+
+Write the scene following Movie Time principles. Make it vivid, emotionally resonant, and consistent with character voice. Use show-don't-tell. Include sensory details.`;
+  }
+  
+  private buildFullDraftPrompt(params: FullDraftParams): string {
+    const context = formatContextForPrompt(params.storyData);
+    
+    return `${context}
+
+TASK: Create a complete, polished story draft.
+
+SPECIFICATIONS:
+- Length: ${params.preferences.length} (target: ${params.preferences.targetWordCount || 'auto'} words)
+- Style: ${params.preferences.style}
+- POV: ${params.preferences.pov}
+- Tense: ${params.preferences.tense}
+
+REQUIREMENTS:
+1. Open with the hook naturally integrated
+2. Establish character with archetype voice
+3. Follow structure beats in order
+4. Integrate all developed scenes seamlessly
+5. Weave moral conflict throughout
+6. Build emotional arc
+7. Create smooth transitions
+8. Conclude satisfyingly
+
+Write a complete, cohesive narrative that feels like a unified whole. This should be polished, ready-to-edit prose, not an outline.`;
+  }
+  
+  private getSceneWordCount(length: string): number {
+    const counts = { short: 200, medium: 350, long: 500 };
+    return counts[length] || 350;
+  }
+  
+  private getDraftTokens(length: string): number {
+    const tokens = {
+      short: 2000,    // ~500-1000 words
+      medium: 4000,   // ~1000-2000 words
+      long: 6000,     // ~2000-3500 words
+      very_long: 8000 // ~3500-5000 words
+    };
+    return tokens[length] || 4000;
+  }
+  
+  private getSceneTokens(length: string): number {
+    const tokens = { short: 800, medium: 1200, long: 1600 };
+    return tokens[length] || 1200;
+  }
+}
+4.5 Response Parsing
+Hook Response Parser:
+typescriptconst parseHookResponse = (content: string, params: HookGenerationParams): HookResult => {
+  try {
+    // Strip markdown code blocks if present
+    const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+    
+    // Validate structure
+    if (!parsed.hooks || !Array.isArray(parsed.hooks)) {
+      throw new Error('Invalid hook response structure');
+    }
+    
+    // Validate each hook
+    const hooks = parsed.hooks.map(hook => ({
+      type: hook.type,
+      text: hook.text,
+      explanation: hook.explanation || '',
+      wordCount: hook.wordCount || hook.text.split(' ').length,
+      tone: hook.tone || params.tone || 'neutral'
+    }));
+    
+    // Group by type
+    const grouped = params.hookTypes.reduce((acc, type) => {
+      acc[type] = hooks.filter(h => h.type === type);
+      return acc;
+    }, {});
+    
+    return {
+      hooks,
+      grouped,
+      generationTime: 0, // Set by caller
+      tokensUsed: 0 // Set by caller
+    };
+    
+  } catch (error) {
+    console.error('Hook parsing error:', error);
+    throw new ParseError('Failed to parse hook response', content);
+  }
+};
+Scene Response Parser:
+typescriptconst parseSceneResponse = (content: string, params: SceneGenerationParams): SceneResult => {
+  // Scene is plain prose, not JSON
+  const prose = content.trim();
+  
+  // Extract metrics
+  const wordCount = prose.split(/\s+/).length;
+  const readingTime = Math.ceil(wordCount / 200); // 200 wpm
+  
+  // Analyze content
+  const sensoryDetails = extractSensoryDetails(prose);
+  const dialogueCount = (prose.match(/"/g) || []).length / 2; // Quote pairs
+  const pacing = analyzePacing(prose);
+  
+  return {
+    prose,
+    wordCount,
+    readingTime,
+    sensoryDetails,
+    dialogueCount,
+    pacing
+  };
+};
+
+const extractSensoryDetails = (text: string): string[] => {
+  // Simple pattern matching for sensory words
+  const sensoryPatterns = {
+    sight: /\b(saw|looked|gleaming|bright|dark|color|shadows)\b/gi,
+    sound: /\b(heard|whispered|shouted|silence|echoed|rang)\b/gi,
+    smell: /\b(scent|aroma|stench|fragrance|smelled)\b/gi,
+    touch: /\b(felt|rough|smooth|cold|warm|soft|hard)\b/gi,
+    taste: /\b(tasted|sweet|bitter|sour|savory)\b/gi
+  };
+  
+  const details = [];
+  for (const [sense, pattern] of Object.entries(sensoryPatterns)) {
+    const matches = text.match(pattern);
+    if (matches && matches.length > 0) {
+      details.push(`${sense}: ${matches.length} instances`);
+    }
+  }
+  
+  return details;
+};
+
+const analyzePacing = (text: string): 'fast' | 'medium' | 'slow' => {
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const avgSentenceLength = text.length / sentences.length;
+  
+  if (avgSentenceLength < 60) return 'fast';
+  if (avgSentenceLength > 120) return 'slow';
+  return 'medium';
+};
+4.6 Caching Strategy
+Generation Cache:
+typescriptclass GenerationCache {
+  private storage: Map<string, CacheEntry>;
+  private maxSize: number = 100;
+  private ttl: number = 3600; // 1 hour default
+  
+  constructor() {
+    this.storage = new Map();
+    this.startCleanupInterval();
+  }
+  
+  async get(key: string): Promise<any | null> {
+    const entry = this.storage.get(key);
+    
+    if (!entry) return null;
+    
+    // Check expiration
+    if (Date.now() > entry.expiresAt) {
+      this.storage.delete(key);
+      return null;
+    }
+    
+    // Update access time
+    entry.lastAccessed = Date.now();
+    
+    return entry.value;
+  }
+  
+  async set(key: string, value: any, ttl?: number): Promise<void> {
+    // Enforce size limit
+    if (this.storage.size >= this.maxSize) {
+      this.evictOldest();
+    }
+    
+    this.storage.set(key, {
+      value,
+      createdAt: Date.now(),
+      lastAccessed: Date.now(),
+      expiresAt: Date.now() + (ttl || this.ttl) * 1000
+    });
+  }
+  
+  private evictOldest(): void {
+    let oldestKey = null;
+    let oldestTime = Infinity;
+    
+    for (const [key, entry] of this.storage.entries()) {
+      if (entry.lastAccessed < oldestTime) {
+        oldestTime = entry.lastAccessed;
+        oldestKey = key;
+      }
+    }
+    
+    if (oldestKey) {
+      this.storage.delete(oldestKey);
+    }
+  }
+  
+  private startCleanupInterval(): void {
+    setInterval(() => {
+      const now = Date.now();
+      for (const [key, entry] of this.storage.entries()) {
+        if (now > entry.expiresAt) {
+          this.storage.delete(key);
+        }
+      }
+    }, 60000); // Every minute
+  }
+  
+  generateCacheKey(type: string, params: any): string {
+    // Create deterministic cache key
+    const normalized = this.normalizeParams(params);
+    const hash = this.simpleHash(JSON.stringify(normalized));
+    return `${type}:${hash}`;
+  }
+  
+  private normalizeParams(params: any): any {
+    // Sort object keys for consistent hashing
+    if (typeof params !== 'object' || params === null) {
+      return params;
+    }
+    
+    if (Array.isArray(params)) {
+      return params.map(p => this.normalizeParams(p));
+    }
+    
+    const sorted = {};
+    Object.keys(params).sort().forEach(key => {
+      sorted[key] = this.normalizeParams(params[key]);
+    });
+    
+    return sorted;
+  }
+  
+  private simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  }
+}
+4.7 Error Handling
+Error Types:
+typescriptclass APIError extends Error {
+  constructor(
+    public status: number,
+    public message: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'APIError';
+  }
+}
+
+class ParseError extends Error {
+  constructor(
+    public message: string,
+    public rawContent: string
+  ) {
+    super(message);
+    this.name = 'ParseError';
+  }
+}
+
+class RateLimitError extends Error {
+  constructor(
+    public retryAfter: number // seconds
+  ) {
+    super(`Rate limit exceeded. Retry after ${retryAfter}s`);
+    this.name = 'RateLimitError';
+  }
+}
+
+class ValidationError extends Error {
+  constructor(
+    public field: string,
+    public message: string
+  ) {
+    super(`Validation error: ${field} - ${message}`);
+    this.name = 'ValidationError';
+  }
+}
+Error Handler:
+typescriptclass ErrorHandler {
+  async handleGenerationError(
+    error: Error,
+    context: GenerationContext
+  ): Promise<ErrorResponse> {
+    // Log error
+    console.error('Generation error:', error, context);
+    
+    // Categorize and respond
+    if (error instanceof RateLimitError) {
+      return {
+        type: 'rate_limit',
+        message: 'Too many requests. Please wait a moment and try again.',
+        userMessage: 'Taking a short break to avoid overloading. Please try again in a few seconds.',
+        retryable: true,
+        retryAfter: error.retryAfter
+      };
+    }
+    
+    if (error instanceof ParseError) {
+      return {
+        type: 'parse_error',
+        message: 'Failed to parse AI response.',
+        userMessage: 'Generated content was in an unexpected format. Please try again.',
+        retryable: true,
+        fallback: this.getFallbackContent(context)
+      };
+    }
+    
+    if (error instanceof APIError) {
+      if (error.status === 401) {
+        return {
+          type: 'auth_error',
+          message: 'API authentication failed.',
+          userMessage: 'Connection issue. Please refresh the page.',
+          retryable: false
+        };
+      }
+      
+      if (error.status === 429) {
+        return {
+          type: 'rate_limit',
+          message: 'Rate limit exceeded.',
+          userMessage: 'Too many requests. Please wait 30 seconds and try again.',
+          retryable: true,
+          retryAfter: 30
+        };
+      }
+      
+      if (error.status >= 500) {
+        return {
+          type: 'server_error',
+          message: 'AI service temporarily unavailable.',
+          userMessage: 'Service is experiencing issues. Please try again in a moment.',
+          retryable: true,
+          retryAfter: 5
+        };
+      }
+    }
+    
+    // Generic error
+    return {
+      type: 'unknown_error',
+      message: error.message,
+      userMessage: 'Something went wrong. Please try again.',
+      retryable: true
+    };
+  }
+  
+  getFallbackContent(context: GenerationContext): any {
+    // Provide helpful fallback based on generation type
+    const fallbacks = {
+      hooks: {
+        hooks: [{
+          type: 'story',
+          text: 'Unable to generate hooks at this time. Please try again or write your own opening.',
+          explanation: 'AI generation failed',
+          wordCount: 15
+        }]
+      },
+      scene: {
+        prose: '[Scene generation failed. Please write this scene manually or try again.]',
+        wordCount: 10,
+        readingTime: 1
+      }
+    };
+    
+    return fallbacks[context.type] || null;
+  }
+}
+4.8 Rate Limiting
+Rate Limiter:
+typescriptclass RateLimiter {
+  private requests: number[] = [];
+  private maxPerMinute: number;
+  private maxPerHour: number;
+  
+  constructor(limits: { maxPerMinute: number; maxPerHour?: number }) {
+    this.maxPerMinute = limits.maxPerMinute;
+    this.maxPerHour = limits.maxPerHour || limits.maxPerMinute * 60;
+  }
+  
+  async waitIfNeeded(): Promise<void> {
+    const now = Date.now();
+    
+    // Clean old requests
+    this.requests = this.requests.filter(time => 
+      now - time < 3600000 // Keep last hour
+    );
+    
+    // Check minute limit
+    const lastMinute = this.requests.filter(time => 
+      now - time < 60000
+    ).length;
+    
+    if (lastMinute >= this.maxPerMinute) {
+      const oldestInMinute = Math.max(...this.requests.filter(time =>
+        now - time < 60000
+      ));
+      const waitTime = 60000 - (now - oldestInMinute) + 100; // +100ms buffer
+      
+      await this.wait(waitTime);
+    }
+    
+    // Check hour limit
+    if (this.requests.length >= this.maxPerHour) {
+      const oldestInHour = Math.min(...this.requests);
+      const waitTime = 3600000 - (now - oldestInHour) + 100;
+      
+      await this.wait(waitTime);
+    }
+    
+    // Record this request
+    this.requests.push(Date.now());
+  }
+  
+  private wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  getStatus(): RateLimitStatus {
+    const now = Date.now();
+    const lastMinute = this.requests.filter(time => now - time < 60000).length;
+    const lastHour = this.requests.length;
+    
+    return {
+      perMinute: {
+        used: lastMinute,
+        limit: this.maxPerMinute,
+        remaining: this.maxPerMinute - lastMinute
+      },
+      perHour: {
+        used: lastHour,
+        limit: this.maxPerHour,
+        remaining: this.maxPerHour - lastHour
+      }
+    };
+  }
+}
+
+5. Data Requirements
+5.1 Generation Tracking Schema
+Add to Supabase:
+sql-- AI Generation Tracking Table
+CREATE TABLE ai_generations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  story_id UUID REFERENCES stories(id) ON DELETE CASCADE,
+  
+  -- Generation Details
+  generation_type VARCHAR(50) NOT NULL, -- 'hook', 'scene', 'character', 'fullDraft', etc.
+  prompt_hash VARCHAR(64), -- For deduplication
+  
+  -- Request
+  request_params JSONB NOT NULL,
+  story_context JSONB,
+  
+  -- Response
+  generated_content JSONB NOT NULL,
+  tokens_used JSONB, -- { input: N, output: N, total: N }
+  
+  -- Performance
+  generation_time_ms INTEGER,
+  model_used VARCHAR(100),
+  temperature DECIMAL(3,2),
+  
+  -- User Interaction
+  user_action VARCHAR(50), -- 'accepted', 'edited', 'rejected', 'regenerated'
+  user_edits JSONB, -- Track what user changed
+  final_content TEXT, -- User's final version
+  
+  -- Status
+  status VARCHAR(50) DEFAULT 'success', -- 'success', 'error', 'cached'
+  error_message TEXT,
+  
+  -- Timestamps
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  
+  -- Indexes
+  CONSTRAINT valid_generation_type CHECK (
+    generation_type IN ('hook', 'scene', 'character', 'structure', 'fullDraft', 'improvement', 'coaching')
+  )
+);
+
+-- Indexes for performance
+CREATE INDEX idx_ai_generations_user ON ai_generations(user_id);
+CREATE INDEX idx_ai_generations_story ON ai_generations(story_id);
+CREATE INDEX idx_ai_generations_type ON ai_generations(generation_type);
+CREATE INDEX idx_ai_generations_created ON ai_generations(created_at DESC);
+CREATE INDEX idx_ai_generations_prompt_hash ON ai_generations(prompt_hash);
+
+-- User Analytics View
+CREATE VIEW user_ai_usage AS
+SELECT 
+  user_id,
+  generation_type,
+  COUNT(*) as total_generations,
+  AVG(generation_time_ms) as avg_generation_time,
+  SUM((tokens_used->>'total')::int) as total_tokens,
+  COUNT(CASE WHEN user_action = 'accepted' THEN 1 END) as accepted_count,
+  COUNT(CASE WHEN user_action = 'edited' THEN 1 END) as edited_count,
+  COUNT(CASE WHEN user_action = 'rejected' THEN 1 END) as rejected_count
+FROM ai_generations
+WHERE status = 'success'
+GROUP BY user_id, generation_type;
+
+-- Cost Tracking
+CREATE TABLE ai_usage_costs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  date DATE NOT NULL,
+  
+  -- Token Usage
+  total_tokens INTEGER DEFAULT 0,
+  input_tokens INTEGER DEFAULT 0,
+  output_tokens INTEGER DEFAULT 0,
+  
+  -- Cost (in cents)
+  estimated_cost_cents INTEGER DEFAULT 0,
+  
+  -- Generation Counts
+  hooks_generated INTEGER DEFAULT 0,
+  scenes_generated INTEGER DEFAULT 0,
+  drafts_generated INTEGER DEFAULT 0,
+  improvements_generated INTEGER DEFAULT 0,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  
+  UNIQUE(user_id, date)
+);
+
+-- Update cost tracking function
+CREATE OR REPLACE FUNCTION update_ai_usage_costs()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO ai_usage_costs (user_id, date, total_tokens, input_tokens, output_tokens)
+  VALUES (
+    NEW.user_id,
+    DATE(NEW.created_at),
+    (NEW.tokens_used->>'total')::int,
+    (NEW.tokens_used->>'input')::int,
+    (NEW.tokens_used->>'output')::int
+  )
+  ON CONFLICT (user_id, date)
+  DO UPDATE SET
+    total_tokens = ai_usage_costs.total_tokens + (NEW.tokens_used->>'total')::int,
+    input_tokens = ai_usage_costs.input_tokens + (NEW.tokens_used->>'input')::int,
+    output_tokens = ai_usage_costs.output_tokens + (NEW.tokens_used->>'output')::int;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ai_generation_cost_tracking
+  AFTER INSERT ON ai_generations
+  FOR EACH ROW
+  WHEN (NEW.status = 'success')
+  EXECUTE FUNCTION update_ai_usage_costs();
+5.2 User Preferences
+Extend users table:
+sqlALTER TABLE users ADD COLUMN IF NOT EXISTS
+  ai_preferences JSONB DEFAULT '{
+    "coachingLevel": "moderate",
+    "temperature": 0.7,
+    "preferredStyle": "conversational",
+    "autoGenerate": false,
+    "showExplanations": true,
+    "saveAllGenerations": false,
+    "hookTypePreferences": [],
+    "acceptanceRate": {}
+  }'::jsonb;
+```
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Loading States
+
+**Generation in Progress:**
+```
+┌────────────────────────────────────┐
+│ ✨ Generating Hooks...             │
+├────────────────────────────────────┤
+│                                    │
+│   [████████░░░░░░░░] 60%          │
+│                                    │
+│   Analyzing your story context...  │
+│                                    │
+└────────────────────────────────────┘
+```
+
+**Streaming Progress (Future):**
+```
+┌────────────────────────────────────┐
+│ ✨ Writing Scene...                │
+├────────────────────────────────────┤
+│                                    │
+│ The door creaked open, revealing   │
+│ a dimly lit hallway. Sarah's       │
+│ heart pounded as she▊              │
+│                                    │
+│ 247 words · ~1min reading time     │
+│                                    │
+└────────────────────────────────────┘
+```
+
+### 6.2 Generation Results Display
+
+**Hook Results:**
+```
+┌────────────────────────────────────────────────────┐
+│ 🎣 Generated Hooks (5 types, 15 options)          │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│ UNEXPECTED HOOKS ───────────────────────           │
+│                                                    │
+│ ┌────────────────────────────────────────────┐    │
+│ │ "While everyone's chasing viral growth,   │    │
+│ │  we discovered that slow, deliberate      │    │
+│ │  storytelling converts 3x better."        │    │
+│ │                                           │    │
+│ │ 💡 Why this works: Contrarian view that  │    │
+│ │    challenges conventional wisdom         │    │
+│ │                                           │    │
+│ │ [✨ Refine] [✓ Use This Hook]            │    │
+│ └────────────────────────────────────────────┘    │
+│                                                    │
+│ [Show 2 more Unexpected hooks...]                 │
+│                                                    │
+│ STORY HOOKS ────────────────────────               │
+│ [3 story-based hooks...]                           │
+│                                                    │
+│ QUESTION HOOKS ──────────────────────              │
+│ [3 question-based hooks...]                        │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+### 6.3 Error States
+
+**Rate Limit Error:**
+```
+┌────────────────────────────────────┐
+│ ⏸️  Slow Down                      │
+├────────────────────────────────────┤
+│                                    │
+│ We're taking a short break to      │
+│ avoid overwhelming the AI.         │
+│                                    │
+│ Please try again in 15 seconds.    │
+│                                    │
+│ [⏱️  Retry in 15s]                 │
+│                                    │
+└────────────────────────────────────┘
+```
+
+**Generation Failed:**
+```
+┌────────────────────────────────────┐
+│ ⚠️  Generation Failed              │
+├────────────────────────────────────┤
+│                                    │
+│ Couldn't generate content this     │
+│ time. This is usually temporary.   │
+│                                    │
+│ [🔄 Try Again] [✍️ Write Manually] │
+│                                    │
+└────────────────────────────────────┘
+```
+
+### 6.4 Inline Editing
+
+**Improvement Suggestions:**
+```
+┌────────────────────────────────────────────┐
+│ Original:                                  │
+│ "She felt sad when she saw the letter."   │
+│                                            │
+│ ✨ Make More Vivid:                        │
+│                                            │
+│ "Her chest tightened as she recognized    │
+│  the familiar handwriting on the          │
+│  crumpled envelope."                       │
+│                                            │
+│ Changes: Added sensory details, showed    │
+│ emotion through physical reaction         │
+│                                            │
+│ [✓ Accept] [✕ Reject] [🔄 Try Again]      │
+└────────────────────────────────────────────┘
+
+7. Success Metrics
+7.1 Generation Performance
+Speed:
+
+Hook generation: <3 seconds (target: 2s)
+Scene generation: <5 seconds (target: 4s)
+Full draft: <15 seconds (target: 12s)
+Improvement suggestions: <2 seconds
+
+Quality:
+
+User acceptance rate: 70%+ (use without major edits)
+Edit rate: 60%+ (user makes minor edits before using)
+Rejection rate: <15%
+Regeneration rate: <30%
+
+7.2 User Engagement
+Usage:
+
+Generations per story: 8-12 average
+Hooks generated per story: 5-15
+Scenes generated per story: 3-8
+Full draft generation rate: 60%+
+
+Satisfaction:
+
+"AI was helpful": 80%+
+"Suggestions were relevant": 75%+
+"Would use AI again": 85%+
+Feature satisfaction: 4.2+/5.0
+
+7.3 Cost Efficiency
+Token Usage:
+
+Average tokens per hook generation: 1,500
+Average tokens per scene: 2,500
+Average tokens per full draft: 8,000
+Total monthly tokens per active user: 50,000
+
+Cost Optimization:
+
+Cache hit rate: 25%+
+Prompt efficiency: <30% overhead tokens
+Cost per story: <$0.50
+Monthly cost per active user: <$2.00
+
+7.4 Reliability
+Uptime:
+
+Generation success rate: 98%+
+Cache availability: 99%+
+Error recovery rate: 95%+
+
+Error Handling:
+
+Graceful degradation: 100%
+Helpful error messages: 100%
+Retry success rate: 90%+
+
+
+8. Dependencies
+8.1 External Services
+Required:
+
+✅ Anthropic Claude API access
+✅ API key management system
+✅ Network connectivity
+
+Optional:
+
+🔲 Redis for distributed caching (production)
+🔲 Analytics service for usage tracking
+
+8.2 Technical Stack
+Frontend:
+
+React for UI components
+State management (Context/Redux)
+Error boundary components
+Loading state components
+
+Backend/Infrastructure:
+
+API proxy server (production)
+Environment variable management
+CORS configuration
+Request signing
+
+8.3 Feature Dependencies
+Required Features:
+
+Story state management
+User authentication
+Data persistence
+
+Enables Features:
+
+Hook Generator
+Archetype Builder
+Scene Development
+Full Draft Generation
+Review & Export
+
+
+9. User Acceptance Criteria
+9.1 Hook Generation
+
+ User can select hook types
+ AI generates 3 hooks per type
+ Each hook has explanation
+ User can edit hooks inline
+ User can regenerate hooks
+ Selected hook saves to story
+ Generation completes in <5s
+ Error handling works
+
+9.2 Scene Generation
+
+ User inputs Movie Time framework
+ AI generates scene prose
+ Scene matches character voice
+ Scene uses show-don't-tell
+ User can edit generated scene
+ Scene saves to story
+ Generation completes in <8s
+
+9.3 Full Draft
+
+ User can set preferences
+ AI integrates all story components
+ Draft is cohesive and polished
+ User can edit full draft
+ Multiple versions supported
+ Generation completes in <20s
+
+9.4 Error Handling
+
+ Rate limits show clear message
+ Failed generations can retry
+ Network errors handled gracefully
+ Parse errors don't break app
+ Offline mode allows continued work
+
+9.5 Performance
+
+ Loading states show progress
+ Cache reduces repeat generations
+ No blocking UI during generation
+ Can cancel in-progress generation
+ Multiple concurrent generations handled
+
+
+10. Risks & Mitigations
+10.1 Technical Risks
+Risk: API Latency
+
+Impact: User frustration, perceived slowness
+Probability: Medium
+Mitigation:
+
+Optimize prompts for brevity
+Use streaming responses (future)
+Show engaging loading states
+Set realistic time expectations
+Implement request timeouts
+Cache aggressively
+
+
+
+Risk: API Costs
+
+Impact: Unsustainable operational costs
+Probability: High (without controls)
+Mitigation:
+
+Implement caching (25% hit rate target)
+Rate limiting per user
+Prompt optimization for token efficiency
+Usage quotas for free tier
+Monitor cost per user
+Alert on anomalies
+
+
+
+Risk: Quality Variance
+
+Impact: Inconsistent AI outputs
+Probability: Medium
+Mitigation:
+
+Extensive prompt testing
+Temperature tuning
+Output validation
+Fallback to cached examples
+User can always regenerate
+Edit all AI content
+
+
+
+10.2 User Experience Risks
+Risk: Over-Reliance on AI
+
+Impact: Users lose creative agency
+Probability: Medium
+Mitigation:
+
+Position as "drafts to edit"
+Always allow editing
+Encourage personalization
+"Why this works" education
+Manual creation always available
+
+
+
+Risk: Prompt Injection
+
+Impact: Users manipulate AI responses
+Probability: Low (limited impact)
+Mitigation:
+
+Sanitize user inputs
+Structured prompt templates
+Validate outputs
+Not security-critical application
+
+
+
+10.3 Business Risks
+Risk: API Availability
+
+Impact: Core feature unavailable
+Probability: Low (99.9% uptime)
+Mitigation:
+
+Implement retry logic
+Queue failed requests
+Show helpful error messages
+Allow offline mode with cached content
+Have fallback content ready
+
+
+
+
+11. Open Questions
+Question: Should we implement streaming responses?
+
+❓ Pros: Better perceived performance, engaging UX
+❓ Cons: More complex implementation
+Recommendation: v2.0 feature after MVP validation
+
+Question: How aggressive should caching be?
+
+❓ Cache everything vs. cache only exact matches
+Recommendation: Start with exact match, expand to semantic similarity later
+
+Question: User-specific model fine-tuning?
+
+❓ Learn from user's style over time
+Recommendation: Future consideration, not MVP
+
+Question: Rate limits for free vs. paid users?
+
+❓ Different quotas based on tier
+Recommendation: Establish after cost analysis from beta
+
+
+12. Future Enhancements (v2.0+)
+12.1 Advanced Generation
+Streaming Responses:
+
+Real-time token-by-token display
+Better perceived performance
+Engaging "AI writing" experience
+
+Multi-Model Support:
+
+Use different models for different tasks
+Opus for complex drafts
+Haiku for quick suggestions
+
+Fine-Tuning:
+
+User-specific style learning
+Genre-specific models
+Company-specific models (enterprise)
+
+12.2 Collaborative AI
+Version Comparison:
+
+Generate multiple versions simultaneously
+Side-by-side comparison
+Mix and match best parts
+
+Interactive Refinement:
+
+Conversational editing
+"Make it more like X"
+Iterative improvement sessions
+
+12.3 Advanced Features
+Story Analysis:
+
+Readability scores
+Pacing analysis
+Emotional arc visualization
+Character consistency checking
+
+Personalization:
+
+Learn writing style
+Remember preferences
+Suggest based on history
+Adapt coaching level automatically
+
+
+13. Implementation Guidance
+13.1 Development Phases
+Phase 1: Core Engine (Week 1-2)
+
+API service class
+Prompt templates
+Response parsing
+Error handling
+Basic caching
+
+Deliverable: Can generate hooks and scenes
+Phase 2: Advanced Generation (Week 2-3)
+
+Full draft generation
+Improvement suggestions
+Context building
+Streaming support (optional)
+
+Deliverable: All generation types working
+Phase 3: Optimization (Week 3-4)
+
+Rate limiting
+Advanced caching
+Cost tracking
+Performance optimization
+
+Deliverable: Production-ready performance
+Phase 4: Polish (Week 4)
+
+Error recovery
+Usage analytics
+User feedback collection
+Documentation
+
+Deliverable: Robust, monitored system

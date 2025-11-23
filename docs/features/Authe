@@ -1,0 +1,1785 @@
+2. Goal
+Provide secure, modern authentication with passwordless login as the primary method, comprehensive user account management including profile customization, story library access, preference management, and full GDPR compliance for data export and deletion.
+Key Outcomes:
+
+Users can securely sign up and log in without passwords
+User identity persists across devices and sessions
+All user data (stories, preferences, settings) syncs to cloud
+Users have full control over their data (view, export, delete)
+Seamless integration between Stytch authentication and Supabase storage
+Professional account management interface
+Cross-device story access and synchronization
+Analytics tracking for product improvement
+
+
+3. User Story
+As a new or returning user
+I want to securely access my account using modern passwordless authentication and manage my personal information and stories
+So that I can safely store my work, access it from any device, customize my experience, and maintain control over my data
+Acceptance Criteria:
+
+User can sign up with email via magic link (no password required)
+User can log in with magic link sent to email
+Optional password authentication available
+User session persists across browser sessions
+User can view and edit profile information
+User can access all their stories from any device
+User can set preferences (mode, themes, AI coaching level)
+User can export all their data (GDPR)
+User can permanently delete their account
+Protected routes require authentication
+Automatic logout after session expiration
+Clear authentication state throughout app
+
+
+4. Functional Requirements
+4.1 Authentication Flow
+Method 1: Magic Link (Primary)
+Purpose: Passwordless, secure email-based authentication
+Sign Up / Log In Process:
+User enters email
+       ↓
+Click "Send Magic Link"
+       ↓
+Stytch sends email with unique link
+       ↓
+User clicks link in email
+       ↓
+Stytch validates token
+       ↓
+User redirected to app (authenticated)
+       ↓
+Create/load user profile in Supabase
+       ↓
+Load user's stories and preferences
+       ↓
+Redirect to Dashboard
+Login Screen UI:
+┌────────────────────────────────────────┐
+│                                        │
+│         📖 Storyteller Tactics         │
+│                                        │
+│    Transform Your Ideas Into Stories   │
+│                                        │
+├────────────────────────────────────────┤
+│                                        │
+│  Email Address:                        │
+│  ┌──────────────────────────────────┐ │
+│  │ you@example.com                  │ │
+│  └──────────────────────────────────┘ │
+│                                        │
+│  [✉️  Send Me a Magic Link]           │
+│                                        │
+│  ─────────── or ───────────            │
+│                                        │
+│  [🔒 Sign In with Password]           │
+│                                        │
+│  ─────────────────────────────         │
+│                                        │
+│  New to Storyteller Tactics?          │
+│  Creating an account is automatic!     │
+│                                        │
+│  ───────── Coming Soon ─────────       │
+│  [G Sign in with Google]              │
+│  [󰊤 Sign in with GitHub]              │
+│                                        │
+└────────────────────────────────────────┘
+Magic Link Email Template:
+Subject: Your Storyteller Tactics Login Link
+
+Hi there!
+
+Click the button below to sign in to Storyteller Tactics:
+
+[Sign In to Storyteller Tactics]
+
+This link expires in 60 minutes.
+
+If you didn't request this email, you can safely ignore it.
+
+Questions? Contact support@storytellertactics.app
+After Clicking Magic Link:
+User redirected to /authenticate?token=...
+┌────────────────────────────────────────┐
+│                                        │
+│           🔐 Signing You In...         │
+│                                        │
+│         [Loading spinner]              │
+│                                        │
+│      Verifying your magic link         │
+│                                        │
+└────────────────────────────────────────┘
+On success: Redirect to /dashboard
+On error: Show error, return to login
+Method 2: Email + Password (Secondary)
+Purpose: Traditional authentication for users who prefer it
+Sign Up Screen:
+┌────────────────────────────────────────┐
+│ Create Your Account                    │
+├────────────────────────────────────────┤
+│                                        │
+│  Email:                                │
+│  [Input field]                         │
+│                                        │
+│  Password:                             │
+│  [Input field - type=password]         │
+│  • At least 8 characters               │
+│  • Include numbers and letters         │
+│                                        │
+│  Confirm Password:                     │
+│  [Input field]                         │
+│                                        │
+│  [Create Account]                      │
+│                                        │
+│  Already have an account?              │
+│  [Sign In Instead]                     │
+│                                        │
+└────────────────────────────────────────┘
+Password Login Screen:
+┌────────────────────────────────────────┐
+│ Sign In to Your Account                │
+├────────────────────────────────────────┤
+│                                        │
+│  Email:                                │
+│  [Input field]                         │
+│                                        │
+│  Password:                             │
+│  [Input field - type=password]         │
+│                                        │
+│  [Forgot Password?]                    │
+│                                        │
+│  [Sign In]                             │
+│                                        │
+│  Don't have an account?                │
+│  [Create Account]                      │
+│                                        │
+│  Prefer passwordless?                  │
+│  [← Back to Magic Link]                │
+│                                        │
+└────────────────────────────────────────┘
+Password Reset Flow:
+
+User clicks "Forgot Password?"
+Enter email address
+Stytch sends password reset email
+User clicks link, enters new password
+Password updated, user logged in
+
+Method 3: OAuth (Future v2.0)
+┌────────────────────────────────────────┐
+│  [G Continue with Google]              │
+│  [󰊤 Continue with GitHub]              │
+│  [💼 Continue with LinkedIn]           │
+└────────────────────────────────────────┘
+OAuth providers:
+
+Google (most requested)
+GitHub (developer audience)
+LinkedIn (professional audience)
+Microsoft (enterprise, future)
+
+4.2 Session Management
+Session Creation:
+
+Session created on successful authentication
+Session JWT stored in secure cookie
+Session includes: user_id, email, created_at, expires_at
+Default session duration: 7 days
+Optional "Remember Me": 30 days
+
+Session Persistence:
+typescript// On app load, check for active session
+useEffect(() => {
+  const initializeAuth = async () => {
+    try {
+      const session = await stytchClient.session.getSync();
+      
+      if (session && !isExpired(session)) {
+        // Valid session found
+        setAuthState({
+          user: session.user,
+          session: session,
+          isAuthenticated: true,
+          isLoading: false
+        });
+        
+        // Sync user data with Supabase
+        await syncUserWithSupabase(session.user);
+        
+        // Load user data
+        await loadUserData(session.user.user_id);
+      } else {
+        // No valid session
+        setAuthState({
+          user: null,
+          session: null,
+          isAuthenticated: false,
+          isLoading: false
+        });
+      }
+    } catch (error) {
+      console.error('Session check failed:', error);
+      handleAuthError(error);
+    }
+  };
+  
+  initializeAuth();
+}, []);
+Session Renewal:
+
+Automatic renewal when user is active
+Refresh session 1 day before expiration
+Silent renewal (no user interaction)
+Notify user if renewal fails
+
+Session Termination:
+User-initiated logout:
+typescriptconst handleLogout = async () => {
+  try {
+    // Revoke Stytch session
+    await stytchClient.session.revoke();
+    
+    // Clear local state
+    clearUserData();
+    clearStoryCache();
+    
+    // Clear auth context
+    setAuthState({
+      user: null,
+      session: null,
+      isAuthenticated: false,
+      isLoading: false
+    });
+    
+    // Redirect to login
+    navigate('/login');
+    
+    // Show confirmation
+    toast.success('Successfully signed out');
+  } catch (error) {
+    console.error('Logout failed:', error);
+    toast.error('Logout failed. Please try again.');
+  }
+};
+Automatic logout:
+
+Session expired
+Invalid session detected
+Security event (password reset, suspicious activity)
+
+4.3 User Profile Management
+Profile Data Structure:
+typescriptinterface UserProfile {
+  // Identity (from Stytch)
+  userId: string;
+  stytchUserId: string;
+  email: string;
+  
+  // Profile Info
+  displayName: string;
+  avatarUrl?: string;
+  bio?: string;
+  
+  // Account Metadata
+  createdAt: string;
+  lastLogin: string;
+  emailVerified: boolean;
+  
+  // Preferences
+  preferences: {
+    // Story Creation
+    defaultMode: 'quick' | 'comprehensive' | null;
+    favoriteArchetypes: string[];
+    mostUsedStructures: string[];
+    hookTypePreferences: string[];
+    
+    // App Behavior
+    autoSave: boolean;
+    autoSaveInterval: number; // seconds
+    showHelpTooltips: boolean;
+    aiCoachingLevel: 'minimal' | 'moderate' | 'extensive';
+    
+    // UI/UX
+    theme: 'light' | 'dark' | 'auto';
+    compactMode: boolean;
+    animationsEnabled: boolean;
+    
+    // Export
+    defaultExportFormat: 'txt' | 'md' | 'pdf' | 'docx';
+    defaultExportOptions: ExportOptions;
+  };
+  
+  // Analytics (read-only for user)
+  analytics: {
+    totalStoriesCreated: number;
+    quickModeCount: number;
+    comprehensiveModeCount: number;
+    totalWordsWritten: number;
+    averageCompletionTime: number; // minutes
+    favoriteStoryTypes: Record<string, number>;
+    lastActiveDate: string;
+    streakDays: number;
+  };
+}
+```
+
+**Profile Settings Screen:**
+```
+┌─────────────────────────────────────────────┐
+│ Account Settings                  [Save]    │
+├─────────────────────────────────────────────┤
+│                                             │
+│ ┌─ Profile ──────────────────────────────┐ │
+│ │                                         │ │
+│ │ [Avatar]  Display Name:                │ │
+│ │           ┌─────────────────────────┐  │ │
+│ │           │ John Storyteller        │  │ │
+│ │           └─────────────────────────┘  │ │
+│ │ [Change]                                │ │
+│ │                                         │ │
+│ │ Email: john@example.com                │ │
+│ │ ✓ Verified                             │ │
+│ │                                         │ │
+│ │ Bio (optional):                         │ │
+│ │ ┌─────────────────────────────────────┐│ │
+│ │ │ Writer & storytelling enthusiast    ││ │
+│ │ └─────────────────────────────────────┘│ │
+│ │                                         │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│ ┌─ Story Preferences ────────────────────┐ │
+│ │                                         │ │
+│ │ Default Mode:                           │ │
+│ │ ○ Quick Mode (15-20 min)               │ │
+│ │ ● Comprehensive Mode (45-60 min)       │ │
+│ │ ○ Ask me each time                     │ │
+│ │                                         │ │
+│ │ AI Coaching Level:                      │ │
+│ │ [Slider: Minimal ──●── Extensive]      │ │
+│ │                                         │ │
+│ │ Auto-save Stories:                      │ │
+│ │ ☑ Enabled (every 30 seconds)           │ │
+│ │                                         │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│ ┌─ Appearance ───────────────────────────┐ │
+│ │                                         │ │
+│ │ Theme:                                  │ │
+│ │ [Light] [Dark] [Auto]                  │ │
+│ │                                         │ │
+│ │ ☑ Show help tooltips                   │ │
+│ │ ☑ Enable animations                    │ │
+│ │ ☐ Compact mode                         │ │
+│ │                                         │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│ ┌─ Export Settings ──────────────────────┐ │
+│ │                                         │ │
+│ │ Default Format:                         │ │
+│ │ [Markdown ▼]                           │ │
+│ │                                         │ │
+│ │ Always Include:                         │ │
+│ │ ☑ Story title & metadata               │ │
+│ │ ☑ Full story draft                     │ │
+│ │ ☐ Character profiles                   │ │
+│ │ ☐ Structure outline                    │ │
+│ │                                         │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│                        [Cancel] [Save]      │
+└─────────────────────────────────────────────┘
+Profile Update API:
+typescriptconst updateUserProfile = async (
+  userId: string, 
+  updates: Partial<UserProfile>
+) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        display_name: updates.displayName,
+        avatar_url: updates.avatarUrl,
+        bio: updates.bio,
+        preferences: updates.preferences,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Profile update failed:', error);
+    return { success: false, error };
+  }
+};
+```
+
+### 4.4 User Dashboard
+
+**Dashboard Layout:**
+```
+┌──────────────────────────────────────────────────────┐
+│ 📖 Storyteller Tactics    [👤 John ▼] [Settings]   │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│ Welcome back, John! 👋                               │
+│ You've created 12 stories and counting.             │
+│                                                      │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│ ┌─ Quick Actions ─────────────────────────────────┐│
+│ │                                                  ││
+│ │ [🆕 New Story]  [📚 View All Stories]           ││
+│ │                                                  ││
+│ └──────────────────────────────────────────────────┘│
+│                                                      │
+│ ┌─ Your Stories ──────────────────────────────────┐│
+│ │ [All] [Recent] [In Progress] [Completed]        ││
+│ │                                                  ││
+│ │ ┌────────────────┐  ┌────────────────┐          ││
+│ │ │ The Hero's     │  │ Product Launch │          ││
+│ │ │ Journey        │  │ Pitch          │          ││
+│ │ │ 📖 Novel       │  │ 💼 Business    │          ││
+│ │ │ 85% Complete   │  │ ✅ Complete    │          ││
+│ │ │ Modified 2h ago│  │ Modified 1d ago│          ││
+│ │ │                │  │                │          ││
+│ │ │ [Edit] [Export]│  │ [View] [Export]│          ││
+│ │ └────────────────┘  └────────────────┘          ││
+│ │                                                  ││
+│ │ [Load More Stories...]                          ││
+│ │                                                  ││
+│ └──────────────────────────────────────────────────┘│
+│                                                      │
+│ ┌─ Your Stats ────────────────────────────────────┐│
+│ │                                                  ││
+│ │ 📊 Total Stories: 12                            ││
+│ │ ✍️  Total Words: 24,589                          ││
+│ │ 🎯 Completion Rate: 75%                         ││
+│ │ 🔥 Current Streak: 5 days                       ││
+│ │                                                  ││
+│ └──────────────────────────────────────────────────┘│
+│                                                      │
+└──────────────────────────────────────────────────────┘
+```
+
+**User Menu Dropdown:**
+```
+┌──────────────────────────┐
+│ 👤 John Storyteller      │
+│ john@example.com         │
+├──────────────────────────┤
+│ 📊 Dashboard             │
+│ ⚙️  Settings             │
+│ 📥 Export All Data       │
+│ 💡 Help & Support        │
+│ 📝 Send Feedback         │
+├──────────────────────────┤
+│ 🚪 Sign Out              │
+└──────────────────────────┘
+```
+
+### 4.5 Story Library Management
+
+**Library Features:**
+
+- View all stories created by user
+- Sort by: Recent, Title, Type, Completion %
+- Filter by: Story Type, Mode, Status
+- Search by title or content
+- Story actions: Edit, Duplicate, Export, Delete
+- Bulk actions: Select multiple, delete, export
+
+**Story Card:**
+```
+┌────────────────────────────────┐
+│ The Hero's Transformation      │
+│                                │
+│ 📘 Personal Development        │
+│ ⚡ Comprehensive Mode           │
+│                                │
+│ ████████░░ 85% Complete        │
+│                                │
+│ 📊 2,847 words | 12 scenes     │
+│ 📅 Last edited 2 hours ago     │
+│ ⭐ Hero's Journey               │
+│                                │
+├────────────────────────────────┤
+│ [✏️ Edit] [📋 Duplicate]       │
+│ [⬇️ Export] [🗑️ Delete]        │
+└────────────────────────────────┘
+```
+
+**Story Actions:**
+
+- **Edit:** Opens story in editor
+- **Duplicate:** Creates copy with "(Copy)" suffix
+- **Export:** Opens export dialog
+- **Delete:** Confirms then permanently deletes (with undo option for 30 days)
+
+**Search & Filter:**
+```
+┌────────────────────────────────────────┐
+│ 🔍 Search stories...                   │
+└────────────────────────────────────────┘
+
+Filters:
+┌──────┐ ┌──────┐ ┌──────────┐
+│ Type │ │ Mode │ │ Status   │
+└──────┘ └──────┘ └──────────┘
+
+Sort: [Recent ▼]
+```
+
+### 4.6 Data Management (GDPR Compliance)
+
+**Export All User Data:**
+```
+┌─────────────────────────────────────────┐
+│ 📥 Export Your Data                     │
+├─────────────────────────────────────────┤
+│                                         │
+│ Download all your data in JSON format.  │
+│                                         │
+│ This includes:                          │
+│ • Your profile information              │
+│ • All stories you've created            │
+│ • Your preferences and settings         │
+│ • Account activity logs                 │
+│                                         │
+│ [Download Data (JSON)]                  │
+│                                         │
+│ File size: ~2.5 MB                      │
+│ Stories: 12 | Words: 24,589            │
+│                                         │
+└─────────────────────────────────────────┘
+Exported Data Structure:
+json{
+  "export_metadata": {
+    "exported_at": "2025-11-22T10:30:00Z",
+    "user_id": "user_abc123",
+    "export_version": "1.0"
+  },
+  "user_profile": {
+    "email": "john@example.com",
+    "display_name": "John Storyteller",
+    "created_at": "2025-01-15T09:00:00Z",
+    "preferences": {...},
+    "analytics": {...}
+  },
+  "stories": [
+    {
+      "id": "story_123",
+      "title": "The Hero's Transformation",
+      "created_at": "2025-11-20T14:00:00Z",
+      "mode": "comprehensive",
+      "story_data": {...},
+      "scenes": [...]
+    }
+  ]
+}
+```
+
+**Delete Account:**
+```
+┌─────────────────────────────────────────┐
+│ ⚠️  Delete Account                      │
+├─────────────────────────────────────────┤
+│                                         │
+│ This will permanently delete:           │
+│ • Your profile and account              │
+│ • All 12 of your stories                │
+│ • All your preferences                  │
+│ • All your data from our servers        │
+│                                         │
+│ This action CANNOT be undone.          │
+│                                         │
+│ To confirm, type DELETE below:          │
+│ ┌─────────────────────────────────────┐│
+│ │                                     ││
+│ └─────────────────────────────────────┘│
+│                                         │
+│ [Cancel] [Delete My Account Forever]   │
+│                                         │
+│ 💡 Consider exporting your data first  │
+│                                         │
+└─────────────────────────────────────────┘
+Account Deletion Process:
+
+User clicks "Delete Account"
+Confirmation dialog appears
+User types "DELETE" to confirm
+Optional: Export data reminder
+Final confirmation
+Delete user record from Supabase
+Cascade delete all stories (RLS handles this)
+Revoke Stytch session
+Clear local storage
+Redirect to homepage
+Show confirmation message
+
+4.7 Protected Routes
+Route Protection:
+typescript// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+  
+  if (!isAuthenticated) {
+    // Redirect to login, remember intended destination
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  return children;
+};
+
+// Route Configuration
+<Routes>
+  {/* Public routes */}
+  <Route path="/" element={<HomePage />} />
+  <Route path="/login" element={<LoginScreen />} />
+  <Route path="/authenticate" element={<AuthCallback />} />
+  
+  {/* Protected routes */}
+  <Route path="/dashboard" element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  } />
+  <Route path="/story/new" element={
+    <ProtectedRoute>
+      <NewStory />
+    </ProtectedRoute>
+  } />
+  <Route path="/story/:id" element={
+    <ProtectedRoute>
+      <StoryEditor />
+    </ProtectedRoute>
+  } />
+  <Route path="/settings" element={
+    <ProtectedRoute>
+      <Settings />
+    </ProtectedRoute>
+  } />
+</Routes>
+```
+
+**Loading State:**
+```
+┌────────────────────────────────────┐
+│                                    │
+│      📖 Storyteller Tactics        │
+│                                    │
+│      [Loading spinner]             │
+│                                    │
+│      Checking authentication...    │
+│                                    │
+└────────────────────────────────────┘
+```
+
+### 4.8 Error Handling
+
+**Authentication Errors:**
+
+- Invalid magic link: "This link has expired or is invalid. Please request a new one."
+- Network error: "Connection failed. Please check your internet and try again."
+- Session expired: "Your session has expired. Please sign in again."
+- Email not verified: "Please verify your email address to continue."
+- Rate limit exceeded: "Too many attempts. Please wait 5 minutes and try again."
+
+**Error Display:**
+```
+┌────────────────────────────────────┐
+│ ⚠️  Authentication Error           │
+├────────────────────────────────────┤
+│                                    │
+│ This magic link has expired.       │
+│                                    │
+│ Magic links expire after 60        │
+│ minutes for security.              │
+│                                    │
+│ [Request New Magic Link]           │
+│                                    │
+└────────────────────────────────────┘
+
+5. Data Requirements
+5.1 Supabase Schema
+users table:
+sqlCREATE TABLE users (
+  -- Primary Key
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  
+  -- Stytch Integration
+  stytch_user_id VARCHAR(255) UNIQUE NOT NULL,
+  
+  -- Identity
+  email VARCHAR(255) UNIQUE NOT NULL,
+  email_verified BOOLEAN DEFAULT false,
+  
+  -- Profile
+  display_name VARCHAR(100),
+  avatar_url TEXT,
+  bio TEXT,
+  
+  -- Preferences (JSONB for flexibility)
+  preferences JSONB DEFAULT '{
+    "defaultMode": null,
+    "favoriteArchetypes": [],
+    "mostUsedStructures": [],
+    "hookTypePreferences": [],
+    "autoSave": true,
+    "autoSaveInterval": 30,
+    "showHelpTooltips": true,
+    "aiCoachingLevel": "moderate",
+    "theme": "light",
+    "compactMode": false,
+    "animationsEnabled": true,
+    "defaultExportFormat": "md",
+    "defaultExportOptions": {}
+  }'::jsonb,
+  
+  -- Analytics (JSONB)
+  analytics JSONB DEFAULT '{
+    "totalStoriesCreated": 0,
+    "quickModeCount": 0,
+    "comprehensiveModeCount": 0,
+    "totalWordsWritten": 0,
+    "averageCompletionTime": 0,
+    "favoriteStoryTypes": {},
+    "lastActiveDate": null,
+    "streakDays": 0
+  }'::jsonb,
+  
+  -- Timestamps
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  last_login TIMESTAMP WITH TIME ZONE,
+  
+  -- Soft Delete
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  
+  -- Indexes
+  CONSTRAINT email_format CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+-- Indexes
+CREATE INDEX idx_users_stytch_id ON users(stytch_user_id);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_deleted ON users(deleted_at) WHERE deleted_at IS NULL;
+
+-- RLS Policies
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own profile"
+  ON users FOR SELECT
+  USING (stytch_user_id = current_setting('app.current_user_id', true));
+
+CREATE POLICY "Users can update own profile"
+  ON users FOR UPDATE
+  USING (stytch_user_id = current_setting('app.current_user_id', true));
+
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_users_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_users_updated_at();
+
+-- Helper function to get or create user
+CREATE OR REPLACE FUNCTION get_or_create_user(
+  p_stytch_user_id VARCHAR,
+  p_email VARCHAR,
+  p_display_name VARCHAR DEFAULT NULL
+)
+RETURNS users AS $$
+DECLARE
+  v_user users;
+BEGIN
+  -- Try to find existing user
+  SELECT * INTO v_user
+  FROM users
+  WHERE stytch_user_id = p_stytch_user_id
+  AND deleted_at IS NULL;
+  
+  -- If not found, create new user
+  IF NOT FOUND THEN
+    INSERT INTO users (stytch_user_id, email, display_name, last_login)
+    VALUES (
+      p_stytch_user_id,
+      p_email,
+      COALESCE(p_display_name, SPLIT_PART(p_email, '@', 1)),
+      NOW()
+    )
+    RETURNING * INTO v_user;
+  ELSE
+    -- Update last login
+    UPDATE users
+    SET last_login = NOW()
+    WHERE id = v_user.id
+    RETURNING * INTO v_user;
+  END IF;
+  
+  RETURN v_user;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+5.2 User-Story Relationship
+Update stories table:
+sql-- Add user_id to stories if not exists
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+
+-- Create index
+CREATE INDEX IF NOT EXISTS idx_stories_user_id ON stories(user_id);
+
+-- Update RLS policy
+CREATE POLICY "Users can only access own stories"
+  ON stories FOR ALL
+  USING (user_id = (
+    SELECT id FROM users 
+    WHERE stytch_user_id = current_setting('app.current_user_id', true)
+    AND deleted_at IS NULL
+  ));
+5.3 Session Storage
+Client-side session storage:
+typescript// Stytch handles session tokens
+// Stored in secure HTTP-only cookies
+// No client-side JWT storage needed
+
+// User metadata stored in context
+interface AuthContext {
+  user: StytchUser | null;
+  session: StytchSession | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+```
+
+---
+
+## 6. UI/UX Specifications
+
+### 6.1 Visual Design System
+
+**Color Scheme:**
+- Primary: Purple (#8B5CF6) - Brand, CTAs
+- Success: Green (#10B981) - Verified, success states
+- Warning: Yellow (#F59E0B) - Warnings, cautions
+- Error: Red (#EF4444) - Errors, delete actions
+- Neutral: Gray scale for text and backgrounds
+
+**Authentication Screens:**
+- Clean, minimal design
+- Large, clear CTAs
+- Friendly, welcoming copy
+- Trust indicators (security, privacy)
+- Progress indicators for async actions
+
+**Typography:**
+- Headings: Bold, 24-32px
+- Body: Regular, 16px
+- Labels: Medium, 14px
+- Helper text: Regular, 14px, gray
+
+**Icons:**
+- Email: Mail
+- Lock: Lock
+- User: User
+- Settings: Settings
+- Logout: LogOut
+- Dashboard: LayoutDashboard
+- Magic Link: Sparkles
+
+### 6.2 Responsive Behavior
+
+**Desktop (>1024px):**
+- Centered auth forms (max 400px width)
+- Two-column dashboard
+- Full navigation sidebar
+- User menu in header
+
+**Tablet (768px - 1024px):**
+- Centered auth forms
+- Single column dashboard
+- Collapsible navigation
+- User menu in header
+
+**Mobile (<768px):**
+- Full-width auth forms with padding
+- Stacked dashboard cards
+- Bottom navigation bar
+- User menu as modal
+
+### 6.3 Accessibility
+
+**Keyboard Navigation:**
+- Tab through all form fields
+- Enter to submit
+- Esc to close modals
+- Arrow keys for dropdowns
+
+**Screen Reader:**
+- ARIA labels on all inputs
+- Form validation messages announced
+- Loading states announced
+- Error messages announced
+- Success confirmations announced
+
+**Visual:**
+- High contrast (4.5:1 minimum)
+- Focus indicators on all interactive elements
+- Error states clearly marked
+- Touch targets 44x44px minimum
+
+---
+
+## 7. Success Metrics
+
+### 7.1 Authentication Metrics
+
+**Sign Up:**
+- Sign up conversion rate: 40%+
+- Magic link click rate: 80%+
+- Email verification rate: 90%+
+- Time to first sign in: <2 minutes
+
+**Login:**
+- Login success rate: 95%+
+- Magic link usage: 70%+ (vs password)
+- Session duration: 5+ days average
+- Return login rate: 60%+
+
+### 7.2 User Engagement
+
+**Account Activity:**
+- Daily active users (DAU): Track growth
+- Weekly active users (WAU): Track growth
+- DAU/MAU ratio: 20%+ (stickiness)
+- Average session length: 25+ minutes
+
+**Profile Usage:**
+- Profile completion rate: 70%+
+- Avatar upload rate: 30%+
+- Preference customization: 50%+
+- Settings modification frequency
+
+### 7.3 Data Management
+
+**GDPR Compliance:**
+- Data export requests: Track volume
+- Export completion: 100%
+- Account deletion requests: <2%
+- Deletion completion time: <24 hours
+
+### 7.4 Technical Performance
+
+**Speed:**
+- Login flow completion: <5 seconds
+- Magic link delivery: <30 seconds
+- Session check: <100ms
+- Profile load time: <1 second
+- Dashboard load time: <2 seconds
+
+**Reliability:**
+- Authentication uptime: 99.9%+
+- Magic link success rate: 98%+
+- Session persistence: 99%+
+- Error rate: <1%
+
+---
+
+## 8. Dependencies
+
+### 8.1 External Services
+
+**Required:**
+- ✅ Stytch account and API keys
+- ✅ Supabase project and credentials
+- 🔲 Email service (via Stytch)
+- 🔲 CDN for avatar storage (Supabase Storage)
+
+**Future:**
+- 🔲 OAuth provider accounts (Google, GitHub)
+- 🔲 SMS provider for 2FA (optional)
+
+### 8.2 Technical Dependencies
+
+**Frontend:**
+- @stytch/react (authentication SDK)
+- @supabase/supabase-js (database client)
+- React Router (routing, protected routes)
+- React Context API (auth state)
+- React Hook Form (form validation)
+- Zod (schema validation)
+
+**Backend:**
+- Supabase (database, auth integration)
+- Stytch (authentication provider)
+
+### 8.3 Feature Dependencies
+
+**Requires:**
+- Basic app shell
+- Routing system
+- State management
+- Error handling system
+
+**Enables:**
+- Story saving and loading
+- User library
+- Cross-device sync
+- Personalization
+- Analytics tracking
+
+---
+
+## 9. User Acceptance Criteria
+
+### 9.1 Sign Up & Login
+
+**Magic Link:**
+- [ ] User can enter email address
+- [ ] "Send Magic Link" button triggers email
+- [ ] Email arrives within 30 seconds
+- [ ] Email contains clickable link
+- [ ] Link opens app and authenticates user
+- [ ] User redirected to dashboard
+- [ ] Session persists across browser restart
+- [ ] Error message if link expired
+- [ ] Can request new link
+
+**Password:**
+- [ ] User can create account with password
+- [ ] Password requirements clearly shown
+- [ ] Password strength indicator works
+- [ ] Confirmation password validated
+- [ ] Can toggle password visibility
+- [ ] Login with email and password works
+- [ ] "Forgot password" flow works
+- [ ] Password reset email sent
+- [ ] Can set new password
+
+**Session:**
+- [ ] Session persists for 7 days default
+- [ ] "Remember me" extends to 30 days
+- [ ] Session auto-renews when active
+- [ ] Expired session redirects to login
+- [ ] Can logout from any device
+- [ ] Logout clears session completely
+
+### 9.2 User Profile
+
+**View Profile:**
+- [ ] Profile page displays all user info
+- [ ] Email shown and marked as verified/unverified
+- [ ] Display name editable
+- [ ] Avatar displayed if uploaded
+- [ ] Preferences shown with current values
+- [ ] Analytics stats visible
+
+**Edit Profile:**
+- [ ] Can change display name
+- [ ] Can upload new avatar
+- [ ] Can write/edit bio
+- [ ] Changes save successfully
+- [ ] Success message on save
+- [ ] Changes reflect immediately
+- [ ] Validation prevents invalid data
+
+**Preferences:**
+- [ ] Can set default mode
+- [ ] Can adjust AI coaching level
+- [ ] Can toggle auto-save
+- [ ] Can change theme
+- [ ] Can set export defaults
+- [ ] All preferences save
+- [ ] Preferences apply across app
+
+### 9.3 Dashboard
+
+**Story Library:**
+- [ ] All user stories display
+- [ ] Stories show correct metadata
+- [ ] Can sort stories
+- [ ] Can filter stories
+- [ ] Can search stories
+- [ ] Story cards show status
+- [ ] Quick actions work (Edit, Export, Delete)
+
+**Navigation:**
+- [ ] Can create new story
+- [ ] Can access settings
+- [ ] Can view profile
+- [ ] Can logout
+- [ ] User menu accessible
+- [ ] All links work correctly
+
+**Stats:**
+- [ ] Total stories count correct
+- [ ] Word count accurate
+- [ ] Completion rate calculated
+- [ ] Streak days tracked
+- [ ] Stats update in real-time
+
+### 9.4 Data Management
+
+**Export Data:**
+- [ ] "Export All Data" button works
+- [ ] Export generates JSON file
+- [ ] File downloads automatically
+- [ ] File contains all user data
+- [ ] File contains all stories
+- [ ] Export completes in <10 seconds
+- [ ] Success message shows
+
+**Delete Account:**
+- [ ] "Delete Account" requires confirmation
+- [ ] Must type "DELETE" to confirm
+- [ ] Shows data export reminder
+- [ ] Deletes all user data
+- [ ] Deletes all stories
+- [ ] Logs user out
+- [ ] Redirects to homepage
+- [ ] Cannot access account after deletion
+- [ ] Confirmation message shows
+
+### 9.5 Security
+
+**Protected Routes:**
+- [ ] Unauthenticated users redirected to login
+- [ ] Protected pages require auth
+- [ ] Dashboard requires auth
+- [ ] Settings requires auth
+- [ ] Story editor requires auth
+- [ ] Login preserves intended destination
+
+**Data Security:**
+- [ ] User can only see own data
+- [ ] User cannot access other users' stories
+- [ ] RLS policies enforced
+- [ ] API calls authenticated
+- [ ] Sensitive data encrypted
+
+---
+
+## 10. Risks & Mitigations
+
+### 10.1 Technical Risks
+
+**Risk: Email Delivery Issues**
+- **Impact:** Users cannot receive magic links
+- **Probability:** Low (Stytch handles this)
+- **Mitigation:**
+  - Use Stytch's reliable infrastructure
+  - Provide password alternative
+  - Show "didn't receive email?" help
+  - Allow resend after 1 minute
+  - Check spam folder reminder
+  - Support alternative email address
+
+**Risk: Session Management Bugs**
+- **Impact:** Users logged out unexpectedly or session persists incorrectly
+- **Probability:** Medium
+- **Mitigation:**
+  - Extensive testing of session flows
+  - Stytch SDK handles most complexity
+  - Clear session expiry warnings
+  - Easy re-authentication
+  - Session debugging tools
+  - Monitor session metrics
+
+**Risk: Supabase-Stytch Sync Issues**
+- **Impact:** User data not properly synced between systems
+- **Probability:** Low-Medium
+- **Mitigation:**
+  - Robust error handling
+  - Retry logic with exponential backoff
+  - Fallback to localStorage temporarily
+  - Manual sync trigger for users
+  - Monitoring and alerts
+  - Clear error messages
+
+**Risk: Data Migration**
+- **Impact:** Existing localStorage data needs migration to Supabase
+- **Probability:** High (if users exist pre-launch)
+- **Mitigation:**
+  - One-time migration script
+  - Detect localStorage stories on first login
+  - Prompt user to import
+  - "Migrate Now" with progress bar
+  - Keep localStorage as backup initially
+  - Clear migration success message
+
+### 10.2 User Experience Risks
+
+**Risk: Magic Link Confusion**
+- **Impact:** Users don't understand passwordless login
+- **Probability:** Medium (new to some users)
+- **Mitigation:**
+  - Clear explanation on login screen
+  - "How it works" tooltip
+  - Example email preview
+  - Video tutorial (optional)
+  - Traditional password option available
+  - Good error messages
+
+**Risk: Overwhelming Settings**
+- **Impact:** Users confused by too many options
+- **Probability:** Medium
+- **Mitigation:**
+  - Smart defaults that work well
+  - Progressive disclosure (advanced settings hidden)
+  - Categories for organization
+  - Help text for each setting
+  - "Reset to defaults" option
+  - Settings tour for new users
+
+**Risk: Account Deletion Regret**
+- **Impact:** User deletes account, then wants it back
+- **Probability:** Low-Medium
+- **Mitigation:**
+  - Very clear warnings
+  - Require typing "DELETE"
+  - Offer data export first
+  - 30-day soft delete (future)
+  - Clear "cannot be undone" message
+  - Alternative: "Deactivate" instead
+
+### 10.3 Security Risks
+
+**Risk: Account Takeover**
+- **Impact:** Unauthorized access to user accounts
+- **Probability:** Low (Stytch security)
+- **Mitigation:**
+  - Stytch handles security
+  - Email verification required
+  - Session timeout after inactivity
+  - Unusual login detection (future)
+  - 2FA option (future)
+  - Security audit logging
+
+**Risk: Data Breach**
+- **Impact:** User data exposed
+- **Probability:** Very Low
+- **Mitigation:**
+  - Supabase RLS policies
+  - No client-side secret keys
+  - HTTPS only
+  - Regular security audits
+  - Compliance with GDPR
+  - Incident response plan
+
+### 10.4 Business Risks
+
+**Risk: High Bounce Rate on Sign Up**
+- **Impact:** Users start sign up but don't complete
+- **Probability:** Medium
+- **Mitigation:**
+  - Simplify sign up flow
+  - Reduce friction (magic link)
+  - Clear value proposition
+  - Social proof
+  - Progress indicators
+  - A/B test sign up flows
+
+**Risk: Low Return Rate**
+- **Impact:** Users sign up once, never return
+- **Probability:** Medium
+- **Mitigation:**
+  - Email onboarding sequence
+  - Reminder emails (opt-in)
+  - In-app notifications
+  - Streak gamification
+  - Show user's progress/stats
+  - Make value immediately clear
+
+---
+
+## 11. Open Questions
+
+### 11.1 Authentication Method Priority
+
+**Question: Should we require email verification?**
+- ❓ Yes: Better security, reduces spam
+- ❓ No: Lower friction, faster onboarding
+- **Recommendation:** No for MVP, optional enhancement later
+
+**Question: Session duration defaults?**
+- ❓ 7 days (recommended)
+- ❓ 30 days (more convenient)
+- ❓ Until manually logged out
+- **Recommendation:** 7 days default, 30 with "Remember me"
+
+### 11.2 Profile Features
+
+**Question: Avatar upload in v1.0?**
+- ❓ Yes: More personal, professional
+- ❓ No: Additional complexity
+- **Recommendation:** v1.1 - use initials/Gravatar for v1.0
+
+**Question: Public profiles?**
+- ❓ Allow users to make profile public
+- ❓ Private only
+- **Recommendation:** Private only for v1.0, public in v2.0 with sharing features
+
+### 11.3 Data & Privacy
+
+**Question: How long to keep soft-deleted accounts?**
+- ❓ 30 days (can restore)
+- ❓ Immediate permanent delete
+- **Recommendation:** 30 days for v1.1, immediate for v1.0 (simpler)
+
+**Question: Analytics data collection?**
+- ❓ Detailed usage analytics
+- ❓ Minimal (privacy-first)
+- **Recommendation:** Moderate - aggregate metrics, no PII
+
+### 11.4 User Experience
+
+**Question: Guest mode / demo access?**
+- ❓ Allow limited access without account
+- ❓ Require account for all features
+- **Recommendation:** Demo mode with localStorage, prompt to save requires account
+
+**Question: Single Sign-On (SSO) for teams?**
+- ❓ Enterprise SSO (SAML, etc.)
+- ❓ Not initially
+- **Recommendation:** Future enterprise feature, not v1.0
+
+---
+
+## 12. Future Enhancements (v2.0+)
+
+### 12.1 Advanced Authentication
+
+**Multi-Factor Authentication (2FA):**
+- SMS code verification
+- Authenticator app (TOTP)
+- Email code as fallback
+- Recovery codes
+
+**Social Login Expansion:**
+- LinkedIn (professional audience)
+- Twitter/X (writers community)
+- Microsoft (enterprise)
+- Apple Sign In (iOS focus)
+
+**Passwordless Expansion:**
+- WebAuthn / Passkeys
+- Biometric authentication
+- Device-based authentication
+
+### 12.2 Team & Collaboration
+
+**Team Accounts:**
+- Organization accounts
+- Team member management
+- Role-based permissions (Admin, Editor, Viewer)
+- Shared story libraries
+- Team templates
+
+**Single Sign-On (SSO):**
+- SAML integration
+- Active Directory integration
+- Google Workspace integration
+- Azure AD integration
+
+### 12.3 Advanced Profile Features
+
+**Public Profiles:**
+- Optional public profile page
+- Portfolio of published stories
+- Bio and social links
+- Follower system
+- Profile customization
+
+**Achievements & Gamification:**
+- Badges for milestones
+- Writing streaks
+- Story completion achievements
+- Skill levels
+- Leaderboards (opt-in)
+
+**Avatar & Customization:**
+- Avatar upload
+- Gravatar integration
+- Custom themes
+- Profile banners
+- Color scheme customization
+
+### 12.4 Enhanced Analytics
+
+**Personal Analytics Dashboard:**
+- Writing habits over time
+- Productivity patterns
+- Favorite story elements
+- Progress tracking
+- Goals and milestones
+
+**Comparative Analytics:**
+- Compare to similar users (anonymized)
+- Industry benchmarks
+- Structure effectiveness
+- Completion rate insights
+
+### 12.5 Advanced Data Management
+
+**Version Control:**
+- Track all profile changes
+- Restore previous settings
+- Export history
+- Audit log
+
+**Data Portability:**
+- Export to multiple formats
+- Import from other tools
+- Migration tools
+- Backup scheduling
+
+**Privacy Controls:**
+- Granular data sharing controls
+- Analytics opt-out
+- Cookie preferences
+- Data retention settings
+
+### 12.6 Enterprise Features
+
+**Admin Dashboard:**
+- User management
+- Usage analytics
+- Content moderation
+- Billing management
+- Support tools
+
+**Compliance:**
+- SOC 2 certification
+- HIPAA compliance (if needed)
+- ISO 27001
+- Privacy shield
+
+**API Access:**
+- RESTful API for integrations
+- Webhooks for events
+- API key management
+- Rate limiting controls
+
+---
+
+## 13. Implementation Guidance
+
+### 13.1 Development Phases
+
+**Phase 1: Core Authentication (Week 1-2)**
+- Stytch SDK integration
+- Magic link flow
+- Session management
+- Protected routes
+- Basic error handling
+
+**Deliverable:** Users can sign up and log in with magic links
+
+**Phase 2: User Profile (Week 2-3)**
+- User profile creation
+- Supabase user sync
+- Profile display
+- Profile editing
+- Preference management
+
+**Deliverable:** Users have editable profiles with preferences
+
+**Phase 3: Dashboard & Library (Week 3-4)**
+- User dashboard layout
+- Story library display
+- Story cards
+- Sort and filter
+- Search functionality
+- Quick actions
+
+**Deliverable:** Users can view and manage their story library
+
+**Phase 4: Data Management (Week 4-5)**
+- Export all data functionality
+- GDPR compliance features
+- Account deletion
+- Data validation
+- Error handling refinement
+
+**Deliverable:** Full GDPR-compliant data management
+
+**Phase 5: Polish & Testing (Week 5-6)**
+- Password authentication (secondary)
+- Settings page complete
+- Responsive design
+- Accessibility improvements
+- User acceptance testing
+- Bug fixes
+- Performance optimization
+
+**Deliverable:** Production-ready authentication & user management
+
+### 13.2 Stytch Configuration
+
+**Development Setup:**
+
+1. Create Stytch account at stytch.com
+2. Create new project
+3. Get public token (test environment)
+4. Configure redirect URLs:
+```
+   http://localhost:3000/authenticate
+   https://yourdomain.com/authenticate
+
+Enable magic links in dashboard
+Customize email templates (optional)
+
+Environment Variables:
+bash# .env.local
+REACT_APP_STYTCH_PUBLIC_TOKEN=public-token-test-xxx
+REACT_APP_STYTCH_PROJECT_ID=project-test-xxx
+REACT_APP_SUPABASE_URL=https://xxx.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=eyJxxx...
+Production Checklist:
+
+ Switch to production Stytch tokens
+ Update redirect URLs to production domain
+ Enable HTTPS only
+ Configure email sender domain
+ Set appropriate session durations
+ Enable rate limiting
+ Configure password requirements (if using)
+ Test OAuth flows (if using)
+
+13.3 Supabase Integration
+User Sync Function:
+typescriptconst syncUserWithSupabase = async (stytchUser: StytchUser) => {
+  try {
+    // Set current user ID for RLS
+    await supabase.rpc('set_config', {
+      name: 'app.current_user_id',
+      value: stytchUser.user_id
+    });
+    
+    // Get or create user in Supabase
+    const { data: user, error } = await supabase
+      .rpc('get_or_create_user', {
+        p_stytch_user_id: stytchUser.user_id,
+        p_email: stytchUser.emails[0].email,
+        p_display_name: stytchUser.name?.first_name || null
+      });
+    
+    if (error) throw error;
+    
+    return user;
+  } catch (error) {
+    console.error('User sync failed:', error);
+    throw error;
+  }
+};
+Load User Data:
+typescriptconst loadUserData = async (userId: string) => {
+  try {
+    // Load user profile
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('stytch_user_id', userId)
+      .single();
+    
+    if (profileError) throw profileError;
+    
+    // Load user's stories
+    const { data: stories, error: storiesError } = await supabase
+      .from('stories')
+      .select('id, title, mode, progress, story_type, updated_at')
+      .eq('user_id', profile.id)
+      .order('updated_at', { ascending: false });
+    
+    if (storiesError) throw storiesError;
+    
+    return { profile, stories };
+  } catch (error) {
+    console.error('Failed to load user data:', error);
+    throw error;
+  }
+};
+```
+
+### 13.4 Component Architecture
+```
+Authentication/
+├── index.tsx (Auth provider)
+├── LoginScreen.tsx
+├── AuthCallback.tsx
+├── ProtectedRoute.tsx
+├── UserMenu.tsx
+└── hooks/
+    ├── useAuth.ts
+    └── useSession.ts
+
+UserManagement/
+├── Dashboard.tsx
+├── ProfileSettings.tsx
+├── StoryLibrary/
+│   ├── index.tsx
+│   ├── StoryCard.tsx
+│   ├── StoryFilters.tsx
+│   └── StorySearch.tsx
+├── DataManagement/
+│   ├── ExportData.tsx
+│   └── DeleteAccount.tsx
+└── hooks/
+    ├── useUserProfile.ts
+    ├── useUserStories.ts
+    └── useDataExport.ts
+State Management:
+typescript// Auth Context
+interface AuthContextType {
+  user: StytchUser | null;
+  session: StytchSession | null;
+  profile: UserProfile | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, method: 'magic_link' | 'password') => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
+
+// User Context
+interface UserContextType {
+  stories: Story[];
+  stats: UserStats;
+  loadStories: () => Promise<void>;
+  createStory: (story: NewStory) => Promise<Story>;
+  updateStory: (id: string, updates: Partial<Story>) => Promise<void>;
+  deleteStory: (id: string) => Promise<void>;
+  exportAllData: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
+}
+13.5 Testing Strategy
+Unit Tests:
+
+Auth state management
+Session validation
+User sync logic
+Profile update logic
+Data export generation
+Account deletion logic
+
+Integration Tests:
+
+Stytch authentication flow
+Supabase user creation
+RLS policy enforcement
+Session persistence
+Profile CRUD operations
+Story library loading
+
+E2E Tests (Cypress):
+
+Complete sign up flow
+Magic link authentication
+Password authentication
+Session persistence
+Profile editing
+Story library access
+Data export
+Account deletion
+Logout flow
+Protected route access
+
+Security Tests:
+
+RLS policy validation
+Cross-user data access attempts
+Session hijacking prevention
+SQL injection prevention
+XSS prevention
+CSRF protection
+
+13.6 Analytics Implementation
+Events to Track:
+javascript// Authentication
+trackEvent('signup_started', {
+  method: 'magic_link' | 'password'
+});
+
+trackEvent('signup_completed', {
+  method: 'magic_link' | 'password',
+  time_to_complete_seconds: duration
+});
+
+trackEvent('login_attempted', {
+  method: 'magic_link' | 'password'
+});
+
+trackEvent('login_success', {
+  method: 'magic_link' | 'password',
+  session_duration_days: 7
+});
+
+trackEvent('login_failed', {
+  method: 'magic_link' | 'password',
+  error_type: errorCode
+});
+
+trackEvent('logout', {
+  session_duration_minutes: duration
+});
+
+// Profile
+trackEvent('profile_updated', {
+  fields_changed: ['display_name', 'preferences']
+});
+
+trackEvent('preferences_changed', {
+  preference: 'defaultMode',
+  old_value: 'quick',
+  new_value: 'comprehensive'
+});
+
+// Data Management
+trackEvent('data_exported', {
+  story_count: 12,
+  file_size_kb: fileSize
+});
+
+trackEvent('account_deleted', {
+  stories_created: totalStories,
+  days_active: accountAge
+});
+
+// Dashboard
+trackEvent('dashboard_visited', {
+  story_count: userStories.length
+});
+
+trackEvent('story_opened', {
+  story_id: storyId,
+  from: 'dashboard' | 'library' | 'search'
+});
+Metrics Dashboard:
+
+Sign up conversion rate
+Login success rate
+Magic link vs password usage
+Session duration distribution
+Profile completion rate
+Average stories per user
+Data export frequency
+Account deletion rate
+Return user rate (D1, D7, D30)
