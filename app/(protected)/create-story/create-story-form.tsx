@@ -7,7 +7,7 @@ import { StoryCategory, StoryType } from "@/lib/data/storyTypes";
 type CreateStoryAction = (
   previousState: { error?: string } | null,
   formData: FormData
-) => Promise<{ error?: string } | void>;
+) => Promise<{ error?: string } | null>;
 
 interface CreateStoryFormProps {
   createStoryAction: CreateStoryAction;
@@ -22,7 +22,7 @@ export default function CreateStoryForm({
   selectedType,
   onBack 
 }: CreateStoryFormProps) {
-  const [state, formAction, isPending] = useActionState(createStoryAction, null);
+  const [state, formAction, isPending] = useActionState(createStoryAction, { error: undefined });
 
   return (
     <form action={formAction} className="space-y-6">

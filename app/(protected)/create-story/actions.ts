@@ -10,7 +10,7 @@ import { storyCategories, StoryCategory, StoryType } from "@/lib/data/storyTypes
 export async function createStoryAction(
   previousState: { error?: string } | null,
   formData: FormData
-) {
+): Promise<{ error?: string } | null> {
   const supabase = await createClient();
 
   const {
@@ -83,5 +83,6 @@ export async function createStoryAction(
   }
 
   redirect("/");
+  return null;
 }
 
