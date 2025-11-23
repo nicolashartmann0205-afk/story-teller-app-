@@ -52,19 +52,19 @@ async function deleteStoryAction(storyId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return { error: "Unauthorized" };
+    redirect("/auth/sign-in");
   }
 
   try {
     await db
       .delete(stories)
       .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
-    
-    redirect("/");
   } catch (error) {
     console.error("Error deleting story:", error);
-    return { error: "Failed to delete story" };
+    return;
   }
+
+  redirect("/");
 }
 
 export default async function StoriesPage() {
@@ -226,7 +226,7 @@ export default async function StoriesPage() {
                     >
                       Edit
                     </Link>
-                    <form action={deleteStoryAction.bind(null, story.id)} className="flex-1">
+                    <form action={deleteStoryAction.bind(null, story.id) as any} className="flex-1">
                       <button
                         type="submit"
                         className="w-full rounded-md border border-red-300 dark:border-red-700 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
