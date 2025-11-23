@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { generateStory } from "@/lib/ai/story-generator";
-import { storyCategories } from "@/lib/data/storyTypes";
+import { storyCategories, StoryCategory, StoryType } from "@/lib/data/storyTypes";
 
 export async function createStoryAction(
   previousState: { error?: string } | null,
@@ -38,9 +38,9 @@ export async function createStoryAction(
   
   if (category && typeId && category !== "custom") {
     // @ts-ignore
-    const catData = storyCategories[category];
+    const catData = storyCategories[category as StoryCategory];
     if (catData) {
-      const typeData = catData.types.find((t) => t.id === typeId);
+      const typeData = catData.types.find((t: StoryType) => t.id === typeId);
       if (typeData) {
         storyTypeObject = {
           category,
