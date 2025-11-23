@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { generateStory } from "@/lib/ai/story-generator";
 
 export async function GET() {
   try {
@@ -62,12 +63,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Generate full story content using Gemini AI
+    let generatedStory = description?.trim() || "";
+    try {
+      generatedStory = await generateStory(title, description || "");
+    } catch (aiError) {
+      console.error("Error generating story via API, falling back to description:", aiError);
+      // Fallback to original description if AI fails
+    }
+
     const [newStory] = await db
       .insert(stories)
       .values({
         userId: user.id,
         title: title.trim(),
-        description: description?.trim() || null,
+        description: generatedStory,
       })
       .returning();
 

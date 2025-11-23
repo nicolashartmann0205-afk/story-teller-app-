@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
+import { generateStory } from "@/lib/ai/story-generator";
 import CreateStoryForm from "./create-story-form";
 
 async function createStoryAction(
@@ -30,16 +31,20 @@ async function createStoryAction(
   }
 
   try {
+    // Generate full story content using Gemini AI
+    const generatedStory = await generateStory(title, description || "");
+
     await db.insert(stories).values({
       userId: user.id,
       title: title.trim(),
-      description: description?.trim() || null,
+      description: generatedStory, // Save the full AI generated story instead of the short description
     });
 
     redirect("/");
   } catch (error) {
     console.error("Error creating story:", error);
-    return { error: "Failed to create story" };
+    const errorMessage = error instanceof Error ? error.message : "Failed to create story";
+    return { error: errorMessage };
   }
 }
 

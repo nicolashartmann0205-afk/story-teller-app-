@@ -124,7 +124,7 @@ export default async function StoriesPage() {
           </div>
           <div className="flex gap-4">
             <Link
-              href="/stories/new"
+              href="/create-story"
               className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
             >
               Create Story
@@ -161,7 +161,7 @@ export default async function StoriesPage() {
               You haven't created any stories yet. Start writing!
             </div>
             <Link
-              href="/stories/new"
+              href="/create-story"
               className="mt-6 inline-block rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
             >
               Create your first story
