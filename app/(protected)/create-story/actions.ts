@@ -62,7 +62,7 @@ export async function createStoryAction(
     // Pass story type context to the AI if available
     let promptContext = description || "";
     
-    if (storyTypeObject && storyTypeObject.category !== "custom") {
+    if (storyTypeObject && storyTypeObject.category !== "custom" && storyTypeObject.type) {
       promptContext += `\n\nStory Type: ${storyTypeObject.type.name}`;
       promptContext += `\nContext: ${storyTypeObject.type.description}`;
       promptContext += `\nKey Elements to Include: ${storyTypeObject.type.keyElements.join(", ")}`;
