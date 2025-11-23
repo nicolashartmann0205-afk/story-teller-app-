@@ -33,19 +33,19 @@ async function deleteStoryAction(storyId: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
 
   try {
     await db
       .delete(stories)
       .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
-
-    redirect("/");
   } catch (error) {
     console.error("Error deleting story:", error);
-    return { error: "Failed to delete story" };
+    throw new Error("Failed to delete story");
   }
+
+  redirect("/");
 }
 
 export default async function StoryPage({
