@@ -3,13 +3,25 @@
 import { useActionState } from "react";
 import Link from "next/link";
 
-type CreateStoryAction = (
+type Story = {
+  id: string;
+  title: string;
+  description: string | null;
+};
+
+type UpdateStoryAction = (
   previousState: { error?: string } | null,
   formData: FormData
 ) => Promise<{ error?: string } | void>;
 
-export default function CreateStoryForm({ createStoryAction }: { createStoryAction: CreateStoryAction }) {
-  const [state, formAction, isPending] = useActionState(createStoryAction, null);
+export default function EditStoryForm({
+  story,
+  updateStoryAction,
+}: {
+  story: Story;
+  updateStoryAction: UpdateStoryAction;
+}) {
+  const [state, formAction, isPending] = useActionState(updateStoryAction, null);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -31,6 +43,7 @@ export default function CreateStoryForm({ createStoryAction }: { createStoryActi
           name="title"
           type="text"
           required
+          defaultValue={story.title}
           className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
           placeholder="Enter story title"
         />
@@ -47,6 +60,7 @@ export default function CreateStoryForm({ createStoryAction }: { createStoryActi
           id="description"
           name="description"
           rows={6}
+          defaultValue={story.description || ""}
           className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
           placeholder="Enter story description (optional)"
         />
@@ -58,7 +72,7 @@ export default function CreateStoryForm({ createStoryAction }: { createStoryActi
           disabled={isPending}
           className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? "Creating..." : "Create Story"}
+          {isPending ? "Updating..." : "Update Story"}
         </button>
         <Link
           href="/"

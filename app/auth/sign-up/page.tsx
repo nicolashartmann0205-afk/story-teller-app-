@@ -3,8 +3,13 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SignUpForm from "./sign-up-form";
 
-async function signUpAction(formData: FormData) {
+async function signUpAction(previousState: { error?: string } | null, formData: FormData) {
   "use server";
+
+  // Defensive check for formData
+  if (!formData) {
+    return { error: "Form data is missing" };
+  }
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

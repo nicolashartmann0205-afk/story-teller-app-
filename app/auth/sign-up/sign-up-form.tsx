@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useActionState } from "react";
 
-type SignUpAction = (formData: FormData) => Promise<{ error?: string } | void>;
+type SignUpAction = (previousState: { error?: string } | null, formData: FormData) => Promise<{ error?: string } | void>;
 
 export default function SignUpForm({ signUpAction }: { signUpAction: SignUpAction }) {
   const [state, formAction, isPending] = useActionState(signUpAction, null);

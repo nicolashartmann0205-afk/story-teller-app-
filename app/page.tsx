@@ -3,15 +3,34 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function Home() {
-  const supabase = await createClient();
+  // Check authentication - handle errors gracefully
+  let user = null;
+  let authError = null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
 
-  // Redirect authenticated users to main app page (protected route group)
-  if (user) {
-    redirect("/");
+    const {
+      data: { user: authUser },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      authError = error;
+      console.error("Error checking authentication:", error);
+    } else {
+      user = authUser;
+    }
+  } catch (error) {
+    authError = error instanceof Error ? error : new Error("Unknown authentication error");
+    console.error("Error checking authentication:", error);
+    // Continue to show landing page on error
+  }
+
+  // Redirect authenticated users to stories page
+  // This must be outside try-catch so redirect() can work properly
+  if (user && !authError) {
+    redirect("/stories");
   }
 
   return (

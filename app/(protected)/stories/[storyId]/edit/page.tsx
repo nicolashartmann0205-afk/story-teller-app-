@@ -1,11 +1,35 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getAppUrl } from "@/lib/config/env";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
-import CreateStoryForm from "./create-story-form";
+import { eq, and } from "drizzle-orm";
+import EditStoryForm from "./edit-story-form";
 
-async function createStoryAction(
+async function getStory(storyId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  // Fetch story and verify ownership
+  const [story] = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
+    .limit(1);
+
+  return story || null;
+}
+
+async function updateStoryAction(
+  storyId: string,
   previousState: { error?: string } | null,
   formData: FormData
 ) {
@@ -30,20 +54,34 @@ async function createStoryAction(
   }
 
   try {
-    await db.insert(stories).values({
-      userId: user.id,
-      title: title.trim(),
-      description: description?.trim() || null,
-    });
+    await db
+      .update(stories)
+      .set({
+        title: title.trim(),
+        description: description?.trim() || null,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
 
     redirect("/");
   } catch (error) {
-    console.error("Error creating story:", error);
-    return { error: "Failed to create story" };
+    console.error("Error updating story:", error);
+    return { error: "Failed to update story" };
   }
 }
 
-export default function CreateStoryPage() {
+export default async function EditStoryPage({
+  params,
+}: {
+  params: Promise<{ storyId: string }>;
+}) {
+  const { storyId } = await params;
+  const story = await getStory(storyId);
+
+  if (!story) {
+    notFound();
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -58,10 +96,13 @@ export default function CreateStoryPage() {
 
         <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 shadow-lg">
           <h1 className="text-3xl font-bold text-black dark:text-zinc-50 mb-6">
-            Create New Story
+            Edit Story
           </h1>
 
-          <CreateStoryForm createStoryAction={createStoryAction} />
+          <EditStoryForm
+            story={story}
+            updateStoryAction={updateStoryAction.bind(null, storyId)}
+          />
         </div>
       </div>
     </div>

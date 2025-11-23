@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/config/env";
 
 // Public routes that are accessible to everyone
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
@@ -20,8 +21,8 @@ export async function updateSession(request: NextRequest) {
   });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
     {
       cookies: {
         getAll() {

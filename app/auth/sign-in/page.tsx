@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SignInForm from "./sign-in-form";
 
-async function signInAction(formData: FormData) {
+async function signInAction(previousState: { error?: string } | null, formData: FormData) {
   "use server";
 
   const email = formData.get("email") as string;

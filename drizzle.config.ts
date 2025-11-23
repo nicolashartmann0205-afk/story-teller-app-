@@ -1,12 +1,15 @@
 import { defineConfig } from "drizzle-kit";
+import { config } from "dotenv";
+import { resolve } from "path";
 
-// Use POOLING_DATABASE_URL if available, fallback to DATABASE_URL
+// Load environment variables from .env.local
+config({ path: resolve(process.cwd(), ".env.local") });
+
+// Read database URL directly for migrations (bypasses Supabase validation)
 const databaseUrl = process.env.POOLING_DATABASE_URL || process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error(
-    "POOLING_DATABASE_URL or DATABASE_URL environment variable is not set"
-  );
+  throw new Error("POOLING_DATABASE_URL or DATABASE_URL is required");
 }
 
 export default defineConfig({

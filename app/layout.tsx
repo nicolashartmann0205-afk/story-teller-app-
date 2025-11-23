@@ -22,11 +22,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Simple, synchronous layout component - no async operations
+  // Always returns valid HTML structure to ensure rendering
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Simple header to confirm rendering */}
+        <header className="sr-only">
+          <h1>Story Teller App</h1>
+        </header>
         {children}
       </body>
     </html>
