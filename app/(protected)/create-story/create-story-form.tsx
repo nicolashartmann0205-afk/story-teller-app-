@@ -2,13 +2,26 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { StoryCategory, StoryType } from "@/lib/data/storyTypes";
 
 type CreateStoryAction = (
   previousState: { error?: string } | null,
   formData: FormData
 ) => Promise<{ error?: string } | void>;
 
-export default function CreateStoryForm({ createStoryAction }: { createStoryAction: CreateStoryAction }) {
+interface CreateStoryFormProps {
+  createStoryAction: CreateStoryAction;
+  selectedCategory: StoryCategory;
+  selectedType: StoryType;
+  onBack: () => void;
+}
+
+export default function CreateStoryForm({ 
+  createStoryAction, 
+  selectedCategory, 
+  selectedType,
+  onBack 
+}: CreateStoryFormProps) {
   const [state, formAction, isPending] = useActionState(createStoryAction, null);
 
   return (
@@ -18,6 +31,25 @@ export default function CreateStoryForm({ createStoryAction }: { createStoryActi
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>
         </div>
       )}
+
+      <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Selected Type</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{selectedType.name}</p>
+          </div>
+          <button 
+            type="button" 
+            onClick={onBack}
+            className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 underline"
+          >
+            Change
+          </button>
+        </div>
+      </div>
+
+      <input type="hidden" name="category" value={selectedCategory} />
+      <input type="hidden" name="typeId" value={selectedType.id} />
 
       <div>
         <label

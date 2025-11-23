@@ -14,7 +14,7 @@ export async function generateStory(title: string, description: string): Promise
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `You are a creative story teller. Write a compelling short story based on the following:
     
