@@ -10,9 +10,9 @@ type Story = {
 };
 
 type UpdateStoryAction = (
-  previousState: { error?: string } | null,
+  previousState: { error?: string } | null | void,
   formData: FormData
-) => Promise<{ error?: string } | void>;
+) => Promise<{ error?: string } | void | null>;
 
 export default function EditStoryForm({
   story,

@@ -30,7 +30,7 @@ async function getStory(storyId: string) {
 
 async function updateStoryAction(
   storyId: string,
-  previousState: { error?: string } | null,
+  previousState: { error?: string } | null | void,
   formData: FormData
 ) {
   "use server";
