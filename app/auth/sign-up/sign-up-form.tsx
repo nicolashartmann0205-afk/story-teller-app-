@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-type SignUpAction = (previousState: { error?: string } | null, formData: FormData) => Promise<{ error?: string } | void>;
+type SignUpAction = (previousState: { error?: string } | null | void, formData: FormData) => Promise<{ error?: string } | void>;
 
 export default function SignUpForm({ signUpAction }: { signUpAction: SignUpAction }) {
   const [state, formAction, isPending] = useActionState(signUpAction, null);

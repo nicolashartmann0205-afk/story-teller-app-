@@ -12,7 +12,7 @@ type Story = {
 type UpdateStoryAction = (
   previousState: { error?: string } | null,
   formData: FormData
-) => Promise<{ error?: string } | null>;
+) => Promise<{ error?: string } | void>;
 
 export default function EditStoryForm({
   story,
@@ -21,7 +21,7 @@ export default function EditStoryForm({
   story: Story;
   updateStoryAction: UpdateStoryAction;
 }) {
-  const [state, formAction, isPending] = useActionState(updateStoryAction, { error: undefined });
+  const [state, formAction, isPending] = useActionState(updateStoryAction, null);
 
   return (
     <form action={formAction} className="space-y-6">

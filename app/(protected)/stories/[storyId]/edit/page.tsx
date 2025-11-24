@@ -32,7 +32,7 @@ async function updateStoryAction(
   storyId: string,
   previousState: { error?: string } | null,
   formData: FormData
-): Promise<{ error?: string } | null> {
+) {
   "use server";
 
   const supabase = await createClient();
@@ -71,8 +71,6 @@ async function updateStoryAction(
     }
     return { error: "Failed to update story" };
   }
-  
-  return null;
 }
 
 export default async function EditStoryPage({
