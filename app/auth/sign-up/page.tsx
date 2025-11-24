@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SignUpForm from "./sign-up-form";
 
-async function signUpAction(previousState: { error?: string } | null, formData: FormData) {
+async function signUpAction(previousState: { error?: string } | null | void, formData: FormData) {
   "use server";
 
   // Defensive check for formData
