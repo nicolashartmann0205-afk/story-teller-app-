@@ -1,0 +1,22 @@
+{
+  "React TypeScript Custom Hook": {
+    "prefix": "usehook",
+    "body": [
+      "import React, { useState, useEffect } from 'react';",
+      "import { useActionState } from 'react-dom/server';",
+      "",
+      "export const use$1 = ($2: $3) => {",
+      "  const [state, setState] = useState<$4>();",
+      "  const [isLoading, setIsLoading] = useState(false);",
+      "",
+      "  useEffect(() => {",
+      "    // Hook logic goes here",
+      "    console.log(`Hook '$1' initialized with argument: ${$2}`);",
+      "  }, [$2]);",
+      "",
+      "  return { state, isLoading, setState };",
+      "};"
+    ],
+    "description": "Generates a comprehensive TypeScript React Custom Hook structure."
+  }
+}
