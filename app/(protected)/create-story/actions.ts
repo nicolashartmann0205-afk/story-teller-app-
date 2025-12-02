@@ -4,8 +4,31 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
-import { generateStory } from "@/lib/ai/story-generator";
+import { generateStory, generateHooks } from "@/lib/ai/story-generator";
 import { storyCategories, StoryCategory, StoryType } from "@/lib/data/storyTypes";
+
+export async function generatePreviewHooksAction(
+  title: string,
+  description: string,
+  selectedTypes: string[]
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    const generatedData = await generateHooks(title, description, selectedTypes);
+    return { hooks: generatedData.hooks };
+  } catch (error) {
+    console.error("Error generating preview hooks:", error);
+    return { error: "Failed to generate hooks" };
+  }
+}
 
 export async function createStoryAction(
   previousState: { error?: string } | null,
@@ -26,35 +49,23 @@ export async function createStoryAction(
   const description = formData.get("description") as string;
   const category = formData.get("category") as string;
   const typeId = formData.get("typeId") as string;
+  const selectedHookData = formData.get("selectedHook") as string;
 
   if (!title || typeof title !== "string" || title.trim().length === 0) {
     return { error: "Title is required" };
   }
 
-  // Reconstruct the story type object to save to DB
-  // We only have IDs from the form, so we verify them against our static data
-  // Note: For 'custom' category, we might handle it differently
-  let storyTypeObject = null;
-  
-  if (category && typeId && category !== "custom") {
-    // @ts-ignore
-    const catData = storyCategories[category as StoryCategory];
-    if (catData) {
-      const typeData = catData.types.find((t: StoryType) => t.id === typeId);
+  let storyTypeObject: { category: string; type?: StoryType } | null = null;
+  if (category && category !== "custom") {
+    const categoryData = storyCategories[category as StoryCategory];
+    if (categoryData) {
+      const typeData = categoryData.types.find((t) => t.id === typeId);
       if (typeData) {
-        storyTypeObject = {
-          category,
-          type: typeData,
-          selectedAt: new Date().toISOString()
-        };
+        storyTypeObject = { category, type: typeData };
       }
     }
   } else if (category === "custom") {
-    storyTypeObject = {
-      category: "custom",
-      customDescription: description, // In custom mode, description is the prompt
-      selectedAt: new Date().toISOString()
-    };
+    storyTypeObject = { category: "custom" };
   }
 
   try {
@@ -68,21 +79,41 @@ export async function createStoryAction(
       promptContext += `\nKey Elements to Include: ${storyTypeObject.type.keyElements.join(", ")}`;
     }
 
+    let hooksData = null;
+    if (selectedHookData) {
+      try {
+        const parsedHook = JSON.parse(selectedHookData);
+        promptContext += `\n\nIMPORTANT: Start the story with this specific opening hook: "${parsedHook.text}"`;
+        
+        // Structure for DB
+        hooksData = {
+          selectedTypes: [parsedHook.type], // Assuming single type selection for simplicity or inferred
+          generated: {}, // We don't save all generated options from preview to save space/complexity unless needed
+          chosen: parsedHook,
+          generatedAt: new Date().toISOString()
+        };
+      } catch (e) {
+        console.warn("Failed to parse selected hook data", e);
+      }
+    }
+
     const generatedStory = await generateStory(title, promptContext);
 
-    await db.insert(stories).values({
+    const [newStory] = await db.insert(stories).values({
       userId: user.id,
       title: title.trim(),
       description: generatedStory,
       storyType: storyTypeObject,
-    });
+      hooks: hooksData,
+    }).returning();
+
+    redirect(`/stories/${newStory.id}`); // Redirect to the new story page
   } catch (error) {
+    if ((error as any).digest?.startsWith('NEXT_REDIRECT')) {
+        throw error;
+    }
+
     console.error("Error creating story:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to create story";
-    return { error: errorMessage };
+    return { error: "Failed to create story" };
   }
-
-  redirect("/");
-  return null;
 }
-

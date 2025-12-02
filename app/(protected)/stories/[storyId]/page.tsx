@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import StoryHooks from "./story-hooks";
 
 async function getStory(storyId: string) {
   const supabase = await createClient();
@@ -102,6 +103,8 @@ export default async function StoryPage({
               </p>
             </div>
           )}
+
+          <StoryHooks storyId={story.id} existingHooks={story.hooks} />
 
           <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
             <p className="text-xs text-zinc-500 dark:text-zinc-500">

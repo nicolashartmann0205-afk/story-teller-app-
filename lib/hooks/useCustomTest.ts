@@ -1,13 +1,14 @@
 import { useState, useEffect, useActionState } from 'react';
 
-export const useMyFeature = (arg: any) => {
-  const [state, setState] = useState<any>();
+export const useCustomTest = (initialVal: string) => {
+  const [state, setState] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Hook logic goes here
-    console.log(`Hook 'MyFeature' initialized with argument: ${arg}`);
-  }, [arg]);
+    console.log(`Hook 'CustomTest' initialized with argument: ${initialVal}`);
+  }, [initialVal]);
 
   return { state, isLoading, setState };
 };
+

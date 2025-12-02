@@ -99,3 +99,5 @@ export function TypeDetailModal({ type, isOpen, onClose, onConfirm }: TypeDetail
   );
 }
 
+
+

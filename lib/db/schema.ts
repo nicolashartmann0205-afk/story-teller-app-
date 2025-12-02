@@ -17,7 +17,7 @@ export const stories = pgTable("stories", {
   title: text("title").notNull(),
   description: text("description"),
   storyType: jsonb("story_type"),
+  hooks: jsonb("hooks"), // Stores the complete hook object (generated options, selection, etc.)
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
-

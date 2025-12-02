@@ -2,8 +2,7 @@
   "React TypeScript Custom Hook": {
     "prefix": "usehook",
     "body": [
-      "import React, { useState, useEffect } from 'react';",
-      "import { useActionState } from 'react-dom/server';",
+      "import { useState, useEffect, useActionState } from 'react';",
       "",
       "export const use$1 = ($2: $3) => {",
       "  const [state, setState] = useState<$4>();",
