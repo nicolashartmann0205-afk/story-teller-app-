@@ -3,8 +3,6 @@
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
-import * as random from "three/examples/jsm/utils/BufferGeometryUtils.js"; // This import might be wrong, let's use a simpler approach for random points
-import * as THREE from "three";
 
 function Stars(props: any) {
   const ref = useRef<any>();
