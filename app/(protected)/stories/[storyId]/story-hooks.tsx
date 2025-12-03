@@ -179,6 +179,15 @@ export default function StoryHooks({ storyId, existingHooks }: StoryHooksProps) 
       {/* Results Display */}
       {hasResults && (
         <div className="space-y-12">
+            <div className="flex justify-end">
+             <button
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 underline disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGenerating ? "Generating..." : "Generate More Hooks"}
+              </button>
+            </div>
           {Object.entries(generatedHooks).map(([typeId, hooks]) => {
             const typeInfo = hookTypes.find((t) => t.id === typeId);
             if (!typeInfo || !hooks) return null;
