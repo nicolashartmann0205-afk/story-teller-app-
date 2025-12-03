@@ -18,6 +18,8 @@ export const stories = pgTable("stories", {
   description: text("description"),
   storyType: jsonb("story_type"),
   hooks: jsonb("hooks"), // Stores the complete hook object (generated options, selection, etc.)
+  mode: text("mode").$type<"quick" | "comprehensive">(), // "quick" | "comprehensive"
+  modeSwitchHistory: jsonb("mode_switch_history"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

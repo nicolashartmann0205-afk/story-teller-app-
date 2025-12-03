@@ -7,22 +7,26 @@ import { TypeSelection } from "./type-selection";
 import { TypeDetailModal } from "./type-detail-modal";
 import CreateStoryForm from "./create-story-form";
 import { createStoryAction } from "./actions";
+import { ModeSelection, StoryMode } from "./mode-selection";
+import { ModeQuestionnaire } from "./mode-questionnaire";
 
 export default function CreateStoryWizard() {
-  const [step, setStep] = useState<"category" | "type" | "details">("category");
+  const [step, setStep] = useState<"mode" | "category" | "type" | "details">("mode");
+  const [selectedMode, setSelectedMode] = useState<StoryMode | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory | null>(null);
   const [selectedType, setSelectedType] = useState<StoryType | null>(null);
   const [viewingType, setViewingType] = useState<StoryType | null>(null);
+  const [showModeHelp, setShowModeHelp] = useState(false);
+
+  const handleModeSelect = (mode: StoryMode) => {
+    setSelectedMode(mode);
+    setStep("category");
+  };
 
   const handleCategorySelect = (category: StoryCategory) => {
     setSelectedCategory(category);
     if (category === "custom") {
       // Custom flow might jump straight to details/form or have a specific UI
-      // For now, let's treat custom as a type selection skip
-      // But our current structure expects a type object. 
-      // Let's handle custom as a special case in the form.
-      // For this implementation, we'll stick to the structured types first.
-      // Custom implementation can be expanded later.
       alert("Custom story type flow coming soon! Please select a category.");
       return;
     }
@@ -39,6 +43,11 @@ export default function CreateStoryWizard() {
     setStep("details");
   };
 
+  const handleBackToMode = () => {
+    setStep("mode");
+    setSelectedMode(null);
+  };
+
   const handleBackToCategories = () => {
     setStep("category");
     setSelectedCategory(null);
@@ -51,11 +60,36 @@ export default function CreateStoryWizard() {
 
   return (
     <>
+      {step === "mode" && (
+        <div>
+           <h2 className="text-xl font-semibold text-black dark:text-zinc-50 mb-6">
+            Choose your storytelling mode
+          </h2>
+          <ModeSelection 
+            onSelect={handleModeSelect} 
+            onHelp={() => setShowModeHelp(true)}
+          />
+          <ModeQuestionnaire 
+            isOpen={showModeHelp}
+            onClose={() => setShowModeHelp(false)}
+            onComplete={(mode) => {
+              setShowModeHelp(false);
+              handleModeSelect(mode);
+            }}
+          />
+        </div>
+      )}
+
       {step === "category" && (
         <div>
-          <h2 className="text-xl font-semibold text-black dark:text-zinc-50 mb-6">
-            What kind of story do you want to tell?
-          </h2>
+           <div className="flex items-center gap-4 mb-6">
+            <button onClick={handleBackToMode} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+              ← Back to Mode
+            </button>
+            <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+              What kind of story do you want to tell?
+            </h2>
+          </div>
           <CategorySelection onSelect={handleCategorySelect} />
         </div>
       )}
@@ -68,11 +102,12 @@ export default function CreateStoryWizard() {
         />
       )}
 
-      {step === "details" && selectedCategory && selectedType && (
+      {step === "details" && selectedCategory && selectedType && selectedMode && (
         <CreateStoryForm 
           createStoryAction={createStoryAction} 
           selectedCategory={selectedCategory}
           selectedType={selectedType}
+          selectedMode={selectedMode}
           onBack={handleBackToTypes}
         />
       )}
@@ -86,6 +121,3 @@ export default function CreateStoryWizard() {
     </>
   );
 }
-
-
-

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { StoryCategory, StoryType } from "@/lib/data/storyTypes";
 import { hookTypes, HookTypeID } from "@/lib/data/hookTypes";
 import { generatePreviewHooksAction } from "./actions";
+import { StoryMode } from "./mode-selection";
 
 type CreateStoryAction = (
   previousState: { error?: string } | null,
@@ -16,6 +17,7 @@ interface CreateStoryFormProps {
   createStoryAction: CreateStoryAction;
   selectedCategory: StoryCategory;
   selectedType: StoryType;
+  selectedMode: StoryMode;
   onBack: () => void;
 }
 
@@ -23,6 +25,7 @@ export default function CreateStoryForm({
   createStoryAction,
   selectedCategory,
   selectedType,
+  selectedMode,
   onBack,
 }: CreateStoryFormProps) {
   const [state, formAction, isPending] = useActionState(createStoryAction, { error: undefined });
@@ -103,6 +106,7 @@ export default function CreateStoryForm({
 
       <input type="hidden" name="category" value={selectedCategory} />
       <input type="hidden" name="typeId" value={selectedType.id} />
+      <input type="hidden" name="mode" value={selectedMode} />
       {selectedHook && <input type="hidden" name="selectedHook" value={JSON.stringify(selectedHook)} />}
 
       <div className="space-y-6">

@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.44.7",
+    "framer-motion": "^12.23.25",
     "next": "16.0.3",
     "postgres": "^3.4.7",
     "react": "19.2.0",
