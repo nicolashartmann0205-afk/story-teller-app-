@@ -1,3 +1,3 @@
-ALTER TABLE "stories" ADD COLUMN "hooks" jsonb;--> statement-breakpoint
-ALTER TABLE "stories" ADD COLUMN "mode" text;--> statement-breakpoint
-ALTER TABLE "stories" ADD COLUMN "mode_switch_history" jsonb;
+ALTER TABLE "stories" ADD COLUMN IF NOT EXISTS "hooks" jsonb;--> statement-breakpoint
+ALTER TABLE "stories" ADD COLUMN IF NOT EXISTS "mode" text;--> statement-breakpoint
+ALTER TABLE "stories" ADD COLUMN IF NOT EXISTS "mode_switch_history" jsonb;
