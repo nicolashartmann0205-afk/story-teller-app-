@@ -39,6 +39,7 @@ export const stories = pgTable("stories", {
   moralComplexity: text("moral_complexity").$type<"simple" | "two_rights" | "lesser_evil">(),
   moralData: jsonb("moral_data").default({}),
   character: jsonb("character"), // Stores full archetype data: primary, secondary, journey, etc.
+  structure: jsonb("structure"), // Stores guidance level, selected structure, beats, etc.
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -120,5 +121,20 @@ export const archetypeAnalytics = pgTable("archetype_analytics", {
   selectionMethod: text("selection_method"), // 'grid' | 'ai-suggested' | 'deep-builder'
   hasJourney: boolean("has_journey").default(false),
   hasDarkSides: boolean("has_dark_sides").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const structureAnalytics = pgTable("structure_analytics", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storyId: uuid("story_id").references(() => stories.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => authUsers.id),
+  structureId: text("structure_id").notNull(),
+  guidanceLevel: text("guidance_level").$type<"deep" | "light">(),
+  storyType: text("story_type"),
+  selectionMethod: text("selection_method").$type<"manual" | "ai-recommended">(),
+  beatsCompleted: integer("beats_completed").default(0),
+  totalBeats: integer("total_beats"),
+  timeSpentSeconds: integer("time_spent_seconds"),
+  completed: boolean("completed").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

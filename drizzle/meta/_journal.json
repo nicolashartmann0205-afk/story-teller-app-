@@ -57,6 +57,13 @@
       "when": 1764799864818,
       "tag": "0007_yielding_vindicator",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764993214557,
+      "tag": "0008_minor_liz_osborn",
+      "breakpoints": true
     }
   ]
 }
