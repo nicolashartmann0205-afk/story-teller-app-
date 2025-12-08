@@ -18,6 +18,8 @@ interface CreateStoryFormProps {
   selectedCategory: StoryCategory;
   selectedType: StoryType;
   selectedMode: StoryMode;
+  moralData?: any; // Added to support moral framework data
+  archetypeData?: any; // Added to support archetype data
   onBack: () => void;
 }
 
@@ -26,6 +28,8 @@ export default function CreateStoryForm({
   selectedCategory,
   selectedType,
   selectedMode,
+  moralData,
+  archetypeData,
   onBack,
 }: CreateStoryFormProps) {
   const [state, formAction, isPending] = useActionState(createStoryAction, { error: undefined });
@@ -102,11 +106,43 @@ export default function CreateStoryForm({
             Change
           </button>
         </div>
+        {moralData && moralData.primary && (
+          <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+             <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Moral Conflict</p>
+             <div className="flex items-center gap-2 mt-1">
+               <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+                 {moralData.primary.replace('_', ' vs ')}
+               </span>
+               {moralData.complexity && (
+                 <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 capitalize">
+                   {moralData.complexity.replace('_', ' ')}
+                 </span>
+               )}
+             </div>
+          </div>
+        )}
+        {archetypeData && archetypeData.primary && (
+          <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+             <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Character Archetype</p>
+             <div className="flex items-center gap-2 mt-1">
+               <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+                 {archetypeData.primary}
+               </span>
+               {archetypeData.secondary && (
+                 <span className="text-xs text-zinc-500">
+                   + {archetypeData.secondary}
+                 </span>
+               )}
+             </div>
+          </div>
+        )}
       </div>
 
       <input type="hidden" name="category" value={selectedCategory} />
       <input type="hidden" name="typeId" value={selectedType.id} />
       <input type="hidden" name="mode" value={selectedMode} />
+      {moralData && <input type="hidden" name="moralData" value={JSON.stringify(moralData)} />}
+      {archetypeData && <input type="hidden" name="archetypeData" value={JSON.stringify(archetypeData)} />}
       {selectedHook && <input type="hidden" name="selectedHook" value={JSON.stringify(selectedHook)} />}
 
       <div className="space-y-6">

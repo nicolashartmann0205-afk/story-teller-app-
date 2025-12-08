@@ -49,7 +49,6 @@ export async function createStoryAction(
   const description = formData.get("description") as string;
   const category = formData.get("category") as string;
   const typeId = formData.get("typeId") as string;
-  const mode = formData.get("mode") as "quick" | "comprehensive";
   const selectedHookData = formData.get("selectedHook") as string;
 
   if (!title || typeof title !== "string" || title.trim().length === 0) {
@@ -106,7 +105,6 @@ export async function createStoryAction(
       description: generatedStory,
       storyType: storyTypeObject,
       hooks: hooksData,
-      mode: mode || "quick", // Default to quick if missing
     }).returning();
 
     redirect(`/stories/${newStory.id}`); // Redirect to the new story page

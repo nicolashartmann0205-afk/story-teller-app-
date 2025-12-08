@@ -15,6 +15,48 @@
       "when": 1764727365725,
       "tag": "0001_tricky_robbie_robertson",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764739253568,
+      "tag": "0002_sad_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764740578736,
+      "tag": "0003_nasty_shard",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764740957379,
+      "tag": "0004_numerous_skreet",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764764284923,
+      "tag": "0005_normal_goliath",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1764766859552,
+      "tag": "0006_lumpy_lady_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1764799864818,
+      "tag": "0007_yielding_vindicator",
+      "breakpoints": true
     }
   ]
 }

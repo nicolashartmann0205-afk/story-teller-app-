@@ -3,17 +3,37 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SignInForm from "./sign-in-form";
 
-async function signInAction(previousState: { error?: string } | null | void, formData: FormData) {
+async function signInAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
   "use server";
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const isMagicLink = formData.get("magicLink") === "true";
 
-  if (!email || !password) {
-    return { error: "Email and password are required" };
+  if (!email) {
+    return { error: "Email is required" };
   }
 
   const supabase = await createClient();
+
+  if (isMagicLink) {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { success: "Check your email for the magic link!" };
+  }
+
+  if (!password) {
+    return { error: "Password is required for password sign-in" };
+  }
 
   const { error } = await supabase.auth.signInWithPassword({
     email,

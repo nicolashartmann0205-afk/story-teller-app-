@@ -1,17 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
-import { type NextRequest } from "next/server";
+import { redirect } from "next/navigation";
 
-export async function GET(request: NextRequest) {
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/stories";
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return redirect(`${origin}${next}`);
+    }
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin + "/stories");
+  // Return the user to an error page with instructions
+  return redirect(`${origin}/auth/auth-code-error`);
 }
-
