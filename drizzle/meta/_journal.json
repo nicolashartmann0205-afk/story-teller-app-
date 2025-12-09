@@ -15,6 +15,13 @@
       "when": 1765261632688,
       "tag": "0001_bright_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765264110885,
+      "tag": "0002_gray_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

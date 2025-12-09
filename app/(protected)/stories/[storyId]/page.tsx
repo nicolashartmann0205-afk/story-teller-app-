@@ -86,6 +86,18 @@ export default async function StoryPage({
                 <span>✍️</span> Review & Export
               </Link>
               <Link
+                href={`/stories/${story.id}/structure`}
+                className="rounded-md border border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/20 px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 flex items-center gap-2"
+              >
+                <span>🏗️</span> Structure
+              </Link>
+              <Link
+                href={`/stories/${story.id}/scenes`}
+                className="rounded-md border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 flex items-center gap-2"
+              >
+                <span>🎬</span> Scenes
+              </Link>
+              <Link
                 href={`/stories/${story.id}/map`}
                 className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center gap-2"
               >

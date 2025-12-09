@@ -67,6 +67,22 @@ export const scenes = pgTable("scenes", {
   mapPositionY: numeric("map_position_y"),
   cardWidthPercent: numeric("card_width_percent").default("10.0"),
   visualStyle: jsonb("visual_style").default({}),
+
+  // New fields for Scene Development Tool
+  structureBeat: text("structure_beat"),
+  templateType: text("template_type"),
+  movieTimeAction: jsonb("movie_time_action").default({}),
+  movieTimeEmotion: jsonb("movie_time_emotion").default({}),
+  movieTimeMeaning: jsonb("movie_time_meaning").default({}),
+  sceneContent: text("scene_content"),
+  aiDraftVersions: jsonb("ai_draft_versions").default([]),
+  userNotes: text("user_notes"),
+  completenessStatus: text("completeness_status").default("empty"),
+  lastFeedback: jsonb("last_feedback"),
+  showTellScore: integer("show_tell_score"),
+  durationEstimate: text("duration_estimate"),
+  wordCount: integer("word_count").default(0),
+
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

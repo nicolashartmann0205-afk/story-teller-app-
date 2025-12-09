@@ -10,6 +10,7 @@ export function DraftEditor() {
     const editor = useEditor({
         extensions: [StarterKit],
         content: draftContent,
+        immediatelyRender: false,
         editorProps: {
             attributes: {
                 class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[500px] p-4',
