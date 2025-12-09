@@ -112,6 +112,50 @@ export async function saveSelectedHookAction(
   return { success: true };
 }
 
+export async function switchStoryModeAction(
+  storyId: string,
+  newMode: "quick" | "comprehensive"
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const [story] = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
+    .limit(1);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  // Track mode switch history
+  const history = (story.modeSwitchHistory as any[]) || [];
+  history.push({
+    from: story.mode,
+    to: newMode,
+    at: new Date().toISOString(),
+    reason: "user_action"
+  });
+
+  await db
+    .update(stories)
+    .set({ 
+      mode: newMode,
+      modeSwitchHistory: history
+    })
+    .where(eq(stories.id, storyId));
+
+  revalidatePath(`/stories/${storyId}`);
+  return { success: true };
+}
+
 
 
 

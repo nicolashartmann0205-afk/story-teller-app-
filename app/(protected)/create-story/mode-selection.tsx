@@ -26,6 +26,7 @@ export function ModeSelection({ onSelect, onHelp }: ModeSelectionProps) {
             "Perfect for drafts & outlines",
             "AI-assisted brainstorming"
           ]}
+          badge="75% completion rate"
           color="blue"
           onClick={() => onSelect("quick")}
         />
@@ -42,6 +43,7 @@ export function ModeSelection({ onSelect, onHelp }: ModeSelectionProps) {
             "Scene-by-scene breakdown",
             "Advanced AI analysis"
           ]}
+          badge="Best for depth"
           color="purple"
           onClick={() => onSelect("comprehensive")}
         />
@@ -65,6 +67,7 @@ interface ModeCardProps {
   timeEstimate: string;
   description: string;
   features: string[];
+  badge?: string;
   color: "blue" | "purple";
   onClick: () => void;
 }
@@ -75,6 +78,7 @@ function ModeCard({
   timeEstimate,
   description,
   features,
+  badge,
   color,
   onClick,
 }: ModeCardProps) {
@@ -91,6 +95,11 @@ function ModeCard({
       }`}
     >
       <div className="mb-6">
+        {badge && (
+          <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 border border-green-200 dark:border-green-800">
+            {badge}
+          </div>
+        )}
         <div className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 ${
           isBlue 
             ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" 
