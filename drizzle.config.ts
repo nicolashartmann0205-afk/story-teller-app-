@@ -2,7 +2,8 @@ import { defineConfig } from "drizzle-kit";
 import { config } from "dotenv";
 import { resolve } from "path";
 
-// Load environment variables from .env.local
+// Load environment variables from .env.local and .env
+config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
 
 // Read database URL directly for migrations (bypasses Supabase validation)
@@ -20,4 +21,3 @@ export default defineConfig({
     url: databaseUrl,
   },
 });
-

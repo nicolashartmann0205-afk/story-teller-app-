@@ -43,7 +43,7 @@ export default async function ProfilePage() {
   }
 
   // Fetch user profile from DB
-  const [userProfile] = await db.select().from(users).where(eq(users.id, user.id));
+  const [userProfile] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
 
   // If profile doesn't exist in public table yet (e.g. old user), create it or just use auth data
   // For now, we'll assume we can display what we have. 

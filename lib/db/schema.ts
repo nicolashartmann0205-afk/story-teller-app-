@@ -40,6 +40,14 @@ export const stories = pgTable("stories", {
   moralData: jsonb("moral_data").default({}),
   character: jsonb("character"), // Stores full archetype data: primary, secondary, journey, etc.
   structure: jsonb("structure"), // Stores guidance level, selected structure, beats, etc.
+  
+  // Review & Export
+  draftContent: jsonb("draft_content"), // The full story draft (TipTap JSON or similar)
+  exportCount: integer("export_count").default(0),
+  lastExportDate: timestamp("last_export_date", { withTimezone: true }),
+  lastExportFormat: text("last_export_format"),
+  exportHistory: jsonb("export_history").default([]), // Array of past export events
+
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

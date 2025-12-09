@@ -80,6 +80,12 @@ export default async function StoryPage({
             </h1>
             <div className="flex gap-2">
               <Link
+                href={`/stories/${story.id}/review`}
+                className="rounded-md border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 flex items-center gap-2"
+              >
+                <span>✍️</span> Review & Export
+              </Link>
+              <Link
                 href={`/stories/${story.id}/map`}
                 className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center gap-2"
               >

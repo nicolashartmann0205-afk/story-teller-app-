@@ -27,7 +27,11 @@ export async function generatePreviewHooksAction(
     return { hooks: generatedData.hooks };
   } catch (error) {
     console.error("Error generating preview hooks:", error);
-    return { error: "Failed to generate hooks" };
+    return { 
+        error: process.env.NODE_ENV === "development" 
+          ? `Dev Error: ${error instanceof Error ? error.message : String(error)}`
+          : "Failed to generate hooks" 
+    };
   }
 }
 
@@ -171,16 +175,37 @@ export async function createStoryAction(
 
     // Update user preference for default mode
     if (mode) {
-      // Fetch current preferences first to merge
-      const [currentUser] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-      const currentPrefs = (currentUser?.preferences as any) || {};
-      
-      await db.update(users).set({
-        preferences: {
-          ...currentPrefs,
-          defaultMode: mode
+      try {
+        // Fetch current preferences first to merge
+        const [currentUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user.id))
+          .limit(1);
+        
+        if (currentUser) {
+          const currentPrefs = (currentUser.preferences as any) || {};
+          
+          await db.update(users).set({
+            preferences: {
+              ...currentPrefs,
+              defaultMode: mode
+            }
+          }).where(eq(users.id, user.id));
+        } else if (user.email) {
+          // Create user record if missing and email is available
+          await db.insert(users).values({
+            id: user.id,
+            email: user.email,
+            preferences: { defaultMode: mode },
+            updatedAt: new Date(),
+            createdAt: new Date(),
+          });
         }
-      }).where(eq(users.id, user.id));
+      } catch (prefError) {
+        // Non-critical error, log and continue to redirect
+        console.warn("Failed to update user preferences:", prefError);
+      }
     }
 
     redirect(`/stories/${newStory.id}`); // Redirect to the new story page
@@ -190,6 +215,10 @@ export async function createStoryAction(
     }
 
     console.error("Error creating story:", error);
-    return { error: "Failed to create story" };
+    return { 
+      error: process.env.NODE_ENV === "development" 
+        ? `Dev Error: ${error instanceof Error ? error.message : String(error)}`
+        : "Failed to create story. Please try again."
+    };
   }
 }

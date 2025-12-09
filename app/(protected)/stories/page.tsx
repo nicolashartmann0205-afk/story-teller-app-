@@ -19,12 +19,25 @@ async function getStories() {
     }
 
     const userStories = await db
-      .select()
+      .select({
+        id: stories.id,
+        title: stories.title,
+        description: stories.description,
+        createdAt: stories.createdAt,
+      })
       .from(stories)
       .where(eq(stories.userId, user.id))
       .orderBy(desc(stories.createdAt));
+    
+    // Explicitly check for potential nulls or serialization issues in development
+    const sanitizedStories = userStories.map(s => ({
+        ...s,
+        title: s.title || "Untitled",
+        description: s.description || "",
+        createdAt: s.createdAt ? new Date(s.createdAt) : new Date()
+    }));
 
-    return { stories: userStories, error: null };
+    return { stories: sanitizedStories, error: null };
   } catch (error) {
     console.error("Error fetching stories from DB:", error);
     return { 
@@ -106,7 +119,11 @@ export default async function StoriesPage() {
   } catch (error) {
     // Final catch for any unexpected errors in getStories
     console.error("Unexpected error in getStories:", error);
-    storiesError = "Error loading stories. Could not connect to the API.";
+    // In dev, show the full error stack to help debugging
+    const errorMessage = error instanceof Error ? error.stack || error.message : String(error);
+    storiesError = process.env.NODE_ENV === "development" 
+      ? `Dev Error: ${errorMessage}`
+      : "Error loading stories. Could not connect to the API.";
     storiesList = [];
   }
 

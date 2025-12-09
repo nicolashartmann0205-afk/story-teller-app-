@@ -84,6 +84,15 @@ export async function getAIArchetypeSuggestion(context: StoryContext): Promise<A
 
   } catch (error) {
     console.error("Error getting archetype suggestion:", error);
-    throw new Error("Failed to get AI suggestion");
+    // Return a safe fallback instead of crashing
+    return {
+      primaryRecommendation: "hero", // Generic fallback
+      confidence: "low",
+      reasoning: "AI analysis unavailable at the moment. Falling back to default suggestion.",
+      alternativeOptions: [
+        { archetypeId: "explorer", reason: "Alternative option" },
+        { archetypeId: "creator", reason: "Alternative option" }
+      ]
+    };
   }
 }
