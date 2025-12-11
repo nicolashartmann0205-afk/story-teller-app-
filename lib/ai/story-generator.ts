@@ -88,6 +88,39 @@ export async function generateHooks(
   }
 }
 
+export async function refineHook(
+  hookText: string,
+  refinementType: string,
+  storyContext: { title: string; description: string }
+): Promise<string> {
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `You are a creative writing editor. Refine the following story hook.
+
+    Original Hook: "${hookText}"
+    
+    Story Context:
+    Title: ${storyContext.title}
+    Description: ${storyContext.description}
+    
+    Refinement Instruction: Make it more ${refinementType} (e.g., emotional, surprising, concise, punchy).
+    
+    Provide ONLY the refined hook text. No explanations or quotes.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+  } catch (error) {
+    console.error("Error refining hook with Gemini:", error);
+    throw new Error("Failed to refine hook.");
+  }
+}
+
 export async function analyzeStoryStructure(
   storyContext: { title: string; type?: string; mode?: string },
   scenes: any[],
