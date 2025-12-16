@@ -42,7 +42,7 @@ export const stories = pgTable("stories", {
   structure: jsonb("structure"), // Stores guidance level, selected structure, beats, etc.
   
   // Visuals
-  // illustrations: jsonb("illustrations").default([]), // Array of base64 images or URLs
+  illustrations: jsonb("illustrations").default([]), // Array of base64 images or URLs
   
   // Review & Export
   draftContent: jsonb("draft_content"), // The full story draft (TipTap JSON or similar)

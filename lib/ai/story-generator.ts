@@ -802,7 +802,7 @@ export async function generateIllustration(
     // Since we are limited to the text SDK here, we will generate a high-quality SVG illustration
     // which acts as a vector image. This is a robust way to get visuals from a text-only LLM.
     
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-001" }); // Using a capable model for code/SVG
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" }); // Using a capable model for code/SVG
 
     const svgPrompt = `You are an expert AI artist and vector graphics designer.
     Create a detailed, artistic SVG illustration for the following scene description:
@@ -842,6 +842,6 @@ export async function generateIllustration(
     
   } catch (error) {
     console.error("Error generating illustration with Gemini:", error);
-    throw new Error("Failed to generate illustration.");
+    throw new Error(`Failed to generate illustration: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
