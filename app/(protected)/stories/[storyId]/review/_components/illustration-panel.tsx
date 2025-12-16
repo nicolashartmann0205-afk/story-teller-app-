@@ -24,17 +24,26 @@ export function IllustrationPanel({
   const [style, setStyle] = useState("cinematic");
   const [error, setError] = useState<string | null>(null);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (useFallback: boolean = false) => {
     setIsGenerating(true);
     setError(null);
     try {
       const promptToUse = customPrompt || `A cover illustration for a story titled "${storyTitle}". Context: ${storyDescription}`;
-      const newIllustration = await generateIllustrationAction(storyId, promptToUse, style);
+      const newIllustration = await generateIllustrationAction(storyId, promptToUse, style, useFallback);
       setIllustrations([newIllustration, ...illustrations]);
       setCustomPrompt(""); // Clear prompt on success
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Failed to generate illustration. Please try again.");
+      let errorMessage = "Failed to generate illustration. Please try again.";
+      const errorString = err instanceof Error ? err.message : String(err);
+      
+      if (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests")) {
+        errorMessage = "AI usage limit reached. Please wait a moment and try again.";
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -95,11 +104,19 @@ export function IllustrationPanel({
         {error && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-md">
                 {error}
+                {(error.includes("limit") || error.includes("quota") || error.includes("busy")) && (
+                    <button
+                        onClick={() => handleGenerate(true)}
+                        className="mt-2 text-xs font-semibold underline hover:no-underline block"
+                    >
+                        Use Placeholder Image
+                    </button>
+                )}
             </div>
         )}
 
         <button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate(false)}
             disabled={isGenerating}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-md hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 transition-all font-medium"
         >

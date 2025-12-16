@@ -13,17 +13,26 @@ export function ReviewDashboard() {
     const [generationError, setGenerationError] = useState<string | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState(story.language || "en");
 
-    const handleGenerate = async () => {
+    const handleGenerate = async (useFallback: boolean = false) => {
         if (draftContent && !confirm("This will overwrite your existing draft. Are you sure?")) {
             return;
         }
         
         setGenerationError(null);
         try {
-            await generateDraft({ tone: "Engaging", language: selectedLanguage });
+            await generateDraft({ tone: "Engaging", language: selectedLanguage, useFallback });
         } catch (error) {
             console.error("Draft generation failed:", error);
-            setGenerationError("Failed to generate draft. Please try again.");
+            let errorMessage = "Failed to generate draft. Please try again.";
+            const errorString = error instanceof Error ? error.message : String(error);
+            
+            if (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests")) {
+                errorMessage = "AI usage limit reached. Please wait a moment and try again.";
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            
+            setGenerationError(errorMessage);
         }
     };
 
@@ -70,6 +79,14 @@ export function ReviewDashboard() {
                         {generationError && (
                             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-md border border-red-100 dark:border-red-800">
                                 {generationError}
+                                {(generationError.includes("limit") || generationError.includes("quota") || generationError.includes("busy")) && (
+                                    <button
+                                        onClick={() => handleGenerate(true)}
+                                        className="mt-2 text-xs font-semibold underline hover:no-underline block"
+                                    >
+                                        Generate Offline Draft Instead
+                                    </button>
+                                )}
                             </div>
                         )}
 
@@ -90,7 +107,7 @@ export function ReviewDashboard() {
                         </div>
 
                         <button
-                            onClick={handleGenerate}
+                            onClick={() => handleGenerate(false)}
                             disabled={isGenerating}
                             className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2"
                         >

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { generateFullStoryDraft, improveText, generateIllustration } from "@/lib/ai/story-generator";
+import { generateFullStoryDraft, improveText, generateIllustration, generateFallbackFullDraft, generateFallbackIllustration } from "@/lib/ai/story-generator";
 
 export async function getReviewData(storyId: string) {
   const supabase = await createClient();
@@ -28,14 +28,19 @@ export async function getReviewData(storyId: string) {
   return { story, scenes: storyScenes };
 }
 
-export async function generateIllustrationAction(storyId: string, prompt: string, style: string) {
+export async function generateIllustrationAction(storyId: string, prompt: string, style: string, useFallback: boolean = false) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) throw new Error("Unauthorized");
     
+    // Fetch story title for fallback if needed
+    const [storyData] = await db.select({ title: stories.title }).from(stories).where(eq(stories.id, storyId));
+    
     // Generate image
-    const imageUrl = await generateIllustration(prompt, style);
+    const imageUrl = useFallback 
+        ? generateFallbackIllustration(storyData?.title || "Story Illustration", style)
+        : await generateIllustration(prompt, style);
     
     // Fetch current story to update illustrations array
     const [story] = await db
@@ -126,7 +131,7 @@ export async function generateDraftAction(storyId: string, options: any) {
 
     const { story, scenes } = await getReviewData(storyId);
     
-    const draft = await generateFullStoryDraft({
+    const storyData = {
         title: story.title,
         description: story.description || "",
         hooks: story.hooks,
@@ -134,7 +139,11 @@ export async function generateDraftAction(storyId: string, options: any) {
         structure: story.structure,
         scenes: scenes,
         moralData: story.moralData
-    }, options);
+    };
+
+    const draft = options.useFallback
+        ? generateFallbackFullDraft(storyData)
+        : await generateFullStoryDraft(storyData, options);
     
     return draft;
 }

@@ -231,7 +231,7 @@ export async function suggestArchetype(
 }
 
 // Fallback generator for full draft
-function generateFallbackFullDraft(storyData: any): string {
+export function generateFallbackFullDraft(storyData: any): string {
   let draft = `<h1>${storyData.title}</h1>`;
   
   if (storyData.description) {
@@ -819,7 +819,12 @@ export async function generateIllustration(
     - Minimize text/labels inside the image; focus on visual composition.
     `;
 
-    const result = await model.generateContent(svgPrompt);
+    const result = await retryWithBackoff(async () => {
+      console.log("Calling Gemini for illustration...");
+      const genResult = await model.generateContent(svgPrompt);
+      return genResult;
+    });
+
     const response = await result.response;
     let text = response.text().trim();
     
@@ -844,4 +849,43 @@ export async function generateIllustration(
     console.error("Error generating illustration with Gemini:", error);
     throw new Error(`Failed to generate illustration: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+export function generateFallbackIllustration(title: string, style: string): string {
+  // Generate a simple SVG placeholder
+  const width = 512;
+  const height = 512;
+  const colors = {
+    cinematic: ["#1a1a2e", "#16213e"],
+    watercolor: ["#fff5e6", "#ffe0b2"],
+    cyberpunk: ["#0f0c29", "#302b63"],
+    minimalist: ["#ffffff", "#f0f0f0"],
+    sketch: ["#fdfbf7", "#e6e6e6"],
+    fantasy: ["#2c3e50", "#34495e"]
+  };
+  
+  const bgColors = colors[style as keyof typeof colors] || colors.cinematic;
+  const textColor = style === 'watercolor' || style === 'minimalist' || style === 'sketch' ? '#333' : '#fff';
+  
+  const svg = `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${bgColors[0]};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${bgColors[1]};stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grad)" />
+      <rect width="100%" height="100%" fill="none" stroke="${textColor}" stroke-width="2" stroke-opacity="0.2" />
+      <text x="50%" y="45%" font-family="Arial, sans-serif" font-size="24" fill="${textColor}" text-anchor="middle" font-weight="bold">
+        ${title}
+      </text>
+      <text x="50%" y="55%" font-family="Arial, sans-serif" font-size="16" fill="${textColor}" fill-opacity="0.7" text-anchor="middle">
+        (${style} style placeholder)
+      </text>
+    </svg>
+  `;
+  
+  const base64 = Buffer.from(svg).toString('base64');
+  return `data:image/svg+xml;base64,${base64}`;
 }
