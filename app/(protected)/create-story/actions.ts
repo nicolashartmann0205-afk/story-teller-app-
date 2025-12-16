@@ -54,6 +54,7 @@ export async function createStoryAction(
   const description = formData.get("description") as string;
   const category = formData.get("category") as string;
   const typeId = formData.get("typeId") as string;
+  const language = formData.get("language") as string || "en";
   const selectedHookData = formData.get("selectedHook") as string;
   const mode = formData.get("mode") as "quick" | "comprehensive";
   const moralDataString = formData.get("moralData") as string;
@@ -157,20 +158,30 @@ export async function createStoryAction(
       }
     }
 
-    const generatedStory = await generateStory(title, promptContext);
+    const generatedStory = await generateStory(title, promptContext, language);
 
     const [newStory] = await db.insert(stories).values({
+      id: crypto.randomUUID(),
       userId: user.id,
       title: title.trim(),
       description: generatedStory,
+      language: language,
+      stylePreferences: {
+        tone: formData.get("tone") as string,
+        style: formData.get("style") as string,
+        perspective: formData.get("perspective") as string,
+        backgroundInfo: formData.get("backgroundInfo") as string,
+        customInstructions: formData.get("customInstructions") as string,
+      },
       storyType: storyTypeObject,
       hooks: hooksData,
       mode: mode || "quick",
       moralData: moralData || {},
       moralConflictPrimary: moralData?.primary,
+      moralConflictSecondary: moralData?.secondary,
       moralComplexity: moralData?.complexity,
       character: archetypeData,
-      structure: structureData,
+      structure: structureData || {},
     }).returning();
 
     // Update user preference for default mode

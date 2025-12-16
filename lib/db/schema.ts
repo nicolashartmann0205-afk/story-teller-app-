@@ -43,6 +43,8 @@ export const stories = pgTable("stories", {
   
   // Review & Export
   draftContent: jsonb("draft_content"), // The full story draft (TipTap JSON or similar)
+  language: text("language").default("en"), // 'en', 'de', 'th'
+  stylePreferences: jsonb("style_preferences").default({}), // { tone, style, perspective, customInstructions }
   exportCount: integer("export_count").default(0),
   lastExportDate: timestamp("last_export_date", { withTimezone: true }),
   lastExportFormat: text("last_export_format"),

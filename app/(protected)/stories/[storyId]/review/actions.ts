@@ -77,6 +77,13 @@ export async function generateDraftAction(storyId: string, options: any) {
 
     if (!user) throw new Error("Unauthorized");
 
+    // Update language if provided
+    if (options.language) {
+        await db.update(stories)
+            .set({ language: options.language })
+            .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+    }
+
     const { story, scenes } = await getReviewData(storyId);
     
     const draft = await generateFullStoryDraft({

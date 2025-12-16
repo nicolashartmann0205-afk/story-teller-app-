@@ -8,20 +8,29 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
-export async function generateStory(title: string, description: string): Promise<string> {
+export async function generateStory(title: string, description: string, language: string = "en"): Promise<string> {
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+    const langMap: Record<string, string> = {
+        'de': 'German',
+        'th': 'Thai',
+        'en': 'English'
+    };
+    const targetLang = langMap[language] || 'English';
 
     const prompt = `You are a creative story teller. Write a compelling short story based on the following:
     
     Title: ${title}
     Context/Description: ${description}
 
-    The story should be engaging, creative, and suitable for a general audience. Please format the output as plain text with paragraphs.`;
+    The story should be engaging, creative, and suitable for a general audience. 
+    IMPORTANT: Write the story in ${targetLang}.
+    Please format the output as plain text with paragraphs.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -39,25 +48,34 @@ export async function generateStory(title: string, description: string): Promise
 export async function generateHooks(
   title: string,
   description: string,
-  selectedTypes: string[]
+  selectedTypes: string[],
+  language: string = "en"
 ): Promise<any> {
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
+
+    const langMap: Record<string, string> = {
+        'de': 'German',
+        'th': 'Thai',
+        'en': 'English'
+    };
+    const targetLang = langMap[language] || 'English';
 
     const prompt = `You are a creative writing expert specializing in "hooks" - opening lines that immediately capture attention.
     
     Story Title: ${title}
     Story Context: ${description}
+    Language: ${targetLang}
     
     Please generate 3 distinct hook options for EACH of the following hook types: ${selectedTypes.join(", ")}.
     
     For each hook, provide:
-    1. The hook text itself.
-    2. A "Why this works" explanation (educational, short).
+    1. The hook text itself (in ${targetLang}).
+    2. A "Why this works" explanation (in ${targetLang}, educational, short).
     3. A "Tone" (e.g., Provocative, Emotional, etc.).
     
     Return the response as a strictly valid JSON object with the following structure:
@@ -99,7 +117,7 @@ export async function refineHook(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     const prompt = `You are a creative writing editor. Refine the following story hook.
 
@@ -132,7 +150,7 @@ export async function analyzeStoryStructure(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story structure expert. Analyze the following story map.
 
@@ -175,7 +193,7 @@ export async function suggestArchetype(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story consultant specializing in character development and Jungian archetypes.
     
@@ -289,6 +307,7 @@ export async function generateFullStoryDraft(
   options: {
     tone?: string;
     style?: string;
+    language?: string;
   } = {}
 ): Promise<string> {
   if (!apiKey) {
@@ -296,10 +315,19 @@ export async function generateFullStoryDraft(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     // Construct a comprehensive prompt
     let prompt = `You are a professional novelist. Write a full draft of a short story based on the following detailed outline.\n\n`;
+    
+    const langMap: Record<string, string> = {
+        'de': 'German',
+        'th': 'Thai',
+        'en': 'English'
+    };
+    const targetLang = langMap[options.language || 'en'] || 'English';
+    
+    prompt += `LANGUAGE: ${targetLang}\n`;
     
     prompt += `TITLE: ${storyData.title}\n`;
     
@@ -348,7 +376,8 @@ export async function generateFullStoryDraft(
     prompt += `2. Incorporate the character's journey and the moral conflict naturally.\n`;
     prompt += `3. Follow the scene outline to ensure pacing matches the structure.\n`;
     prompt += `4. Use vivid imagery and "show, don't tell" techniques.\n`;
-    prompt += `5. CRITICAL: Output the story in semantic HTML format (e.g., <h1>Title</h1>, <h2>Chapter X</h2>, <p>Paragraph...</p>). Do not use Markdown.\n`;
+    prompt += `5. CRITICAL: Write the story in ${targetLang}.\n`;
+    prompt += `6. CRITICAL: Output the story in semantic HTML format (e.g., <h1>Title</h1>, <h2>Chapter X</h2>, <p>Paragraph...</p>). Do not use Markdown.\n`;
 
     const result = await retryWithBackoff(async () => {
       console.log("Calling Gemini for full story draft...");
@@ -382,7 +411,7 @@ export async function improveText(text: string, type: "rewrite" | "expand" | "sh
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     let prompt = "";
     switch(type) {
@@ -409,7 +438,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
   
       const prompt = `You are a creative writing assistant helping to develop a scene for a story.
   
@@ -459,7 +488,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `You are a writing coach analyzing a scene for "show don't tell" effectiveness.
   
@@ -502,7 +531,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `Given this scene location and action:
   
@@ -541,7 +570,7 @@ export async function recommendStructure(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
 
     const structuresList = availableStructures.map(s => `${s.name}: ${s.description} - Best for: ${s.bestFor?.join(', ') || ''}`).join('\n');
 
@@ -643,7 +672,7 @@ export async function generateBeatDraft(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     const prompt = `You are a storytelling expert helping someone write a beat in their story.
 
@@ -720,7 +749,7 @@ export async function generateStructureOutline(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `Generate a story outline using the ${structure.name} structure.
 

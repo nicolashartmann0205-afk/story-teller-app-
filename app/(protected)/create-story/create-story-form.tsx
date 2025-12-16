@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { StoryCategory, StoryType } from "@/lib/data/storyTypes";
 import { hookTypes, HookTypeID } from "@/lib/data/hookTypes";
+import { tones, writingStyles, perspectives } from "@/lib/data/styleOptions";
 import { generatePreviewHooksAction } from "./actions";
 import { StoryMode } from "./mode-selection";
 
@@ -37,6 +38,7 @@ export default function CreateStoryForm({
   // Hook Generation State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [language, setLanguage] = useState("en");
   const [showHookGenerator, setShowHookGenerator] = useState(true);
   const [selectedHookTypes, setSelectedHookTypes] = useState<HookTypeID[]>([]);
   const [generatedHooks, setGeneratedHooks] = useState<Record<string, any[]>>({});
@@ -62,7 +64,7 @@ export default function CreateStoryForm({
     }
 
     startHookGeneration(async () => {
-      const result = await generatePreviewHooksAction(title, description, selectedHookTypes);
+      const result = await generatePreviewHooksAction(title, description, selectedHookTypes, language);
       if (result.hooks) {
         setGeneratedHooks(result.hooks);
       } else if (result.error) {
@@ -141,6 +143,7 @@ export default function CreateStoryForm({
       <input type="hidden" name="category" value={selectedCategory} />
       <input type="hidden" name="typeId" value={selectedType.id} />
       <input type="hidden" name="mode" value={selectedMode} />
+      <input type="hidden" name="language" value={language} />
       {moralData && <input type="hidden" name="moralData" value={JSON.stringify(moralData)} />}
       {archetypeData && <input type="hidden" name="archetypeData" value={JSON.stringify(archetypeData)} />}
       {selectedHook && <input type="hidden" name="selectedHook" value={JSON.stringify(selectedHook)} />}
@@ -166,6 +169,21 @@ export default function CreateStoryForm({
         </div>
 
         <div>
+           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+             Language
+           </label>
+           <select
+             value={language}
+             onChange={(e) => setLanguage(e.target.value)}
+             className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
+           >
+             <option value="en">English</option>
+             <option value="de">German (Deutsch)</option>
+             <option value="th">Thai (ไทย)</option>
+           </select>
+        </div>
+
+        <div>
           <label
             htmlFor="description"
             className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
@@ -181,6 +199,90 @@ export default function CreateStoryForm({
             className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
             placeholder="What is your story about?"
           />
+        </div>
+
+        {/* Style & Context Section */}
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Style & Context (Optional)</h3>
+          </div>
+          <div className="p-4 space-y-4">
+            <div>
+              <label htmlFor="backgroundInfo" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Background Info / World Building
+              </label>
+              <textarea
+                id="backgroundInfo"
+                name="backgroundInfo"
+                rows={3}
+                className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                placeholder="Details about the setting, time period, or important backstory..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="tone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                  Tone
+                </label>
+                <select
+                  id="tone"
+                  name="tone"
+                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                >
+                  <option value="">Select a tone...</option>
+                  {tones.map((t) => (
+                    <option key={t.id} value={t.id}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="style" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                  Writing Style
+                </label>
+                <select
+                  id="style"
+                  name="style"
+                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                >
+                  <option value="">Select a style...</option>
+                  {writingStyles.map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="perspective" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                  Perspective
+                </label>
+                <select
+                  id="perspective"
+                  name="perspective"
+                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                >
+                  <option value="">Select perspective...</option>
+                  {perspectives.map((p) => (
+                    <option key={p.id} value={p.id}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="customInstructions" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Custom AI Instructions
+              </label>
+              <textarea
+                id="customInstructions"
+                name="customInstructions"
+                rows={2}
+                className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                placeholder="Any specific rules for the AI? (e.g., 'Avoid flowery language', 'Focus on dialogue')"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Hook Generator Toggle */}

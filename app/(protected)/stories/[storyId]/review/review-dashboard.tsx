@@ -10,6 +10,7 @@ export function ReviewDashboard() {
     const { story, generateDraft, isGenerating, draftContent } = useReview();
     const [showExport, setShowExport] = useState(false);
     const [generationError, setGenerationError] = useState<string | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState(story.language || "en");
 
     const handleGenerate = async () => {
         if (draftContent && !confirm("This will overwrite your existing draft. Are you sure?")) {
@@ -18,7 +19,7 @@ export function ReviewDashboard() {
         
         setGenerationError(null);
         try {
-            await generateDraft({ tone: "Engaging" });
+            await generateDraft({ tone: "Engaging", language: selectedLanguage });
         } catch (error) {
             console.error("Draft generation failed:", error);
             setGenerationError("Failed to generate draft. Please try again.");
@@ -63,6 +64,22 @@ export function ReviewDashboard() {
                                 {generationError}
                             </div>
                         )}
+
+                        <div className="mb-4">
+                            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">
+                                Story Language
+                            </label>
+                            <select
+                                value={selectedLanguage}
+                                onChange={(e) => setSelectedLanguage(e.target.value)}
+                                disabled={isGenerating}
+                                className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                            >
+                                <option value="en">English</option>
+                                <option value="de">German (Deutsch)</option>
+                                <option value="th">Thai (ไทย)</option>
+                            </select>
+                        </div>
 
                         <button
                             onClick={handleGenerate}
