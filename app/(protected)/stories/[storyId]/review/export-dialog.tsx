@@ -4,7 +4,7 @@ import { useReview } from './review-context';
 
 export function ExportDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const { exportStory } = useReview();
-    const [format, setFormat] = useState<"pdf" | "docx" | "md" | "txt">("pdf");
+    const [format, setFormat] = useState<"pdf" | "docx" | "md" | "txt" | "wiki">("pdf");
     const [isExporting, setIsExporting] = useState(false);
 
     if (!open) return null;
@@ -28,7 +28,7 @@ export function ExportDialog({ open, onOpenChange }: { open: boolean, onOpenChan
                 <div className="space-y-4 mb-6">
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">Select a format to export your story draft.</p>
                     <div className="grid grid-cols-2 gap-4">
-                        {(["pdf", "docx", "md", "txt"] as const).map(f => (
+                        {(["pdf", "docx", "md", "txt", "wiki"] as const).map(f => (
                             <button
                                 key={f}
                                 onClick={() => setFormat(f)}

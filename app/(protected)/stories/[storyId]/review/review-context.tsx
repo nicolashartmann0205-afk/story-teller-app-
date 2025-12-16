@@ -13,7 +13,7 @@ interface ReviewContextType {
   isGenerating: boolean;
   generateDraft: (options: any) => Promise<void>;
   saveDraft: () => Promise<void>;
-  exportStory: (format: "pdf" | "docx" | "md" | "txt") => Promise<void>;
+  exportStory: (format: "pdf" | "docx" | "md" | "txt" | "wiki") => Promise<void>;
   improveText: (text: string, type: any) => Promise<string>;
 }
 
@@ -62,17 +62,20 @@ export function ReviewProvider({
         return await improveTextAction(text, type);
     };
 
-    const exportStoryHandler = async (format: "pdf" | "docx" | "md" | "txt") => {
+    const exportStoryHandler = async (format: "pdf" | "docx" | "md" | "txt" | "wiki") => {
          // Prepare content: if HTML, strip tags for simple formats, or handle accordingly.
          let contentToExport = draftContent;
-         if (draftContent.trim().startsWith("<")) {
+         if (draftContent.trim().startsWith("<") && format !== 'wiki') { // Keep structure for wiki? Or strip? Wiki generator handles plain text logic mostly.
             const tmp = document.createElement("DIV");
             tmp.innerHTML = draftContent;
             contentToExport = tmp.textContent || tmp.innerText || "";
          }
 
-         await exportFile(story.title, contentToExport, format);
-         await recordExport(storyId, format);
+         // Pass full story data for wiki generation
+         await exportFile(story.title, contentToExport, format, { ...story, scenes });
+         if (format !== 'wiki') { // Don't track wiki export yet? Or track as txt?
+             await recordExport(storyId, format);
+         }
     };
 
     return (
