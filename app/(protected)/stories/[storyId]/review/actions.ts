@@ -34,6 +34,10 @@ export async function generateIllustrationAction(storyId: string, prompt: string
 
     if (!user) throw new Error("Unauthorized");
     
+    throw new Error("Illustrations are temporarily disabled due to database migration.");
+    
+    // Feature disabled
+    /*
     // Generate image
     const imageUrl = await generateIllustration(prompt, style);
     
@@ -66,6 +70,7 @@ export async function generateIllustrationAction(storyId: string, prompt: string
         .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
         
     return newIllustration;
+    */
 }
 
 export async function saveStoryDraft(storyId: string, content: any) {

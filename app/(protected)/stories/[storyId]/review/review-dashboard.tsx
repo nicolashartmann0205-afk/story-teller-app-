@@ -56,7 +56,7 @@ export function ReviewDashboard() {
 
                     <IllustrationPanel 
                         storyId={story.id} 
-                        initialIllustrations={story.illustrations || []}
+                        initialIllustrations={[]} // Illustrations temporarily disabled
                         storyTitle={story.title}
                         storyDescription={story.description || ""}
                     />

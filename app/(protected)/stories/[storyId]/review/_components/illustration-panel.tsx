@@ -34,7 +34,7 @@ export function IllustrationPanel({
       setCustomPrompt(""); // Clear prompt on success
     } catch (err) {
       console.error(err);
-      setError("Failed to generate illustration. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to generate illustration. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -151,4 +151,5 @@ export function IllustrationPanel({
     </div>
   );
 }
+
 
