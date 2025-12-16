@@ -41,6 +41,9 @@ export const stories = pgTable("stories", {
   character: jsonb("character"), // Stores full archetype data: primary, secondary, journey, etc.
   structure: jsonb("structure"), // Stores guidance level, selected structure, beats, etc.
   
+  // Visuals
+  illustrations: jsonb("illustrations").default([]), // Array of base64 images or URLs
+  
   // Review & Export
   draftContent: jsonb("draft_content"), // The full story draft (TipTap JSON or similar)
   language: text("language").default("en"), // 'en', 'de', 'th'

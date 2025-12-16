@@ -785,3 +785,63 @@ export async function generateStructureOutline(
     throw new Error("Failed to generate structure outline.");
   }
 }
+
+export async function generateIllustration(
+  prompt: string,
+  style: string = "cinematic"
+): Promise<string> {
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  try {
+    // Attempt to use a model that might support image generation or fallback to text-to-SVG
+    // Note: Standard Gemini API via google-generative-ai is primarily text/multimodal-in.
+    // If the user has access to Imagen via Gemini API (e.g. "nanobanana" or "imagen-3"), 
+    // we would use a specific call. 
+    // Since we are limited to the text SDK here, we will generate a high-quality SVG illustration
+    // which acts as a vector image. This is a robust way to get visuals from a text-only LLM.
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-001" }); // Using a capable model for code/SVG
+
+    const svgPrompt = `You are an expert AI artist and vector graphics designer.
+    Create a detailed, artistic SVG illustration for the following scene description:
+    
+    "${prompt}"
+    
+    Style: ${style}
+    
+    Requirements:
+    - Output ONLY valid SVG code.
+    - Use a standard viewBox="0 0 512 512".
+    - Use complex shapes, gradients, and paths to create a visually impressive image.
+    - Do not include markdown code blocks (e.g., \`\`\`xml). Just the raw <svg>...</svg> string.
+    - Minimize text/labels inside the image; focus on visual composition.
+    `;
+
+    const result = await model.generateContent(svgPrompt);
+    const response = await result.response;
+    let text = response.text().trim();
+    
+    // Cleanup markdown if present
+    text = text.replace(/^```xml/i, "").replace(/^```svg/i, "").replace(/^```/, "").replace(/```$/, "").trim();
+    
+    if (!text.startsWith("<svg")) {
+      // If it failed to produce SVG, fallback or try to extract it
+      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/);
+      if (svgMatch) {
+        text = svgMatch[0];
+      } else {
+        throw new Error("Failed to generate valid SVG");
+      }
+    }
+    
+    // Convert to Base64 for storage/display consistency with potential raster images
+    const base64 = Buffer.from(text).toString('base64');
+    return `data:image/svg+xml;base64,${base64}`;
+    
+  } catch (error) {
+    console.error("Error generating illustration with Gemini:", error);
+    throw new Error("Failed to generate illustration.");
+  }
+}

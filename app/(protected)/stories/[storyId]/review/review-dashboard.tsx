@@ -4,6 +4,7 @@ import { useReview } from "./review-context";
 import { CompletenessChecker } from "./completeness-checker";
 import { DraftEditor } from "./draft-editor";
 import { ExportDialog } from "./export-dialog";
+import { IllustrationPanel } from "./_components/illustration-panel";
 import Link from "next/link";
 
 export function ReviewDashboard() {
@@ -52,6 +53,13 @@ export function ReviewDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1 space-y-6">
                     <CompletenessChecker />
+
+                    <IllustrationPanel 
+                        storyId={story.id} 
+                        initialIllustrations={story.illustrations || []}
+                        storyTitle={story.title}
+                        storyDescription={story.description || ""}
+                    />
                     
                     <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
                         <h3 className="font-semibold mb-4 text-zinc-900 dark:text-zinc-100">AI Draft Generation</h3>

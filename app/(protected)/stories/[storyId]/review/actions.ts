@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { generateFullStoryDraft, improveText } from "@/lib/ai/story-generator";
+import { generateFullStoryDraft, improveText, generateIllustration } from "@/lib/ai/story-generator";
 
 export async function getReviewData(storyId: string) {
   const supabase = await createClient();
@@ -26,6 +26,46 @@ export async function getReviewData(storyId: string) {
     .orderBy(scenes.order);
 
   return { story, scenes: storyScenes };
+}
+
+export async function generateIllustrationAction(storyId: string, prompt: string, style: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("Unauthorized");
+    
+    // Generate image
+    const imageUrl = await generateIllustration(prompt, style);
+    
+    // Fetch current story to update illustrations array
+    const [story] = await db
+        .select()
+        .from(stories)
+        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+        
+    if (!story) throw new Error("Story not found");
+    
+    // Add to existing illustrations
+    const currentIllustrations = (story.illustrations as any[]) || [];
+    const newIllustration = {
+        id: crypto.randomUUID(),
+        url: imageUrl, // base64 data url
+        prompt,
+        style,
+        createdAt: new Date().toISOString()
+    };
+    
+    const updatedIllustrations = [newIllustration, ...currentIllustrations];
+    
+    await db
+        .update(stories)
+        .set({ 
+            illustrations: updatedIllustrations,
+            updatedAt: new Date()
+        })
+        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+        
+    return newIllustration;
 }
 
 export async function saveStoryDraft(storyId: string, content: any) {
