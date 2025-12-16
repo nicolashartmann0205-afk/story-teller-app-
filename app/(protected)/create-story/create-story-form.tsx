@@ -88,7 +88,7 @@ export default function CreateStoryForm({
 
   return (
     <form action={formAction} className="space-y-8">
-      {state?.error && (
+      {state?.error && typeof state.error === 'string' && (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>
         </div>

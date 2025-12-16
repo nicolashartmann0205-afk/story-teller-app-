@@ -182,6 +182,7 @@ export async function createStoryAction(
       moralComplexity: moralData?.complexity,
       character: archetypeData,
       structure: structureData || {},
+      // illustrations field removed temporarily due to db migration issue
     }).returning();
 
     // Update user preference for default mode
@@ -226,9 +227,10 @@ export async function createStoryAction(
     }
 
     console.error("Error creating story:", error);
+    // Ensure we return a string error message, never an object
     return { 
       error: process.env.NODE_ENV === "development" 
-        ? `Dev Error: ${error instanceof Error ? error.message : String(error)}`
+        ? `Dev Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`
         : "Failed to create story. Please try again."
     };
   }
