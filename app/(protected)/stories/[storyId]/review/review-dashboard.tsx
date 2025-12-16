@@ -9,12 +9,20 @@ import Link from "next/link";
 export function ReviewDashboard() {
     const { story, generateDraft, isGenerating, draftContent } = useReview();
     const [showExport, setShowExport] = useState(false);
+    const [generationError, setGenerationError] = useState<string | null>(null);
 
     const handleGenerate = async () => {
         if (draftContent && !confirm("This will overwrite your existing draft. Are you sure?")) {
             return;
         }
-        await generateDraft({ tone: "Engaging" });
+        
+        setGenerationError(null);
+        try {
+            await generateDraft({ tone: "Engaging" });
+        } catch (error) {
+            console.error("Draft generation failed:", error);
+            setGenerationError("Failed to generate draft. Please try again.");
+        }
     };
 
     return (
@@ -49,12 +57,26 @@ export function ReviewDashboard() {
                         <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
                             Turn your outline, characters, and scenes into a full prose draft.
                         </p>
+                        
+                        {generationError && (
+                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-md border border-red-100 dark:border-red-800">
+                                {generationError}
+                            </div>
+                        )}
+
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating}
                             className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            {isGenerating ? "Generating..." : (draftContent && draftContent.length > 50 ? "Regenerate Draft" : "Generate Draft")}
+                            {isGenerating ? (
+                                <>
+                                    <span className="animate-spin">⏳</span> 
+                                    <span>Generating... (this may take a minute)</span>
+                                </>
+                            ) : (
+                                draftContent && draftContent.length > 50 ? "Regenerate Draft" : "Generate Draft"
+                            )}
                         </button>
                     </div>
                 </div>

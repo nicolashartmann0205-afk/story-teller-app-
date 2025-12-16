@@ -30,7 +30,7 @@ export default async function Home() {
   // Redirect authenticated users to stories page
   // This must be outside try-catch so redirect() can work properly
   if (user && !authError) {
-    redirect("/stories");
+    redirect("/dashboard");
   }
 
   return (

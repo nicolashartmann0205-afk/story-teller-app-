@@ -14,7 +14,7 @@ export async function generateStory(title: string, description: string): Promise
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a creative story teller. Write a compelling short story based on the following:
     
@@ -31,7 +31,8 @@ export async function generateStory(title: string, description: string): Promise
   } catch (error) {
     console.error("Error generating story with Gemini:", error);
     // Fallback content so the app doesn't crash/fail for the user
-    return `[AI Generation Unavailable]\n\nTitle: ${title}\n\n${description}\n\n(Note: The AI service is currently experiencing high traffic. This is a placeholder draft based on your input. You can edit this story manually.)`;
+    console.warn("Returning original description as fallback.");
+    return description;
   }
 }
 
@@ -45,7 +46,7 @@ export async function generateHooks(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a creative writing expert specializing in "hooks" - opening lines that immediately capture attention.
     
@@ -98,7 +99,7 @@ export async function refineHook(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a creative writing editor. Refine the following story hook.
 
@@ -131,7 +132,7 @@ export async function analyzeStoryStructure(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story structure expert. Analyze the following story map.
 
@@ -174,7 +175,7 @@ export async function suggestArchetype(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story consultant specializing in character development and Jungian archetypes.
     
@@ -211,6 +212,70 @@ export async function suggestArchetype(
   }
 }
 
+// Fallback generator for full draft
+function generateFallbackFullDraft(storyData: any): string {
+  let draft = `<h1>${storyData.title}</h1>`;
+  
+  if (storyData.description) {
+    // Clean up if description contains previous error messages or metadata appended by creation process
+    const cleanDescription = storyData.description
+        .replace(/\[AI Generation Unavailable\]\s*/g, '')
+        .replace(/^Title: .*?(\n\n|\n)/, '')
+        .replace(/\(Note: The AI service is currently experiencing high traffic[\s\S]*\)/, '')
+        .replace(/\n\n(Story Type|Primary Archetype|Moral Conflict|IMPORTANT|Context):[\s\S]*/, '')
+        .trim();
+        
+    draft += `<p><em>${cleanDescription}</em></p><hr />`;
+  }
+  
+  draft += `<div style="padding: 1rem; background-color: #f3f4f6; border-radius: 0.5rem; margin-bottom: 2rem;">`;
+  draft += `<strong>⚠️ AI Service Unavailable - Offline Template</strong><br/>`;
+  draft += `Note: The AI service is currently experiencing high traffic. This template includes your story structure so you can start writing manually.`;
+  draft += `</div>`;
+  
+  // Hooks
+  if (storyData.hooks) {
+    let hookText = "";
+    if (typeof storyData.hooks === 'string') {
+        hookText = storyData.hooks;
+    } else if (storyData.hooks.selected) {
+        hookText = storyData.hooks.selected.text || storyData.hooks.selected;
+    } else if (storyData.hooks.chosen) {
+        hookText = storyData.hooks.chosen.text || storyData.hooks.chosen;
+    } else if (Array.isArray(storyData.hooks)) {
+         // Try to find the first valid hook in an array
+         const firstHook = storyData.hooks[0];
+         hookText = typeof firstHook === 'string' ? firstHook : (firstHook?.text || JSON.stringify(firstHook));
+    } else if (typeof storyData.hooks === 'object') {
+        hookText = storyData.hooks.text || "Hook content unavailable";
+    }
+
+    if (hookText && hookText !== "undefined") {
+        draft += `<h2>Opening Hook</h2><p>${hookText}</p><hr />`;
+    }
+  }
+
+  // Add scenes
+  if (storyData.scenes && storyData.scenes.length > 0) {
+    storyData.scenes.forEach((scene: any, index: number) => {
+      draft += `<h2>Chapter ${index + 1}: ${scene.title || `Scene ${index + 1}`}</h2>`;
+      if (scene.description) draft += `<p><em>Context: ${scene.description}</em></p>`;
+      draft += `<p>[Start writing this scene here...]</p><br/><br/><hr />`;
+    });
+  } else if (storyData.structure && storyData.structure.beats) {
+     // Fallback to beats if no scenes
+    storyData.structure.beats.forEach((beat: any, index: number) => {
+      draft += `<h2>Part ${index + 1}: ${beat.name || beat.title || `Beat ${index + 1}`}</h2>`;
+      if (beat.description) draft += `<p><em>Focus: ${beat.description}</em></p>`;
+      draft += `<p>[Start writing here...]</p><br/><br/><hr />`;
+    });
+  } else {
+    draft += `<h2>Chapter 1</h2><p>[Start writing your story here...]</p>`;
+  }
+  
+  return draft;
+}
+
 export async function generateFullStoryDraft(
   storyData: {
     title: string;
@@ -231,13 +296,24 @@ export async function generateFullStoryDraft(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Construct a comprehensive prompt
     let prompt = `You are a professional novelist. Write a full draft of a short story based on the following detailed outline.\n\n`;
     
     prompt += `TITLE: ${storyData.title}\n`;
-    prompt += `PREMISE: ${storyData.description}\n\n`;
+    
+    // Clean description if it contains error message from previous steps
+    const cleanDescription = storyData.description
+        ? storyData.description
+            .replace(/\[AI Generation Unavailable\]\s*/g, '')
+            .replace(/^Title: .*?(\n\n|\n)/, '')
+            .replace(/\(Note: The AI service is currently experiencing high traffic[\s\S]*\)/, '')
+            .replace(/\n\n(Story Type|Primary Archetype|Moral Conflict|IMPORTANT|Context):[\s\S]*/, '')
+            .trim()
+        : "";
+    
+    prompt += `PREMISE: ${cleanDescription}\n\n`;
 
     if (storyData.moralData) {
         prompt += `THEME/MORAL CONFLICT: ${JSON.stringify(storyData.moralData)}\n\n`;
@@ -272,14 +348,31 @@ export async function generateFullStoryDraft(
     prompt += `2. Incorporate the character's journey and the moral conflict naturally.\n`;
     prompt += `3. Follow the scene outline to ensure pacing matches the structure.\n`;
     prompt += `4. Use vivid imagery and "show, don't tell" techniques.\n`;
-    prompt += `5. Output the story in Markdown format (headers for chapters/scenes if needed, but mostly prose).\n`;
+    prompt += `5. CRITICAL: Output the story in semantic HTML format (e.g., <h1>Title</h1>, <h2>Chapter X</h2>, <p>Paragraph...</p>). Do not use Markdown.\n`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    const result = await retryWithBackoff(async () => {
+      console.log("Calling Gemini for full story draft...");
+      const genResult = await model.generateContent(prompt);
+      const response = await genResult.response;
+      return response.text();
+    });
+
+    console.log("Draft generation successful, length:", result.length);
+    // Strip markdown code blocks if AI returns them despite instructions
+    return result.replace(/```html/g, '').replace(/```/g, '');
   } catch (error) {
     console.error("Error generating full draft with Gemini:", error);
-    throw new Error(`Failed to generate draft: ${error instanceof Error ? error.message : String(error)}`);
+    
+    const message = error instanceof Error ? error.message : String(error);
+    
+    // Handle Rate Limits (429) gracefully
+    if (message.includes("429") || message.includes("Quota exceeded")) {
+      // Throw allows UI to handle retry state
+      throw new Error("AI Service is busy (Rate Limit). Please try again in a moment.");
+    }
+
+    // Throw error so UI can display it without overwriting draft
+    throw new Error(`Failed to generate draft: ${message}`);
   }
 }
 
@@ -289,7 +382,7 @@ export async function improveText(text: string, type: "rewrite" | "expand" | "sh
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     let prompt = "";
     switch(type) {
@@ -316,7 +409,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
       const prompt = `You are a creative writing assistant helping to develop a scene for a story.
   
@@ -366,7 +459,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `You are a writing coach analyzing a scene for "show don't tell" effectiveness.
   
@@ -409,7 +502,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `Given this scene location and action:
   
@@ -448,7 +541,7 @@ export async function recommendStructure(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const structuresList = availableStructures.map(s => `${s.name}: ${s.description} - Best for: ${s.bestFor?.join(', ') || ''}`).join('\n');
 
@@ -502,17 +595,55 @@ export async function recommendStructure(
   }
 }
 
+// Retry utility
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  delay: number = 1000
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: any) {
+    if (retries === 0) throw error;
+    
+    const message = error?.message || String(error);
+    // Only retry on rate limits (429) or temporary server errors (500, 503)
+    const shouldRetry = message.includes("429") || message.includes("500") || message.includes("503");
+    
+    if (!shouldRetry) throw error;
+
+    console.warn(`AI API failed, retrying in ${delay}ms... (${retries} attempts left)`);
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return retryWithBackoff(fn, retries - 1, delay * 2);
+  }
+}
+
+// Fallback generator
+function getFallbackBeatDraft(beat: any, storyContext: any): string {
+  const structure = storyContext.structure?.name || "the story";
+  const character = storyContext.character?.name || "the hero";
+  
+  return `[AI Unavailable - Offline Template]\n\n` +
+    `For this part of ${structure}, focus on ${beat.name.toLowerCase()}.\n\n` +
+    `Consider how ${character} reacts to the situation. ${beat.description}\n\n` +
+    `Drafting Prompt:\n` +
+    (beat.guidance?.questions?.map((q: string) => `- ${q}`).join('\n') || `- What happens next to move the story forward?`);
+}
+
 export async function generateBeatDraft(
   beat: any,
   storyContext: any,
   previousBeats: any[]
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
+  const currentKey = process.env.GEMINI_API_KEY;
+  if (!currentKey) {
+    console.error("GEMINI_API_KEY is missing in server environment");
+    // Return fallback immediately if no key
+    return getFallbackBeatDraft(beat, storyContext);
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a storytelling expert helping someone write a beat in their story.
 
@@ -541,12 +672,42 @@ export async function generateBeatDraft(
 
     Return only the draft text, no explanation.`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text().trim();
-  } catch (error) {
-    console.error("Error generating beat draft with Gemini:", error);
-    throw new Error("Failed to generate beat draft.");
+    // Wrap the API call in retry logic
+    const text = await retryWithBackoff(async () => {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
+    });
+    
+    if (!text) {
+        throw new Error("AI returned empty response");
+    }
+    
+    return text.trim();
+  } catch (error: any) {
+    console.error("Detailed Error generating beat draft:", error);
+    // Extract meaningful error message from Google's SDK if possible
+    const detailedMessage = error?.message || String(error);
+    
+    // Check for Rate Limit specifically to use fallback
+    if (detailedMessage.includes("429")) {
+        console.warn("Rate limit exceeded even after retries. Using fallback.");
+        return getFallbackBeatDraft(beat, storyContext);
+    }
+    
+    if (detailedMessage.includes("API key not valid")) {
+        throw new Error("Invalid API Key provided to AI service.");
+    }
+
+    // For other errors, we might also want to fallback to avoid blocking the user completely
+    // but let's throw for now if it's not a rate limit issue, to help debugging other problems.
+    // Or simpler: just fallback for everything in production.
+    // Let's fallback for 500/503 too.
+    if (detailedMessage.includes("500") || detailedMessage.includes("503") || detailedMessage.includes("fetch failed")) {
+         return getFallbackBeatDraft(beat, storyContext);
+    }
+
+    throw new Error(`AI Generation Failed: ${detailedMessage}`);
   }
 }
 
@@ -559,7 +720,7 @@ export async function generateStructureOutline(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `Generate a story outline using the ${structure.name} structure.
 

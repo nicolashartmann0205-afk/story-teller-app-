@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { generateHooks } from "@/lib/ai/story-generator";
+import { generateHooks, refineHook } from "@/lib/ai/story-generator";
 import { revalidatePath } from "next/cache";
 
 export async function generateHooksAction(
@@ -112,6 +112,93 @@ export async function saveSelectedHookAction(
   return { success: true };
 }
 
+export async function saveManualHookAction(
+  storyId: string,
+  hookText: string
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const [story] = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
+    .limit(1);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  const currentHooks = (story.hooks as any) || {};
+
+  const newHooksData = {
+    ...currentHooks,
+    manualHook: {
+      text: hookText,
+      savedAt: new Date().toISOString()
+    },
+    chosen: {
+      id: 'manual',
+      type: 'manual',
+      text: hookText,
+      selectedAt: new Date().toISOString(),
+      isEdited: false
+    }
+  };
+
+  await db
+    .update(stories)
+    .set({ hooks: newHooksData })
+    .where(eq(stories.id, storyId));
+
+  revalidatePath(`/stories/${storyId}`);
+  return { success: true };
+}
+
+export async function refineHookAction(
+  storyId: string,
+  hookText: string,
+  refinementType: string
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const [story] = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
+    .limit(1);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  try {
+    const refinedText = await refineHook(
+      hookText,
+      refinementType,
+      { title: story.title, description: story.description || "" }
+    );
+
+    return { success: true, refinedText };
+  } catch (error) {
+    console.error("Error in refineHookAction:", error);
+    return { error: "Failed to refine hook" };
+  }
+}
+
 export async function switchStoryModeAction(
   storyId: string,
   newMode: "quick" | "comprehensive"
@@ -155,9 +242,3 @@ export async function switchStoryModeAction(
   revalidatePath(`/stories/${storyId}`);
   return { success: true };
 }
-
-
-
-
-
-

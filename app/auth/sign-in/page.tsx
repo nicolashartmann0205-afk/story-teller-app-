@@ -44,7 +44,7 @@ async function signInAction(previousState: { error?: string; success?: string } 
     return { error: error.message };
   }
 
-  redirect("/stories");
+  redirect("/dashboard");
 }
 
 export default function SignInPage() {

@@ -7,10 +7,10 @@ export default function CreateStoryPage() {
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Link
-            href="/"
+            href="/dashboard"
             className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"
           >
-            ← Back to Stories
+            ← Back to Dashboard
           </Link>
         </div>
 

@@ -27,3 +27,4 @@ export default async function SceneEditorPage({
   return <SceneEditor scene={scene} storyId={storyId} />;
 }
 
+

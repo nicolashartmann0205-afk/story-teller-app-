@@ -34,6 +34,8 @@ async function updateProfileAction(previousState: { error?: string; success?: st
   }
 }
 
+import Link from "next/link";
+
 export default async function ProfilePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -53,6 +55,14 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+        <div className="mb-6">
+           <Link
+             href="/dashboard"
+             className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"
+           >
+             ← Back to Dashboard
+           </Link>
+        </div>
         <div className="bg-white dark:bg-zinc-900 shadow rounded-lg overflow-hidden">
           <div className="px-4 py-5 sm:px-6 border-b border-zinc-200 dark:border-zinc-800">
             <h3 className="text-lg font-medium leading-6 text-zinc-900 dark:text-zinc-100">

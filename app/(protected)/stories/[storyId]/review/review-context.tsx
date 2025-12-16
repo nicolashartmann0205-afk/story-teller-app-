@@ -42,8 +42,13 @@ export function ReviewProvider({
         setIsGenerating(true);
         try {
             const draft = await generateDraftAction(storyId, options);
+            // Replace content entirely
             setDraftContent(draft);
-            await saveStoryDraft(storyId, draft); // Auto save
+            
+            // Force a slight delay before saving to ensure state matches
+            setTimeout(async () => {
+                await saveStoryDraft(storyId, draft); // Auto save
+            }, 100);
         } finally {
             setIsGenerating(false);
         }

@@ -142,6 +142,12 @@ export default async function StoriesPage() {
           </div>
           <div className="flex gap-4">
             <Link
+              href="/dashboard"
+              className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            >
+              Dashboard
+            </Link>
+            <Link
               href="/create-story"
               className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
             >

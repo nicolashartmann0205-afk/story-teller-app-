@@ -52,3 +52,4 @@ export async function getStructureOutlineAction(structureId: string, storyContex
   return await generateStructureOutline(structure, storyContext);
 }
 
+

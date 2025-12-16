@@ -57,3 +57,4 @@ export const aiUsageCosts = pgTable("ai_usage_costs", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+

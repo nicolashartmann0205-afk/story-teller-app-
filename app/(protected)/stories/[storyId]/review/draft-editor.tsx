@@ -17,6 +17,8 @@ export function DraftEditor() {
             },
         },
         onUpdate: ({ editor }) => {
+            // Tiptap returns HTML, but our fallback is Markdown/Plaintext. 
+            // We should store what the user sees.
             setDraftContent(editor.getHTML());
         },
         onBlur: () => {
@@ -25,28 +27,25 @@ export function DraftEditor() {
     });
 
     useEffect(() => {
-        if (editor && draftContent && editor.getHTML() !== draftContent) {
-            // Only update if significantly different to avoid cursor jumps?
-            // Actually, if we type, onUpdate sets draftContent.
-            // If draftContent changes from outside (AI), we must update editor.
-            // We can check if editor is focused. If focused, maybe don't force update unless it's a big change?
-            // For now, simple approach:
-            if (!editor.isFocused) {
-                 editor.commands.setContent(draftContent);
-            } else {
-                // If focused, it might be the user typing, so onUpdate handles it.
-                // But if AI finishes while user is typing? Rare conflict.
-                // We'll let user win if typing.
-            }
-            
-            // Force update if isGenerating just finished (which we can't easily tell here without a flag).
-            // But draftContent changing is the signal.
-            // If user typed, editor.getHTML() == draftContent roughly.
-            // If AI updated, draftContent is new.
-            // Let's rely on content length diff?
-            const current = editor.getHTML();
-            if (Math.abs(current.length - draftContent.length) > 10) {
-                 editor.commands.setContent(draftContent);
+        if (editor && draftContent) {
+            const currentHTML = editor.getHTML();
+            // Simple check: if content is drastically different, update it.
+            // This handles the "Generate Draft" case where draftContent becomes a new large string
+            // while preserving small user edits if they match.
+            if (currentHTML !== draftContent) {
+                 // Force update if we are not focused (external update)
+                 // OR if the content is completely different (likely a new generation replacing the old one)
+                 const isNewGeneration = Math.abs(currentHTML.length - draftContent.length) > 20;
+                 
+                 if (!editor.isFocused || isNewGeneration) {
+                     // Parse HTML if it looks like HTML (starts with <)
+                     if (draftContent.trim().startsWith('<')) {
+                         editor.commands.setContent(draftContent, { emitUpdate: true });
+                     } else {
+                         // Treat as Markdown/Text
+                         editor.commands.setContent(draftContent, { emitUpdate: true });
+                     }
+                 }
             }
         }
     }, [draftContent, editor]);

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { StoryStructure } from '@/lib/data/structures';
 import { getBeatDraftAction } from '../actions';
+import { AlertCircle } from 'lucide-react';
 
 interface BeatByBeatEditorProps {
   structure: StoryStructure;
@@ -10,9 +12,12 @@ interface BeatByBeatEditorProps {
 }
 
 export default function BeatByBeatEditor({ structure, storyContext, initialBeatsData, onSave }: BeatByBeatEditorProps) {
+  const router = useRouter();
   const [currentBeatIndex, setCurrentBeatIndex] = useState(0);
   const [beatsData, setBeatsData] = useState<any[]>(initialBeatsData || []);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const currentBeat = structure.beats[currentBeatIndex];
   const currentBeatData = beatsData.find(b => b.beatId === currentBeat.id) || { userContent: '' };
@@ -33,9 +38,6 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
       updatedBeats.push({ beatId: currentBeat.id, beatName: currentBeat.name, userContent: content });
     }
     setBeatsData(updatedBeats);
-    // Debounce save in parent or here? 
-    // For simplicity, we'll rely on parent or a save button/effect.
-    // Let's call onSave periodically or on blur.
   };
   
   // Auto-save effect
@@ -48,28 +50,63 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
 
   const handleGenerateDraft = async () => {
     setIsGenerating(true);
+    setError(null);
     try {
-      // Get previous beats for context
-      const previousBeats = beatsData.filter((b, i) => {
+      // Get previous beats for context - only send necessary data
+      const previousBeats = beatsData
+        .filter((b, i) => {
           const beatDefIndex = structure.beats.findIndex(sb => sb.id === b.beatId);
           return beatDefIndex < currentBeatIndex && b.userContent;
-      });
+        })
+        .map(b => ({
+          beatName: b.beatName,
+          userContent: b.userContent
+        })); // Only send name and content, strip other fields
 
-      const draft = await getBeatDraftAction(currentBeat, { ...storyContext, structure }, previousBeats);
+      // Create a sanitized context object to avoid sending the entire story object (which might be huge)
+      const sanitizedContext = {
+        storyType: storyContext.storyType,
+        character: storyContext.character,
+        audience: storyContext.audience,
+        structure: {
+          name: structure.name
+        }
+      };
+
+      const draft = await getBeatDraftAction(currentBeat, sanitizedContext, previousBeats);
+      if (!draft) {
+        throw new Error("No draft returned from AI service");
+      }
       handleContentChange(draft);
-    } catch (error) {
-      console.error("Failed to generate draft", error);
+    } catch (err: any) {
+      console.error("Failed to generate draft", err);
+      setError(err.message || "Failed to generate draft. Please try again.");
     } finally {
       setIsGenerating(false);
     }
   };
 
   const nextBeat = () => {
-    if (currentBeatIndex < structure.beats.length - 1) setCurrentBeatIndex(prev => prev + 1);
+    onSave(beatsData);
+    if (currentBeatIndex < structure.beats.length - 1) {
+      setCurrentBeatIndex(prev => prev + 1);
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const prevBeat = () => {
-    if (currentBeatIndex > 0) setCurrentBeatIndex(prev => prev - 1);
+    if (currentBeatIndex > 0) {
+      setCurrentBeatIndex(prev => prev - 1);
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleFinish = async () => {
+    // Save current content first
+    onSave(beatsData);
+    // Maybe wait a moment or show a saving state?
+    // For now, redirect to the story dashboard or review page
+    router.push(`/stories/${storyContext.id}/review`);
   };
 
   return (
@@ -106,7 +143,7 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
       </div>
 
       {/* Main Editor */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-white dark:bg-zinc-950">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 md:p-12 bg-white dark:bg-zinc-950">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
@@ -141,13 +178,21 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
                <div className="space-y-2">
                  <div className="flex justify-between items-center">
                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Your Beat Content</label>
-                   <button 
-                     onClick={handleGenerateDraft}
-                     disabled={isGenerating}
-                     className="text-xs flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 disabled:opacity-50"
-                   >
-                     {isGenerating ? 'Generating...' : '✨ Generate AI Draft'}
-                   </button>
+                   <div className="flex items-center gap-2">
+                     {error && (
+                       <div className="text-xs text-red-500 flex items-center gap-1">
+                         <AlertCircle className="h-3 w-3" />
+                         {error}
+                       </div>
+                     )}
+                     <button 
+                       onClick={handleGenerateDraft}
+                       disabled={isGenerating}
+                       className="text-xs flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 disabled:opacity-50 font-medium px-2 py-1 rounded hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                     >
+                       {isGenerating ? 'Generating...' : '✨ Generate AI Draft'}
+                     </button>
+                   </div>
                  </div>
                  <textarea
                    value={currentBeatData.userContent || ''}
@@ -182,23 +227,34 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
 
           <div className="flex justify-between pt-6 border-t border-zinc-100 dark:border-zinc-800">
             <button 
+              type="button"
               onClick={prevBeat}
               disabled={currentBeatIndex === 0}
               className="px-4 py-2 text-zinc-600 disabled:opacity-50 hover:bg-zinc-100 rounded"
             >
               ← Previous Beat
             </button>
-            <button 
-              onClick={nextBeat}
-              disabled={currentBeatIndex === structure.beats.length - 1}
-              className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:bg-zinc-300"
-            >
-              Next Beat →
-            </button>
+            
+            {currentBeatIndex === structure.beats.length - 1 ? (
+              <button 
+                type="button"
+                onClick={handleFinish}
+                className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium"
+              >
+                Finish & Review ✓
+              </button>
+            ) : (
+              <button 
+                type="button"
+                onClick={nextBeat}
+                className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Next Beat →
+              </button>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
