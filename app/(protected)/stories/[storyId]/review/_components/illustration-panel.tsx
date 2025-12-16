@@ -34,8 +34,19 @@ export function IllustrationPanel({
       setCustomPrompt(""); // Clear prompt on success
     } catch (err) {
       console.error(err);
-      let errorMessage = "Failed to generate illustration. Please try again.";
       const errorString = err instanceof Error ? err.message : String(err);
+
+      // Auto-fallback on rate limits
+      if (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests")) {
+          if (!useFallback) {
+              console.log("Rate limit hit, switching to offline fallback automatically.");
+              await handleGenerate(true);
+              setError("Note: AI service is busy. A placeholder image was used.");
+              return;
+          }
+      }
+
+      let errorMessage = "Failed to generate illustration. Please try again.";
       
       if (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests")) {
         errorMessage = "AI usage limit reached. Please wait a moment and try again.";
@@ -102,9 +113,9 @@ export function IllustrationPanel({
         </div>
 
         {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-md">
+            <div className={`p-3 text-sm rounded-md ${error.includes("Note:") ? "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200" : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"}`}>
                 {error}
-                {(error.includes("limit") || error.includes("quota") || error.includes("busy")) && (
+                {!error.includes("Note:") && (error.includes("limit") || error.includes("quota") || error.includes("busy")) && (
                     <button
                         onClick={() => handleGenerate(true)}
                         className="mt-2 text-xs font-semibold underline hover:no-underline block"

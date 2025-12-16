@@ -23,8 +23,17 @@ export function ReviewDashboard() {
             await generateDraft({ tone: "Engaging", language: selectedLanguage, useFallback });
         } catch (error) {
             console.error("Draft generation failed:", error);
-            let errorMessage = "Failed to generate draft. Please try again.";
             const errorString = error instanceof Error ? error.message : String(error);
+            
+            // Auto-fallback on rate limits
+            if (!useFallback && (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests"))) {
+                console.log("Rate limit hit, switching to offline fallback automatically.");
+                await handleGenerate(true);
+                setGenerationError("Note: AI service is busy. An offline draft template was generated instead.");
+                return;
+            }
+
+            let errorMessage = "Failed to generate draft. Please try again.";
             
             if (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests")) {
                 errorMessage = "AI usage limit reached. Please wait a moment and try again.";
@@ -77,9 +86,9 @@ export function ReviewDashboard() {
                         </p>
                         
                         {generationError && (
-                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-md border border-red-100 dark:border-red-800">
+                            <div className={`mb-4 p-3 text-sm rounded-md border ${generationError.includes("Note:") ? "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-800" : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-800"}`}>
                                 {generationError}
-                                {(generationError.includes("limit") || generationError.includes("quota") || generationError.includes("busy")) && (
+                                {!generationError.includes("Note:") && (generationError.includes("limit") || generationError.includes("quota") || generationError.includes("busy")) && (
                                     <button
                                         onClick={() => handleGenerate(true)}
                                         className="mt-2 text-xs font-semibold underline hover:no-underline block"

@@ -37,16 +37,16 @@ export function CategorySelection({ onSelect }: CategorySelectionProps) {
                 focus:outline-none focus:ring-4 
                 ${
                   category.color === "blue"
-                    ? "border-blue-100 bg-blue-50/30 hover:border-blue-300 focus:ring-blue-100 dark:border-blue-900/30 dark:bg-blue-900/10 dark:hover:border-blue-800"
+                    ? "border-blue-100 bg-blue-50 hover:border-blue-400 focus:ring-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:hover:border-blue-700"
                     : category.color === "orange"
-                    ? "border-orange-100 bg-orange-50/30 hover:border-orange-300 focus:ring-orange-100 dark:border-orange-900/30 dark:bg-orange-900/10 dark:hover:border-orange-800"
+                    ? "border-orange-100 bg-orange-50 hover:border-orange-400 focus:ring-orange-100 dark:border-orange-900/30 dark:bg-orange-900/20 dark:hover:border-orange-700"
                     : category.color === "purple"
-                    ? "border-purple-100 bg-purple-50/30 hover:border-purple-300 focus:ring-purple-100 dark:border-purple-900/30 dark:bg-purple-900/10 dark:hover:border-purple-800"
+                    ? "border-purple-100 bg-purple-50 hover:border-purple-400 focus:ring-purple-100 dark:border-purple-900/30 dark:bg-purple-900/20 dark:hover:border-purple-700"
                     : category.color === "green"
-                    ? "border-green-100 bg-green-50/30 hover:border-green-300 focus:ring-green-100 dark:border-green-900/30 dark:bg-green-900/10 dark:hover:border-green-800"
+                    ? "border-green-100 bg-green-50 hover:border-green-400 focus:ring-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:hover:border-green-700"
                     : category.color === "yellow"
-                    ? "border-yellow-100 bg-yellow-50/30 hover:border-yellow-300 focus:ring-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/10 dark:hover:border-yellow-800"
-                    : "border-zinc-100 bg-zinc-50/30 hover:border-zinc-300 focus:ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/30 dark:hover:border-zinc-700"
+                    ? "border-yellow-100 bg-yellow-50 hover:border-yellow-400 focus:ring-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:hover:border-yellow-700"
+                    : "border-zinc-100 bg-zinc-50 hover:border-zinc-400 focus:ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/30 dark:hover:border-zinc-700"
                 }
               `}
             >

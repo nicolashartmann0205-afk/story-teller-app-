@@ -78,7 +78,23 @@ export function TypeSelection({ category, onSelect, onBack }: TypeSelectionProps
             <button
               key={type.id}
               onClick={() => onSelect(type)}
-              className="group text-left p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-black dark:hover:border-white hover:shadow-md transition-all duration-200 flex flex-col h-full"
+              className={`
+                group text-left p-6 rounded-xl border border-b border-x border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 
+                border-t-4 hover:shadow-md transition-all duration-200 flex flex-col h-full
+                ${
+                  categoryData.color === "blue" 
+                    ? "border-t-blue-500 hover:border-blue-400" 
+                    : categoryData.color === "orange"
+                    ? "border-t-orange-500 hover:border-orange-400"
+                    : categoryData.color === "purple"
+                    ? "border-t-purple-500 hover:border-purple-400"
+                    : categoryData.color === "green"
+                    ? "border-t-green-500 hover:border-green-400"
+                    : categoryData.color === "yellow"
+                    ? "border-t-yellow-500 hover:border-yellow-400"
+                    : "border-t-zinc-500 hover:border-zinc-400"
+                }
+              `}
             >
               <div className="flex justify-between items-start mb-2 w-full">
                 <h3 className="font-bold text-lg text-black dark:text-white line-clamp-1 pr-2">

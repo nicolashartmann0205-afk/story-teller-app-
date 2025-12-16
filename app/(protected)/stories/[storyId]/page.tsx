@@ -136,7 +136,7 @@ export default async function StoryPage({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link
                   href={`/stories/${story.id}/structure`}
-                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-200"
+                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border-t-4 border-purple-500 border-x border-b border-zinc-200 dark:border-zinc-700 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 mb-3 group-hover:scale-110 transition-transform duration-200">
                     <Layout className="h-6 w-6" />
@@ -147,7 +147,7 @@ export default async function StoryPage({
 
                 <Link
                   href={`/stories/${story.id}/scenes`}
-                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all duration-200"
+                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border-t-4 border-blue-500 border-x border-b border-zinc-200 dark:border-zinc-700 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform duration-200">
                     <Clapperboard className="h-6 w-6" />
@@ -158,7 +158,7 @@ export default async function StoryPage({
 
                 <Link
                   href={`/stories/${story.id}/map`}
-                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-200"
+                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border-t-4 border-emerald-500 border-x border-b border-zinc-200 dark:border-zinc-700 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 mb-3 group-hover:scale-110 transition-transform duration-200">
                     <MapIcon className="h-6 w-6" />
@@ -169,7 +169,7 @@ export default async function StoryPage({
 
                 <Link
                   href={`/stories/${story.id}/review`}
-                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-md transition-all duration-200"
+                  className="group relative flex flex-col items-center justify-center p-6 bg-white dark:bg-zinc-800 rounded-lg border-t-4 border-amber-500 border-x border-b border-zinc-200 dark:border-zinc-700 hover:shadow-lg transition-all duration-200"
                 >
                   <div className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 mb-3 group-hover:scale-110 transition-transform duration-200">
                     <FileText className="h-6 w-6" />
