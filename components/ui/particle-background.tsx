@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 
 function Stars(props: any) {
   const ref = useRef<any>();
+  const [sphere, setSphere] = useState<Float32Array | null>(null);
   
-  // Generate random points in a sphere
-  const [sphere] = useMemo(() => {
+  // Generate random points in a sphere - client side only to avoid hydration mismatch
+  useEffect(() => {
     const points = new Float32Array(5000 * 3);
     for (let i = 0; i < 5000; i++) {
       const u = Math.random();
@@ -25,7 +26,7 @@ function Stars(props: any) {
       points[i * 3 + 1] = y;
       points[i * 3 + 2] = z;
     }
-    return [points];
+    setSphere(points);
   }, []);
 
   useFrame((state, delta) => {
@@ -34,6 +35,8 @@ function Stars(props: any) {
       ref.current.rotation.y -= delta / 15;
     }
   });
+
+  if (!sphere) return null;
 
   return (
     <group rotation={[0, 0, Math.PI / 4]}>
