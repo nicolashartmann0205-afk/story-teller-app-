@@ -30,7 +30,7 @@ export function ReviewDashboard() {
                 console.log("Rate limit hit, switching to offline fallback automatically.");
                 await handleGenerate(true);
                 setGenerationError("Note: AI service is busy. An offline draft template was generated instead.");
-                return;
+                return; // Return immediately to avoid overwriting the success message
             }
 
             let errorMessage = "Failed to generate draft. Please try again.";
