@@ -73,6 +73,31 @@ export async function generateIllustrationAction(storyId: string, prompt: string
     return newIllustration;
 }
 
+export async function deleteIllustrationAction(storyId: string, illustrationId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("Unauthorized");
+
+    const [story] = await db
+        .select()
+        .from(stories)
+        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+
+    if (!story) throw new Error("Story not found");
+
+    const currentIllustrations = (story.illustrations as any[]) || [];
+    const updatedIllustrations = currentIllustrations.filter((img) => img.id !== illustrationId);
+
+    await db
+        .update(stories)
+        .set({
+            illustrations: updatedIllustrations,
+            updatedAt: new Date()
+        })
+        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+}
+
 export async function saveStoryDraft(storyId: string, content: any) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { generateIllustrationAction } from "../actions";
-import { Loader2, Image as ImageIcon, Download, Sparkles } from "lucide-react";
+import { generateIllustrationAction, deleteIllustrationAction } from "../actions";
+import { Loader2, Image as ImageIcon, Download, Sparkles, Trash2 } from "lucide-react";
 import Image from "next/image";
 
 interface IllustrationPanelProps {
@@ -42,7 +42,7 @@ export function IllustrationPanel({
               console.log("Rate limit hit, switching to offline fallback automatically.");
               await handleGenerate(true);
               setError("Note: AI service is busy. A placeholder image was used.");
-              return;
+              return; // Return immediately to avoid overwriting the message
           }
       }
 
@@ -67,6 +67,18 @@ export function IllustrationPanel({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDelete = async (illustrationId: string) => {
+    if (!confirm("Are you sure you want to delete this illustration?")) return;
+    
+    try {
+        await deleteIllustrationAction(storyId, illustrationId);
+        setIllustrations(illustrations.filter((img) => img.id !== illustrationId));
+    } catch (err) {
+        console.error("Failed to delete illustration:", err);
+        setError("Failed to delete illustration. Please try again.");
+    }
   };
 
   return (
@@ -149,9 +161,9 @@ export function IllustrationPanel({
       {illustrations.length > 0 && (
         <div className="space-y-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Gallery ({illustrations.length})</h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                 {illustrations.map((img, idx) => (
-                    <div key={img.id || idx} className="group relative aspect-square bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                    <div key={img.id || idx} className="group relative aspect-square bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
                         {/* We use standard img tag for base64 data to ensure compatibility with SVG data URIs */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
@@ -162,10 +174,17 @@ export function IllustrationPanel({
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                              <button 
                                 onClick={() => handleDownload(img.url, idx)}
-                                className="p-2 bg-white text-zinc-900 rounded-full hover:bg-zinc-200"
+                                className="p-2 bg-white text-zinc-900 rounded-full hover:bg-zinc-200 transition-colors"
                                 title="Download"
                              >
                                 <Download className="h-4 w-4" />
+                             </button>
+                             <button 
+                                onClick={() => handleDelete(img.id)}
+                                className="p-2 bg-white text-red-600 rounded-full hover:bg-red-50 transition-colors"
+                                title="Delete"
+                             >
+                                <Trash2 className="h-4 w-4" />
                              </button>
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-[10px] text-white truncate px-2">

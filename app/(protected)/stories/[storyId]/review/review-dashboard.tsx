@@ -25,12 +25,17 @@ export function ReviewDashboard() {
             console.error("Draft generation failed:", error);
             const errorString = error instanceof Error ? error.message : String(error);
             
-            // Auto-fallback on rate limits
+            // Auto-fallback on rate limits: retry immediately with fallback
             if (!useFallback && (errorString.includes("429") || errorString.includes("quota") || errorString.includes("Too Many Requests"))) {
                 console.log("Rate limit hit, switching to offline fallback automatically.");
-                await handleGenerate(true);
-                setGenerationError("Note: AI service is busy. An offline draft template was generated instead.");
-                return; // Return immediately to avoid overwriting the success message
+                try {
+                    await generateDraft({ tone: "Engaging", language: selectedLanguage, useFallback: true });
+                    setGenerationError("Note: AI service is busy. An offline draft template was generated instead.");
+                    return;
+                } catch (fallbackError) {
+                    console.error("Fallback generation also failed:", fallbackError);
+                    // Fall through to show original error if fallback also fails
+                }
             }
 
             let errorMessage = "Failed to generate draft. Please try again.";
