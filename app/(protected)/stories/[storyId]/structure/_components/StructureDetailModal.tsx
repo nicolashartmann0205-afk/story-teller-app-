@@ -104,3 +104,4 @@ export default function StructureDetailModal({ structure, isOpen, onClose, onSel
 
 
 
+

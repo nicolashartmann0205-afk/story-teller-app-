@@ -80,7 +80,7 @@ export function EmotionalArcView() {
               }}
               itemStyle={{ color: '#3b82f6' }}
               labelStyle={{ color: '#6b7280', marginBottom: '0.25rem' }}
-              formatter={(value: number) => [value, 'Tension']}
+              formatter={(value: number | undefined) => [value ?? 0, 'Tension']}
               labelFormatter={(label) => `Scene ${label}`}
             />
             <ReferenceLine y={5} stroke="#9ca3af" strokeDasharray="3 3" opacity={0.5} />
