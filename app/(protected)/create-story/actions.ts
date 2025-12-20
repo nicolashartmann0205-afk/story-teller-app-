@@ -6,7 +6,8 @@ import { db } from "@/lib/db";
 import { stories, users } from "@/lib/db/schema";
 import { generateStory, generateHooks } from "@/lib/ai/story-generator";
 import { storyCategories, StoryCategory, StoryType } from "@/lib/data/storyTypes";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { styleGuides } from "@/lib/db/schema";
 
 export async function generatePreviewHooksAction(
   title: string,
@@ -108,8 +109,38 @@ export async function createStoryAction(
   }
 
   try {
-    // Generate full story content using Gemini AI
-    // Pass story type context to the AI if available
+    // 1. Prepare Style Preferences
+    const styleGuideId = formData.get("styleGuideId") as string;
+    let stylePreferences: any = {
+      tone: formData.get("tone") as string,
+      style: formData.get("style") as string,
+      perspective: formData.get("perspective") as string,
+      backgroundInfo: formData.get("backgroundInfo") as string,
+      customInstructions: formData.get("customInstructions") as string,
+    };
+
+    if (styleGuideId) {
+       const guide = await db.query.styleGuides.findFirst({
+         where: and(eq(styleGuides.id, styleGuideId), eq(styleGuides.userId, user.id))
+       });
+
+       if (guide) {
+         stylePreferences = {
+           ...stylePreferences,
+           tone: guide.toneId,
+           style: guide.writingStyleId,
+           perspective: guide.perspectiveId,
+           complexityLevel: guide.complexityLevel,
+           primaryColor: guide.primaryColor,
+           secondaryColor: guide.secondaryColor,
+           fontHeading: guide.fontHeading,
+           fontBody: guide.fontBody,
+           toneDescription: guide.toneDescription,
+         };
+       }
+    }
+
+    // 2. Build Prompt Context
     let promptContext = description || "";
     
     if (storyTypeObject && storyTypeObject.category !== "custom" && storyTypeObject.type) {
@@ -142,6 +173,15 @@ export async function createStoryAction(
       if (moralData.complexity) promptContext += ` (${moralData.complexity})`;
     }
 
+    // Inject Style Preferences
+    if (stylePreferences.tone) promptContext += `\n\nTone: ${stylePreferences.tone}`;
+    if (stylePreferences.style) promptContext += `\nWriting Style: ${stylePreferences.style}`;
+    if (stylePreferences.perspective) promptContext += `\nPerspective: ${stylePreferences.perspective}`;
+    if (stylePreferences.toneDescription) promptContext += `\nTone Description: ${stylePreferences.toneDescription}`;
+    if (stylePreferences.complexityLevel) promptContext += `\nTarget Audience/Complexity: ${stylePreferences.complexityLevel}`;
+    if (stylePreferences.customInstructions) promptContext += `\nInstructions: ${stylePreferences.customInstructions}`;
+    if (stylePreferences.backgroundInfo) promptContext += `\nWorld/Background Info: ${stylePreferences.backgroundInfo}`;
+
     let hooksData = null;
     if (selectedHookData) {
       try {
@@ -160,21 +200,18 @@ export async function createStoryAction(
       }
     }
 
+    // 3. Generate Story
     const generatedStory = await generateStory(title, promptContext, language);
 
+    // 4. Save to DB
     const [newStory] = await db.insert(stories).values({
       id: crypto.randomUUID(),
       userId: user.id,
       title: title.trim(),
       description: generatedStory,
       language: language,
-      stylePreferences: {
-        tone: formData.get("tone") as string,
-        style: formData.get("style") as string,
-        perspective: formData.get("perspective") as string,
-        backgroundInfo: formData.get("backgroundInfo") as string,
-        customInstructions: formData.get("customInstructions") as string,
-      },
+      stylePreferences,
+      styleGuideId: styleGuideId || null,
       storyType: storyTypeObject,
       hooks: hooksData,
       mode: mode || "quick",

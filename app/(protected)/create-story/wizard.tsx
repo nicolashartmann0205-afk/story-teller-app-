@@ -20,6 +20,8 @@ import { DarkSidesExplorer } from "./archetype/dark-sides-explorer";
 import { JourneyMapper } from "./archetype/journey-mapper";
 import { ChevronRight } from "lucide-react";
 import { archetypesLibrary } from "@/lib/data/archetypes";
+import { InferSelectModel } from "drizzle-orm";
+import { styleGuides } from "@/lib/db/schema";
 
 type Step = 
   | "mode" 
@@ -34,7 +36,11 @@ type Step =
   | "moral-position" 
   | "details";
 
-export default function CreateStoryWizard() {
+interface CreateStoryWizardProps {
+  styleGuides?: InferSelectModel<typeof styleGuides>[];
+}
+
+export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizardProps) {
   const [step, setStep] = useState<Step>("mode");
   const [selectedMode, setSelectedMode] = useState<StoryMode | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory | null>(null);
@@ -343,6 +349,7 @@ export default function CreateStoryWizard() {
             darkSides: archetypeDarkSides,
             journey: archetypeJourney
           } : undefined}
+          styleGuides={styleGuides}
           onBack={() => {
             if (selectedMode === "comprehensive" && selectedConflict) {
               setStep("moral-position");

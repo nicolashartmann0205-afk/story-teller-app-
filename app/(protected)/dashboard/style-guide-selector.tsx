@@ -1,0 +1,97 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { BookOpen, ChevronDown, Plus, Palette } from "lucide-react";
+import { InferSelectModel } from "drizzle-orm";
+import { styleGuides } from "@/lib/db/schema";
+import { useRouter } from "next/navigation";
+
+interface StyleGuideSelectorProps {
+  styleGuides: InferSelectModel<typeof styleGuides>[];
+}
+
+export function StyleGuideSelector({ styleGuides }: StyleGuideSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSelect = (guideId: string) => {
+    // Navigate to create story with this style guide pre-selected
+    // For now, we'll just go to the style guide edit page or maybe create story?
+    // The requirement says "offered the choice of existing style guides". 
+    // Usually this implies selecting one to *use* or *edit*.
+    // Let's assume selecting one takes you to its details page for now, 
+    // or maybe the create story wizard with a query param?
+    // Given the context of "below New Story", it likely implies "Start with this guide".
+    
+    // Let's link to the style guide detail for now as a safe default for "choosing" it,
+    // or pass it as a param to create-story if supported.
+    // Since create-story doesn't support query params for guide yet in the code we saw,
+    // let's just navigate to the guide detail/edit page.
+    router.push(`/style-guide/${guideId}`);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-black dark:bg-zinc-50 px-4 py-2.5 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm whitespace-nowrap"
+      >
+        <Palette className="h-4 w-4" />
+        Choose Style Guide
+        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-zinc-900 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 border border-zinc-200 dark:border-zinc-800">
+          <div className="py-1">
+            <div className="px-3 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              Select Guide
+            </div>
+            
+            {styleGuides.length > 0 ? (
+              styleGuides.map((guide) => (
+                <button
+                  key={guide.id}
+                  onClick={() => handleSelect(guide.id)}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left"
+                >
+                  <BookOpen className="h-4 w-4 text-zinc-400" />
+                  <span className="truncate">{guide.name}</span>
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-2 text-sm text-zinc-500 italic">No guides found</div>
+            )}
+
+            <div className="border-t border-zinc-100 dark:border-zinc-800 my-1"></div>
+
+            <Link
+              href="/style-guide"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+              onClick={() => setIsOpen(false)}
+            >
+              <Plus className="h-4 w-4" />
+              Create New Guide
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

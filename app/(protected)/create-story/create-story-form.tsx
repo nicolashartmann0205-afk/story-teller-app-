@@ -8,6 +8,8 @@ import { hookTypes, HookTypeID } from "@/lib/data/hookTypes";
 import { tones, writingStyles, perspectives } from "@/lib/data/styleOptions";
 import { generatePreviewHooksAction } from "./actions";
 import { StoryMode } from "./mode-selection";
+import { InferSelectModel } from "drizzle-orm";
+import { styleGuides } from "@/lib/db/schema";
 
 type CreateStoryAction = (
   previousState: { error?: string } | null,
@@ -21,6 +23,7 @@ interface CreateStoryFormProps {
   selectedMode: StoryMode;
   moralData?: any; // Added to support moral framework data
   archetypeData?: any; // Added to support archetype data
+  styleGuides?: InferSelectModel<typeof styleGuides>[];
   onBack: () => void;
 }
 
@@ -31,6 +34,7 @@ export default function CreateStoryForm({
   selectedMode,
   moralData,
   archetypeData,
+  styleGuides = [],
   onBack,
 }: CreateStoryFormProps) {
   const [state, formAction, isPending] = useActionState(createStoryAction, { error: undefined });
@@ -44,6 +48,9 @@ export default function CreateStoryForm({
   const [generatedHooks, setGeneratedHooks] = useState<Record<string, any[]>>({});
   const [selectedHook, setSelectedHook] = useState<any>(null);
   const [isGeneratingHooks, startHookGeneration] = useTransition();
+
+  // Style Guide State
+  const [selectedStyleGuideId, setSelectedStyleGuideId] = useState<string>("");
 
   const toggleHookType = (id: HookTypeID) => {
     if (selectedHookTypes.includes(id)) {
@@ -64,6 +71,9 @@ export default function CreateStoryForm({
     }
 
     startHookGeneration(async () => {
+      // If a style guide is selected, we might want to pass that ID to the generator too?
+      // For now, the generatePreviewHooksAction might not support styleGuideId yet.
+      // We'll update that later.
       const result = await generatePreviewHooksAction(title, description, selectedHookTypes, language);
       if (result.hooks) {
         setGeneratedHooks(result.hooks);
@@ -85,6 +95,8 @@ export default function CreateStoryForm({
       isEdited: false
     });
   };
+
+  const activeStyleGuide = styleGuides.find(sg => sg.id === selectedStyleGuideId);
 
   return (
     <form action={formAction} className="space-y-8">
@@ -144,6 +156,7 @@ export default function CreateStoryForm({
       <input type="hidden" name="typeId" value={selectedType.id} />
       <input type="hidden" name="mode" value={selectedMode} />
       <input type="hidden" name="language" value={language} />
+      <input type="hidden" name="styleGuideId" value={selectedStyleGuideId} />
       {moralData && <input type="hidden" name="moralData" value={JSON.stringify(moralData)} />}
       {archetypeData && <input type="hidden" name="archetypeData" value={JSON.stringify(archetypeData)} />}
       {selectedHook && <input type="hidden" name="selectedHook" value={JSON.stringify(selectedHook)} />}
@@ -203,8 +216,21 @@ export default function CreateStoryForm({
 
         {/* Style & Context Section */}
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Style & Context (Optional)</h3>
+            <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-zinc-500 whitespace-nowrap">Apply Style Guide:</label>
+                <select
+                    value={selectedStyleGuideId}
+                    onChange={(e) => setSelectedStyleGuideId(e.target.value)}
+                    className="text-sm rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-1.5 px-2 max-w-[200px]"
+                >
+                    <option value="">None (Custom)</option>
+                    {styleGuides.map(sg => (
+                        <option key={sg.id} value={sg.id}>{sg.name}</option>
+                    ))}
+                </select>
+            </div>
           </div>
           <div className="p-4 space-y-4">
             <div>
@@ -220,68 +246,102 @@ export default function CreateStoryForm({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="tone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Tone
-                </label>
-                <select
-                  id="tone"
-                  name="tone"
-                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
-                >
-                  <option value="">Select a tone...</option>
-                  {tones.map((t) => (
-                    <option key={t.id} value={t.id}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
+            {selectedStyleGuideId ? (
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-purple-900 dark:text-purple-100">Using: {activeStyleGuide?.name}</span>
+                        </div>
+                        <Link href={`/style-guide/${selectedStyleGuideId}`} target="_blank" className="text-xs text-purple-600 dark:text-purple-400 hover:underline">
+                            View/Edit Guide
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-zinc-600 dark:text-zinc-300">
+                        <div>
+                            <span className="text-zinc-500">Tone:</span> <span className="capitalize">{activeStyleGuide?.toneId || "Neutral"}</span>
+                        </div>
+                        <div>
+                            <span className="text-zinc-500">Style:</span> <span className="capitalize">{activeStyleGuide?.writingStyleId || "Standard"}</span>
+                        </div>
+                        <div>
+                             <span className="text-zinc-500">Perspective:</span> <span className="capitalize">{activeStyleGuide?.perspectiveId?.replace('_', ' ') || "Third Limited"}</span>
+                        </div>
+                        <div>
+                             <span className="text-zinc-500">Complexity:</span> <span>{activeStyleGuide?.complexityLevel || "High School"}</span>
+                        </div>
+                    </div>
+                    {activeStyleGuide?.toneDescription && (
+                        <div className="text-xs text-zinc-500 italic mt-2 border-t border-purple-100 dark:border-purple-800 pt-2">
+                            "{activeStyleGuide.toneDescription}"
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="tone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      Tone
+                    </label>
+                    <select
+                      id="tone"
+                      name="tone"
+                      className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                    >
+                      <option value="">Select a tone...</option>
+                      {tones.map((t) => (
+                        <option key={t.id} value={t.id}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label htmlFor="style" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Writing Style
-                </label>
-                <select
-                  id="style"
-                  name="style"
-                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
-                >
-                  <option value="">Select a style...</option>
-                  {writingStyles.map((s) => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
+                  <div>
+                    <label htmlFor="style" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      Writing Style
+                    </label>
+                    <select
+                      id="style"
+                      name="style"
+                      className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                    >
+                      <option value="">Select a style...</option>
+                      {writingStyles.map((s) => (
+                        <option key={s.id} value={s.id}>{s.label}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label htmlFor="perspective" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Perspective
-                </label>
-                <select
-                  id="perspective"
-                  name="perspective"
-                  className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
-                >
-                  <option value="">Select perspective...</option>
-                  {perspectives.map((p) => (
-                    <option key={p.id} value={p.id}>{p.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  <div>
+                    <label htmlFor="perspective" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      Perspective
+                    </label>
+                    <select
+                      id="perspective"
+                      name="perspective"
+                      className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                    >
+                      <option value="">Select perspective...</option>
+                      {perspectives.map((p) => (
+                        <option key={p.id} value={p.id}>{p.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-            <div>
-              <label htmlFor="customInstructions" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                Custom AI Instructions
-              </label>
-              <textarea
-                id="customInstructions"
-                name="customInstructions"
-                rows={2}
-                className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
-                placeholder="Any specific rules for the AI? (e.g., 'Avoid flowery language', 'Focus on dialogue')"
-              />
-            </div>
+                <div>
+                  <label htmlFor="customInstructions" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Custom AI Instructions
+                  </label>
+                  <textarea
+                    id="customInstructions"
+                    name="customInstructions"
+                    rows={2}
+                    className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                    placeholder="Any specific rules for the AI? (e.g., 'Avoid flowery language', 'Focus on dialogue')"
+                  />
+                </div>
+                </>
+            )}
           </div>
         </div>
 

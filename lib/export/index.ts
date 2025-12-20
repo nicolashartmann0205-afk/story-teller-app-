@@ -22,11 +22,11 @@ export async function exportStory(title: string, content: string, format: Export
         saveAs(blob, filename);
         break;
     case "docx":
-        blob = await generateDocx(title, content);
+        blob = await generateDocx(title, content, storyData?.stylePreferences);
         saveAs(blob, filename);
         break;
     case "pdf":
-        blob = generatePdf(title, content);
+        blob = generatePdf(title, content, storyData?.stylePreferences);
         saveAs(blob, filename);
         break;
     case "wiki":

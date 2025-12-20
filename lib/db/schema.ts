@@ -23,6 +23,47 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const styleGuides = pgTable("style_guides", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  isDefault: boolean("is_default").default(false),
+  
+  // Core Attributes
+  toneId: text("tone_id"),
+  writingStyleId: text("writing_style_id"),
+  perspectiveId: text("perspective_id"),
+  
+  // Enhanced Attributes
+  toneDescription: text("tone_description"),
+  complexityLevel: text("complexity_level"),
+  
+  // Visuals
+  primaryColor: text("primary_color"),
+  secondaryColor: text("secondary_color"),
+  fontHeading: text("font_heading"),
+  fontBody: text("font_body"),
+  
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const dictionaryEntries = pgTable("dictionary_entries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  styleGuideId: uuid("style_guide_id")
+    .notNull()
+    .references(() => styleGuides.id, { onDelete: "cascade" }),
+  term: text("term").notNull(),
+  definition: text("definition"),
+  usageGuidelines: text("usage_guidelines"),
+  category: text("category"),
+  
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const stories = pgTable("stories", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
@@ -52,6 +93,7 @@ export const stories = pgTable("stories", {
   lastExportDate: timestamp("last_export_date", { withTimezone: true }),
   lastExportFormat: text("last_export_format"),
   exportHistory: jsonb("export_history").default([]), // Array of past export events
+  styleGuideId: uuid("style_guide_id").references(() => styleGuides.id, { onDelete: "set null" }),
 
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

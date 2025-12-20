@@ -1,7 +1,10 @@
 import Link from "next/link";
 import CreateStoryWizard from "./wizard";
+import { getStyleGuides } from "../style-guide/actions";
 
-export default function CreateStoryPage() {
+export default async function CreateStoryPage() {
+  const styleGuides = await getStyleGuides().catch(() => []); // Handle error gracefully
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -15,7 +18,7 @@ export default function CreateStoryPage() {
         </div>
 
         <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 shadow-lg">
-          <CreateStoryWizard />
+          <CreateStoryWizard styleGuides={styleGuides} />
         </div>
       </div>
     </div>

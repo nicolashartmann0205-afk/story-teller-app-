@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucide-react";
+import { getStyleGuides } from "../style-guide/actions";
+import { StyleGuideSelector } from "./style-guide-selector";
 
 async function getDashboardData(userId: string) {
   // 1. Get total stories count
@@ -65,6 +67,8 @@ export default async function DashboardPage() {
   }
 
   const { stats, recentStories } = await getDashboardData(user.id);
+  // Fetch style guides for the selector
+  const styleGuides = await getStyleGuides().catch(() => []);
 
   // Determine greeting based on time of day
   const hour = new Date().getHours();
@@ -87,14 +91,17 @@ export default async function DashboardPage() {
                 Ready to continue your creative journey?
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end gap-3 w-full md:w-auto">
               <Link
                 href="/create-story"
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-black dark:bg-zinc-50 px-4 py-2.5 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-black dark:bg-zinc-50 px-4 py-2.5 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm w-full"
               >
                 <Plus className="h-4 w-4" />
                 New Story
               </Link>
+              <div className="w-full">
+                <StyleGuideSelector styleGuides={styleGuides} />
+              </div>
             </div>
           </div>
         </div>
@@ -210,6 +217,8 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+
 
 
 

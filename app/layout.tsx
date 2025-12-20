@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ParticleBackground from "@/components/ui/particle-background";
+import ClientParticleBackground from "@/components/ui/client-particle-background";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +26,11 @@ export default function RootLayout({
   // Simple, synchronous layout component - no async operations
   // Always returns valid HTML structure to ensure rendering
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <ParticleBackground />
+        <ClientParticleBackground />
         {/* Simple header to confirm rendering */}
         <header className="sr-only">
           <h1>Story Teller App</h1>
