@@ -24,6 +24,7 @@ export default async function StoryMapPage({ params }: PageProps) {
 
     const serializedMap = {
       ...data.map,
+      activeFilters: (data.map.activeFilters as any[]) ?? [],
       zoomLevel: data.map.zoomLevel ? data.map.zoomLevel.toString() : "1.0",
       currentView: (data.map.currentView as "timeline" | "arc" | "characters") || "timeline",
     };
