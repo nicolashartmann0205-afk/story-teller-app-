@@ -41,7 +41,7 @@ export async function getAIArchetypeSuggestion(context: StoryContext): Promise<A
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
     const archetypesList = Object.values(archetypesLibrary).map(a => `${a.id} (${a.name}): ${a.tagline}`).join("\n");
 

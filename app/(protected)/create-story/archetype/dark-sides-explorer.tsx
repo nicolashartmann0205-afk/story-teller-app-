@@ -29,6 +29,10 @@ export function DarkSidesExplorer({
     }));
   };
 
+  if (!archetype || !archetype.darkSides) {
+    return null;
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="text-center max-w-2xl mx-auto">
