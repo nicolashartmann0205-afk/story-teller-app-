@@ -11,11 +11,13 @@ import { eq } from "drizzle-orm";
 export async function generatePreviewHooksAction(
   title: string,
   description: string,
-  selectedTypes: string[]
+  selectedTypes: string[],
+  language: string
 ) {
   const supabase = await createClient();
   const {
     data: { user },
+    // ...
   } = await supabase.auth.getUser();
 
   if (!user) {
@@ -23,7 +25,7 @@ export async function generatePreviewHooksAction(
   }
 
   try {
-    const generatedData = await generateHooks(title, description, selectedTypes);
+    const generatedData = await generateHooks(title, description, selectedTypes, language);
     return { hooks: generatedData.hooks };
   } catch (error) {
     console.error("Error generating preview hooks:", error);
