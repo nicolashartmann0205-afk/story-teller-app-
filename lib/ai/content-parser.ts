@@ -29,9 +29,6 @@ function configurePdfJs() {
  */
 export async function parsePDF(buffer: Buffer): Promise<ParsedContent> {
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'content-parser.ts:30',message:'parsePDF ENTRY',data:{bufferSize:buffer.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     console.log('[PDF Parser] Starting PDF parsing, buffer size:', buffer.length);
     
     // Configure pdfjs for serverless
@@ -39,9 +36,6 @@ export async function parsePDF(buffer: Buffer): Promise<ParsedContent> {
     
     // @ts-ignore - pdf-parse has complex ESM/CJS export structure
     const pdfParse = pdfParseModule.default || pdfParseModule;
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'content-parser.ts:41',message:'Before pdfParse call',data:{hasPdfParse:!!pdfParse,pdfParseType:typeof pdfParse},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     
     // Parse with options that work in serverless environments
     const data = await pdfParse(buffer, {
@@ -51,9 +45,6 @@ export async function parsePDF(buffer: Buffer): Promise<ParsedContent> {
     
     const text = data.text.trim();
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'content-parser.ts:52',message:'PDF parsed successfully',data:{textLength:text.length,wordCount:text.split(/\s+/).length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     console.log('[PDF Parser] Successfully parsed PDF, text length:', text.length);
     
     return {
@@ -61,9 +52,6 @@ export async function parsePDF(buffer: Buffer): Promise<ParsedContent> {
       wordCount: text.split(/\s+/).length,
     };
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'content-parser.ts:63',message:'PDF parsing CAUGHT ERROR',data:{errorName:error?.constructor?.name,errorMessage:error?.message,includesCanvas:(error?.message||'').includes('canvas')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     console.error("[PDF Parser] PDF parsing error:", error);
     
     // Provide more detailed error information

@@ -66,13 +66,7 @@ const VALID_COMPLEXITY_LEVELS = [
 export async function analyzeStyleFromText(
   text: string
 ): Promise<StyleAnalysisResult> {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:70',message:'analyzeStyleFromText ENTRY',data:{textLength:text.length,hasApiKey:!!apiKey},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-  // #endregion
   if (!apiKey) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:75',message:'No API key configured',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
@@ -122,21 +116,12 @@ Guidelines:
 
 Return ONLY the JSON object, no additional text.`;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:136',message:'Before Gemini API call',data:{modelName:MODEL_NAME,promptLength:prompt.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     const result = await model.generateContent(prompt);
     const response = result.response;
     const jsonText = response.text();
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:143',message:'After Gemini API call',data:{responseTextLength:jsonText.length,firstChars:jsonText.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     
     // Parse the JSON response
     const analysis = JSON.parse(jsonText) as StyleAnalysisResult;
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:150',message:'JSON parsed successfully',data:{hasToneId:!!analysis.toneId,hasConfidence:!!analysis.confidence,suggestedTermsCount:analysis.suggestedTerms?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     
     // Validate and sanitize the response
     if (!VALID_TONES.includes(analysis.toneId)) {
@@ -164,14 +149,8 @@ Return ONLY the JSON object, no additional text.`;
       analysis.suggestedTerms = analysis.suggestedTerms.slice(0, 15);
     }
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:169',message:'Returning analysis result',data:{toneId:analysis.toneId,writingStyleId:analysis.writingStyleId,perspectiveId:analysis.perspectiveId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     return analysis;
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-analyzer.ts:175',message:'Style analysis CAUGHT ERROR',data:{errorName:error?.constructor?.name,errorMessage:error?.message,errorStack:error?.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-    // #endregion
     console.error("Style analysis error:", error);
     
     // Return default values on error
@@ -190,5 +169,3 @@ Return ONLY the JSON object, no additional text.`;
     };
   }
 }
-
-

@@ -99,10 +99,6 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:102',message:'handleFileUpload ENTRY',data:{fileName:file.name,fileSize:file.size,fileType:file.type},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-    // #endregion
-
     setIsAnalyzing(true);
     setAnalysisError(null);
     setAnalysisResult(null);
@@ -113,32 +109,17 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
       formData.append("file", file);
 
       setAnalysisProgress("Extracting text content...");
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:118',message:'Before analyzeDocumentAction call',data:{formDataHasFile:formData.has('file')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
       const result = await analyzeDocumentAction(formData);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:123',message:'After analyzeDocumentAction call',data:{resultSuccess:result?.success,resultError:result?.error,hasData:!!result?.data,resultKeys:Object.keys(result||{})},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
-      // #endregion
       
       setIsAnalyzing(false);
       setAnalysisProgress("");
 
       if (result.success && result.data) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:130',message:'Success path - setting result',data:{dataToneId:result.data?.toneId,dataKeys:Object.keys(result.data||{})},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
-        // #endregion
         setAnalysisResult(result.data);
       } else {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:136',message:'Error path - setting error',data:{error:result.error},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-        // #endregion
         setAnalysisError(result.error || "Failed to analyze document");
       }
     } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'style-guide-editor.tsx:143',message:'Frontend CAUGHT ERROR',data:{errorName:error?.constructor?.name,errorMessage:error?.message,errorString:String(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
       setIsAnalyzing(false);
       setAnalysisProgress("");
       setAnalysisError(error instanceof Error ? error.message : "An unexpected error occurred");
