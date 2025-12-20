@@ -40,6 +40,7 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
   // AI Import State
   const [aiAnalysisMethod, setAiAnalysisMethod] = useState<"upload" | "url" | "text">("upload");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState<string>("");
   const [analysisResult, setAnalysisResult] = useState<StyleAnalysisResult | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState("");
@@ -101,17 +102,28 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
     setIsAnalyzing(true);
     setAnalysisError(null);
     setAnalysisResult(null);
+    setAnalysisProgress("Uploading and parsing document...");
 
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const result = await analyzeDocumentAction(formData);
-    setIsAnalyzing(false);
+      setAnalysisProgress("Extracting text content...");
+      const result = await analyzeDocumentAction(formData);
+      
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
 
-    if (result.success && result.data) {
-      setAnalysisResult(result.data);
-    } else {
-      setAnalysisError(result.error || "Failed to analyze document");
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+      } else {
+        setAnalysisError(result.error || "Failed to analyze document");
+      }
+    } catch (error) {
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
+      setAnalysisError(error instanceof Error ? error.message : "An unexpected error occurred");
+      console.error("File upload error:", error);
     }
 
     // Reset file input
@@ -129,14 +141,24 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
     setIsAnalyzing(true);
     setAnalysisError(null);
     setAnalysisResult(null);
+    setAnalysisProgress("Fetching content from URL...");
 
-    const result = await analyzeUrlAction(urlInput.trim());
-    setIsAnalyzing(false);
+    try {
+      const result = await analyzeUrlAction(urlInput.trim());
+      
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
 
-    if (result.success && result.data) {
-      setAnalysisResult(result.data);
-    } else {
-      setAnalysisError(result.error || "Failed to analyze URL");
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+      } else {
+        setAnalysisError(result.error || "Failed to analyze URL");
+      }
+    } catch (error) {
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
+      setAnalysisError(error instanceof Error ? error.message : "An unexpected error occurred");
+      console.error("URL analysis error:", error);
     }
   };
 
@@ -149,14 +171,24 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
     setIsAnalyzing(true);
     setAnalysisError(null);
     setAnalysisResult(null);
+    setAnalysisProgress("Analyzing writing style...");
 
-    const result = await analyzeTextAction(textInput.trim());
-    setIsAnalyzing(false);
+    try {
+      const result = await analyzeTextAction(textInput.trim());
+      
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
 
-    if (result.success && result.data) {
-      setAnalysisResult(result.data);
-    } else {
-      setAnalysisError(result.error || "Failed to analyze text");
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+      } else {
+        setAnalysisError(result.error || "Failed to analyze text");
+      }
+    } catch (error) {
+      setIsAnalyzing(false);
+      setAnalysisProgress("");
+      setAnalysisError(error instanceof Error ? error.message : "An unexpected error occurred");
+      console.error("Text analysis error:", error);
     }
   };
 
@@ -630,6 +662,18 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                       </>
                     )}
                   </button>
+                </div>
+              )}
+
+              {/* Progress Display */}
+              {isAnalyzing && analysisProgress && (
+                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <Loader2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5 animate-spin" />
+                  <div>
+                    <p className="font-medium text-blue-900 dark:text-blue-200">Analyzing Content</p>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{analysisProgress}</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">This may take 10-30 seconds depending on content size...</p>
+                  </div>
                 </div>
               )}
 
