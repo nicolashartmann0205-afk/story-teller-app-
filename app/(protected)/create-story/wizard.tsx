@@ -225,7 +225,7 @@ export default function CreateStoryWizard() {
               </button>
               <ArchetypeGrid 
                 onSelect={handleArchetypeSelect}
-                selectedId={selectedArchetype || undefined}
+                selectedId={selectedArchetype}
               />
             </div>
           )}
