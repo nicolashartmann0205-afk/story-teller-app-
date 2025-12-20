@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 
 function Stars(props: any) {
-  const ref = useRef<any>();
+  const ref = useRef<any>(null);
   const [sphere, setSphere] = useState<Float32Array | null>(null);
   
   // Generate random points in a sphere - client side only to avoid hydration mismatch

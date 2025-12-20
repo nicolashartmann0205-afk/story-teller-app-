@@ -34,6 +34,7 @@ interface Scene {
   id: string;
   storyId: string;
   title: string;
+  order?: number;
   movieTimeAction: MovieTimeAction | unknown;
   movieTimeEmotion: MovieTimeEmotion | unknown;
   movieTimeMeaning: MovieTimeMeaning | unknown;

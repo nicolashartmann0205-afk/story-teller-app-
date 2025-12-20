@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getStyleGuides } from "./actions";
 import { StyleGuideList } from "./style-guide-list";
 import { CreateGuideButton } from "./create-guide-button";
-import { ParticleBackground } from "@/components/ui/particle-background";
+import ParticleBackground from "@/components/ui/particle-background";
 
 export default async function StyleGuidePage() {
   const guides = await getStyleGuides();
