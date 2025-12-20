@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parsePDF, parseDOCX, parseText, parseURL, cleanText, truncateText } from "@/lib/ai/content-parser";
 import { analyzeStyleFromText, StyleAnalysisResult } from "@/lib/ai/style-analyzer";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_TEXT_LENGTH = 50000; // ~50K characters for AI analysis
 
 interface AnalysisResponse {
@@ -49,7 +49,7 @@ export async function analyzeDocumentAction(
       console.error('[AI Actions] File too large:', sizeMB, 'MB');
       return { 
         success: false, 
-        error: `File size exceeds 5MB limit (${sizeMB}MB)` 
+        error: `File size exceeds 10MB limit (${sizeMB}MB)` 
       };
     }
 

@@ -580,7 +580,7 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                     <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg p-8 text-center hover:border-purple-600 transition-colors cursor-pointer">
                       <Upload className="w-12 h-12 mx-auto mb-4 text-zinc-400" />
                       <p className="text-sm font-medium mb-1">Click to upload or drag and drop</p>
-                      <p className="text-xs text-zinc-500">PDF, DOCX, or TXT (max 5MB)</p>
+                      <p className="text-xs text-zinc-500">PDF, DOCX, or TXT (max 10MB)</p>
                       <input
                         ref={fileInputRef}
                         type="file"
