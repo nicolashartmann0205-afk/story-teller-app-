@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { useMap } from "../../map-context";
+import { useMap } from "../map-context";
 
 interface ExportDialogProps {
   isOpen: boolean;
