@@ -33,9 +33,9 @@ export async function getAIArchetypeSuggestion(context: StoryContext): Promise<A
     console.warn("GEMINI_API_KEY not set for archetype suggestion");
     // Return a mock suggestion to avoid breaking the UI in dev without keys
     return {
-      primaryRecommendation: "hero", // fallback
+      primaryRecommendation: "warrior", // fallback
       confidence: "low",
-      reasoning: "AI service unavailable. Suggesting generic Hero archetype.",
+      reasoning: "AI service unavailable (No API Key). Suggesting Warrior archetype as default.",
       alternativeOptions: []
     };
   }
@@ -86,12 +86,12 @@ export async function getAIArchetypeSuggestion(context: StoryContext): Promise<A
     console.error("Error getting archetype suggestion:", error);
     // Return a safe fallback instead of crashing
     return {
-      primaryRecommendation: "hero", // Generic fallback
+      primaryRecommendation: "warrior", // Valid fallback ID
       confidence: "low",
-      reasoning: "AI analysis unavailable at the moment. Falling back to default suggestion.",
+      reasoning: "AI service is temporarily unavailable. Based on general storytelling principles, the Warrior archetype is a strong starting point for many protagonists.",
       alternativeOptions: [
-        { archetypeId: "explorer", reason: "Alternative option" },
-        { archetypeId: "creator", reason: "Alternative option" }
+        { archetypeId: "explorer", reason: "Good for journey-based stories" },
+        { archetypeId: "artist", reason: "Good for creative protagonists" }
       ]
     };
   }

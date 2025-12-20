@@ -24,6 +24,10 @@ export function JourneyMapper({ archetype, shadowType, onChange, initialJourney 
     }
   }, [journey, onChange]);
 
+  if (!archetype || !archetype.darkSides) {
+    return null;
+  }
+
   // Default shadow for visual reference
   const startingShadow = shadowType && archetype.darkSides[shadowType] 
     ? archetype.darkSides[shadowType] 

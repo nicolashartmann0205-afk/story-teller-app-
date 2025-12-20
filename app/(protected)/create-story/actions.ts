@@ -189,11 +189,9 @@ export async function createStoryAction(
     if (mode) {
       try {
         // Fetch current preferences first to merge
-        const [currentUser] = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, user.id))
-          .limit(1);
+        const currentUser = await db.query.users.findFirst({
+          where: eq(users.id, user.id)
+        });
         
         if (currentUser) {
           const currentPrefs = (currentUser.preferences as any) || {};
