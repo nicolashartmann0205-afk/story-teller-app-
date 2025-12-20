@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const apiKey = process.env.GEMINI_API_KEY;
 // Use a specific model version to avoid 404s with generic alias
-const MODEL_NAME = "gemini-2.5-flash-lite";
+const MODEL_NAME = "gemini-3-flash-preview";
 
 if (!apiKey) {
   console.warn("GEMINI_API_KEY is not set. AI story generation will fail if called.");
