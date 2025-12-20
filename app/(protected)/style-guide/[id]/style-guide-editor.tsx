@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Upload, Link as LinkIcon, FileText, Sparkles, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { updateStyleGuide, addDictionaryEntry, deleteDictionaryEntry } from "../actions";
+import { analyzeDocumentAction, analyzeUrlAction, analyzeTextAction } from "../ai-actions";
 import { tones, writingStyles, perspectives } from "@/lib/data/styleOptions";
 import { InferSelectModel } from "drizzle-orm";
 import { styleGuides, dictionaryEntries } from "@/lib/db/schema";
+import { StyleAnalysisResult } from "@/lib/ai/style-analyzer";
 
 type StyleGuide = InferSelectModel<typeof styleGuides>;
 type DictionaryEntry = InferSelectModel<typeof dictionaryEntries>;
@@ -25,7 +27,7 @@ const COMPLEXITY_LEVELS = [
 ];
 
 export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "visuals" | "dictionary">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "visuals" | "dictionary" | "ai-import">("overview");
   const [isSaving, startTransition] = useTransition();
   const [formData, setFormData] = useState(guide);
 
@@ -34,6 +36,15 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
   const [newTerm, setNewTerm] = useState("");
   const [newDefinition, setNewDefinition] = useState("");
   const [newUsage, setNewUsage] = useState("");
+
+  // AI Import State
+  const [aiAnalysisMethod, setAiAnalysisMethod] = useState<"upload" | "url" | "text">("upload");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<StyleAnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const [textInput, setTextInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     startTransition(async () => {
@@ -80,6 +91,118 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
 
   const handleChange = (field: keyof StyleGuide, value: any) => {
     setFormData({ ...formData, [field]: value });
+  };
+
+  // AI Import Handlers
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const result = await analyzeDocumentAction(formData);
+    setIsAnalyzing(false);
+
+    if (result.success && result.data) {
+      setAnalysisResult(result.data);
+    } else {
+      setAnalysisError(result.error || "Failed to analyze document");
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleUrlAnalyze = async () => {
+    if (!urlInput.trim()) {
+      setAnalysisError("Please enter a URL");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+
+    const result = await analyzeUrlAction(urlInput.trim());
+    setIsAnalyzing(false);
+
+    if (result.success && result.data) {
+      setAnalysisResult(result.data);
+    } else {
+      setAnalysisError(result.error || "Failed to analyze URL");
+    }
+  };
+
+  const handleTextAnalyze = async () => {
+    if (!textInput.trim()) {
+      setAnalysisError("Please enter some text to analyze");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+
+    const result = await analyzeTextAction(textInput.trim());
+    setIsAnalyzing(false);
+
+    if (result.success && result.data) {
+      setAnalysisResult(result.data);
+    } else {
+      setAnalysisError(result.error || "Failed to analyze text");
+    }
+  };
+
+  const applyAnalysisResults = (partial: boolean = false) => {
+    if (!analysisResult) return;
+
+    const updates: Partial<StyleGuide> = {
+      toneId: analysisResult.toneId,
+      writingStyleId: analysisResult.writingStyleId,
+      perspectiveId: analysisResult.perspectiveId,
+      complexityLevel: analysisResult.complexityLevel,
+      toneDescription: analysisResult.toneDescription,
+    };
+
+    setFormData({ ...formData, ...updates });
+
+    // Add suggested terms to dictionary
+    if (!partial && analysisResult.suggestedTerms.length > 0) {
+      analysisResult.suggestedTerms.forEach(async (term) => {
+        startTransition(async () => {
+          await addDictionaryEntry(guide.id, {
+            term: term.term,
+            definition: term.definition || "",
+            usageGuidelines: term.usageGuidelines || "",
+            category: "General",
+          } as any);
+        });
+        
+        setDictionary([...dictionary, {
+          id: crypto.randomUUID(),
+          styleGuideId: guide.id,
+          term: term.term,
+          definition: term.definition || null,
+          usageGuidelines: term.usageGuidelines || null,
+          category: "General",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } as DictionaryEntry]);
+      });
+    }
+
+    // Clear analysis result
+    setAnalysisResult(null);
+    setAnalysisError(null);
+    setUrlInput("");
+    setTextInput("");
   };
 
   return (
@@ -139,6 +262,19 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
             }`}
           >
             Dictionary
+          </button>
+          <button
+            onClick={() => setActiveTab("ai-import")}
+            className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+              activeTab === "ai-import"
+                ? "bg-zinc-100 dark:bg-zinc-800 font-medium"
+                : "hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-500"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              AI Import
+            </div>
           </button>
         </div>
 
@@ -356,6 +492,277 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                   <p className="text-center text-zinc-500 text-sm py-4">No dictionary entries yet.</p>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === "ai-import" && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">AI-Powered Style Import</h3>
+                <p className="text-sm text-zinc-500">
+                  Analyze documents, URLs, or text samples to automatically extract style characteristics.
+                </p>
+              </div>
+
+              {/* Method Selector */}
+              <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-700">
+                <button
+                  onClick={() => setAiAnalysisMethod("upload")}
+                  className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+                    aiAnalysisMethod === "upload"
+                      ? "border-purple-600 text-purple-600 font-medium"
+                      : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                  }`}
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Document
+                </button>
+                <button
+                  onClick={() => setAiAnalysisMethod("url")}
+                  className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+                    aiAnalysisMethod === "url"
+                      ? "border-purple-600 text-purple-600 font-medium"
+                      : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                  }`}
+                >
+                  <LinkIcon className="w-4 h-4" />
+                  From URL
+                </button>
+                <button
+                  onClick={() => setAiAnalysisMethod("text")}
+                  className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+                    aiAnalysisMethod === "text"
+                      ? "border-purple-600 text-purple-600 font-medium"
+                      : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  Paste Text
+                </button>
+              </div>
+
+              {/* Upload Method */}
+              {aiAnalysisMethod === "upload" && (
+                <div>
+                  <label className="block">
+                    <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg p-8 text-center hover:border-purple-600 transition-colors cursor-pointer">
+                      <Upload className="w-12 h-12 mx-auto mb-4 text-zinc-400" />
+                      <p className="text-sm font-medium mb-1">Click to upload or drag and drop</p>
+                      <p className="text-xs text-zinc-500">PDF, DOCX, or TXT (max 5MB)</p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        disabled={isAnalyzing}
+                      />
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* URL Method */}
+              {aiAnalysisMethod === "url" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Website URL</label>
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      placeholder="https://example.com/article"
+                      className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+                      disabled={isAnalyzing}
+                    />
+                  </div>
+                  <button
+                    onClick={handleUrlAnalyze}
+                    disabled={isAnalyzing || !urlInput.trim()}
+                    className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Analyze URL
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Text Method */}
+              {aiAnalysisMethod === "text" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Text Sample</label>
+                    <textarea
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder="Paste a writing sample here (minimum 100 characters)..."
+                      rows={8}
+                      className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 font-mono text-sm"
+                      disabled={isAnalyzing}
+                    />
+                    <p className="text-xs text-zinc-500 mt-1">
+                      {textInput.length} characters
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleTextAnalyze}
+                    disabled={isAnalyzing || textInput.trim().length < 100}
+                    className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Analyze Text
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Error Display */}
+              {analysisError && (
+                <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-red-900 dark:text-red-200">Analysis Failed</p>
+                    <p className="text-sm text-red-700 dark:text-red-300 mt-1">{analysisError}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Results Review Panel */}
+              {analysisResult && (
+                <div className="border border-purple-200 dark:border-purple-800 rounded-lg overflow-hidden">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 px-4 py-3 border-b border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                      <h4 className="font-semibold text-purple-900 dark:text-purple-100">
+                        Analysis Complete
+                      </h4>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 space-y-4">
+                    {/* Style Settings */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1">Tone</label>
+                        <p className="text-sm font-medium">
+                          {tones.find(t => t.id === analysisResult.toneId)?.label || analysisResult.toneId}
+                        </p>
+                        <div className="mt-1 h-1 bg-zinc-200 dark:bg-zinc-700 rounded">
+                          <div 
+                            className="h-full bg-purple-600 rounded" 
+                            style={{ width: `${analysisResult.confidence.tone * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1">Writing Style</label>
+                        <p className="text-sm font-medium">
+                          {writingStyles.find(s => s.id === analysisResult.writingStyleId)?.label || analysisResult.writingStyleId}
+                        </p>
+                        <div className="mt-1 h-1 bg-zinc-200 dark:bg-zinc-700 rounded">
+                          <div 
+                            className="h-full bg-purple-600 rounded" 
+                            style={{ width: `${analysisResult.confidence.style * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1">Perspective</label>
+                        <p className="text-sm font-medium">
+                          {perspectives.find(p => p.id === analysisResult.perspectiveId)?.label || analysisResult.perspectiveId}
+                        </p>
+                        <div className="mt-1 h-1 bg-zinc-200 dark:bg-zinc-700 rounded">
+                          <div 
+                            className="h-full bg-purple-600 rounded" 
+                            style={{ width: `${analysisResult.confidence.perspective * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1">Complexity Level</label>
+                        <p className="text-sm font-medium">{analysisResult.complexityLevel}</p>
+                      </div>
+                    </div>
+
+                    {/* Tone Description */}
+                    <div>
+                      <label className="block text-xs font-medium text-zinc-500 mb-1">AI Description</label>
+                      <p className="text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded">
+                        {analysisResult.toneDescription}
+                      </p>
+                    </div>
+
+                    {/* Suggested Terms */}
+                    {analysisResult.suggestedTerms.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-2">
+                          Suggested Dictionary Terms ({analysisResult.suggestedTerms.length})
+                        </label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {analysisResult.suggestedTerms.map((term, idx) => (
+                            <div key={idx} className="text-sm bg-zinc-50 dark:bg-zinc-800/50 p-2 rounded">
+                              <p className="font-medium">{term.term}</p>
+                              {term.definition && (
+                                <p className="text-xs text-zinc-500 mt-0.5">{term.definition}</p>
+                              )}
+                              {term.usageGuidelines && (
+                                <p className="text-xs text-purple-600 dark:text-purple-400 mt-0.5">
+                                  {term.usageGuidelines}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => applyAnalysisResults(false)}
+                        className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                      >
+                        Apply All
+                      </button>
+                      <button
+                        onClick={() => applyAnalysisResults(true)}
+                        className="flex-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 px-4 py-2 rounded-lg font-medium hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"
+                      >
+                        Apply Settings Only
+                      </button>
+                      <button
+                        onClick={() => {
+                          setAnalysisResult(null);
+                          setAnalysisError(null);
+                        }}
+                        className="px-4 py-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
