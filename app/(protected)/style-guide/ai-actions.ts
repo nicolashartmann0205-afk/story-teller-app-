@@ -19,6 +19,9 @@ interface AnalysisResponse {
 export async function analyzeDocumentAction(
   formData: FormData
 ): Promise<AnalysisResponse> {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:18',message:'analyzeDocumentAction ENTRY',data:{hasFormData:!!formData},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  // #endregion
   console.log('[AI Actions] Starting document analysis');
   
   const supabase = await createClient();
@@ -26,11 +29,17 @@ export async function analyzeDocumentAction(
 
   if (!user) {
     console.error('[AI Actions] Unauthorized access attempt');
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:29',message:'Unauthorized user',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     return { success: false, error: "Unauthorized" };
   }
 
   try {
     const file = formData.get("file") as File;
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:36',message:'File extracted from formData',data:{hasFile:!!file,fileName:file?.name,fileSize:file?.size,fileType:file?.type},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+    // #endregion
     
     if (!file) {
       console.error('[AI Actions] No file provided');
@@ -130,11 +139,24 @@ export async function analyzeDocumentAction(
 
     // Analyze with AI
     console.log('[AI Actions] Starting AI analysis...');
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:123',message:'Before AI analysis',data:{textLength:truncatedText.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+    // #endregion
     const analysis = await analyzeStyleFromText(truncatedText);
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:127',message:'After AI analysis',data:{hasAnalysis:!!analysis,toneId:analysis?.toneId,suggestedTermsCount:analysis?.suggestedTerms?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+    // #endregion
     console.log('[AI Actions] AI analysis complete');
 
-    return { success: true, data: analysis };
+    const result = { success: true, data: analysis };
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:133',message:'Returning success result',data:{resultKeys:Object.keys(result),dataKeys:Object.keys(result.data||{})},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
+    return result;
   } catch (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ai-actions.ts:138',message:'CAUGHT ERROR in try-catch',data:{errorName:error?.constructor?.name,errorMessage:error?.message,errorStack:error?.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     console.error("[AI Actions] Document analysis error:", error);
     
     // Provide detailed error information
