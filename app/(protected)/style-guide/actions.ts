@@ -104,8 +104,17 @@ export async function duplicateStyleGuide(id: string) {
 }
 
 export async function getStyleGuide(id: string) {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getStyleGuide',message:'getStyleGuide entry',data:{id},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getStyleGuide',message:'Before getUser call',data:{hasSupabase:!!supabase},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
+  const { data: { user }, error } = await supabase.auth.getUser();
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getStyleGuide',message:'After getUser call',data:{hasUser:!!user,hasError:!!error,errorCode:error?.code,errorMessage:error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
 
   if (!user) throw new Error("Unauthorized");
 
@@ -138,8 +147,17 @@ export async function updateStyleGuide(id: string, data: Partial<typeof styleGui
 }
 
 export async function getDictionaryEntries(styleGuideId: string) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getDictionaryEntries',message:'getDictionaryEntries entry',data:{styleGuideId},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getDictionaryEntries',message:'Before getUser call',data:{hasSupabase:!!supabase},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    const { data: { user }, error } = await supabase.auth.getUser();
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actions.ts:getDictionaryEntries',message:'After getUser call',data:{hasUser:!!user,hasError:!!error,errorCode:error?.code,errorMessage:error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
   
     if (!user) throw new Error("Unauthorized");
     

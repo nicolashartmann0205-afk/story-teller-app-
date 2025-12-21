@@ -1,5 +1,8 @@
 "use server";
 
+// DO NOT import pdf-polyfills here - it will be imported lazily when parsePDF is called
+// This prevents pdfjs-dist from being evaluated during module bundling
+
 import { createClient } from "@/lib/supabase/server";
 import { parsePDF, parseDOCX, parseText, parseURL, cleanText, truncateText } from "@/lib/ai/content-parser";
 import { analyzeStyleFromText, StyleAnalysisResult } from "@/lib/ai/style-analyzer";
