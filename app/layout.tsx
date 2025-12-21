@@ -1,7 +1,3 @@
-// Import polyfills FIRST to ensure DOMMatrix, ImageData, and Path2D are available
-// before any server-side code that might use pdfjs-dist runs
-import "@/lib/ai/pdf-polyfills";
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

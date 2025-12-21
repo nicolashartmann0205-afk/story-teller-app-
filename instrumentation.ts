@@ -4,7 +4,9 @@
  */
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
+  // Run in all Node.js environments, not just 'nodejs' runtime
+  // This ensures polyfills are set up in all server contexts (including serverless)
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     // Set up polyfills for browser APIs needed by pdfjs-dist
     const globalObj = globalThis as any;
     
@@ -95,6 +97,32 @@ export async function register() {
     }
     
     console.log('[Instrumentation] PDF polyfills set up');
+    
+    // #region agent log
+    try {
+      fetch('http://127.0.0.1:7242/ingest/712fc693-8823-4212-b37e-89ae6bcbbd97', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'instrumentation.ts:register',
+          message: 'Instrumentation hook executed',
+          data: {
+            hasDOMMatrix: typeof globalObj.DOMMatrix !== 'undefined',
+            hasImageData: typeof globalObj.ImageData !== 'undefined',
+            hasPath2D: typeof globalObj.Path2D !== 'undefined',
+            nextRuntime: process.env.NEXT_RUNTIME,
+            nodeVersion: process.versions?.node,
+          },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'initial',
+          hypothesisId: 'instrumentation-execution',
+        }),
+      }).catch(() => {});
+    } catch (e) {
+      // Ignore fetch errors in instrumentation
+    }
+    // #endregion
   }
 }
 

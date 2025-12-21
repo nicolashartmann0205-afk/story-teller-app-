@@ -1,10 +1,11 @@
 "use server";
 
-// DO NOT import pdf-polyfills here - it will be imported lazily when parsePDF is called
+// DO NOT import pdf-polyfills-init here - PDF parsing is now completely isolated via dynamic imports
 // This prevents pdfjs-dist from being evaluated during module bundling
 
 import { createClient } from "@/lib/supabase/server";
-import { parsePDF, parseDOCX, parseText, parseURL, cleanText, truncateText } from "@/lib/ai/content-parser";
+// DO NOT import from content-parser at top level - import dynamically to avoid analyzing PDF code
+// import { parseDOCX, parseText, parseURL, cleanText, truncateText } from "@/lib/ai/content-parser";
 import { analyzeStyleFromText, StyleAnalysisResult } from "@/lib/ai/style-analyzer";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -88,14 +89,43 @@ export async function analyzeDocumentAction(
     switch (fileType) {
       case 'pdf':
         console.log('[AI Actions] Parsing PDF...');
-        parsedContent = await parsePDF(buffer);
+        // Check if we're in an environment that supports PDF parsing
+        // PDF parsing requires browser APIs that may not be available in serverless environments
+        if (typeof (globalThis as any).DOMMatrix === 'undefined') {
+          // Polyfills might not be available - return helpful error immediately
+          return {
+            success: false,
+            error: "PDF parsing is not available in this environment. Please use DOCX or TXT files instead, or paste your content directly."
+          };
+        }
+        try {
+          // Dynamically import parsePDF only when needed to avoid evaluating pdfjs-dist during bundling
+          const { parsePDF } = await import("@/lib/ai/content-parser");
+          parsedContent = await parsePDF(buffer);
+          if (parsedContent.error) {
+            return {
+              success: false,
+              error: parsedContent.error
+            };
+          }
+        } catch (error) {
+          // If PDF parsing fails due to DOMMatrix or other issues, provide helpful error
+          console.error('[AI Actions] PDF parsing failed:', error);
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          return {
+            success: false,
+            error: "PDF parsing is not available in this environment. Please use DOCX or TXT files instead, or paste your content directly."
+          };
+        }
         break;
       case 'docx':
         console.log('[AI Actions] Parsing DOCX...');
+        const { parseDOCX } = await import("@/lib/ai/content-parser");
         parsedContent = await parseDOCX(buffer);
         break;
       case 'txt':
         console.log('[AI Actions] Parsing TXT...');
+        const { parseText } = await import("@/lib/ai/content-parser");
         parsedContent = parseText(buffer.toString('utf-8'));
         break;
       default:
@@ -123,6 +153,7 @@ export async function analyzeDocumentAction(
 
     // Clean and truncate text for AI analysis
     console.log('[AI Actions] Cleaning and truncating text...');
+    const { cleanText, truncateText } = await import("@/lib/ai/content-parser");
     const cleanedText = cleanText(parsedContent.text);
     const truncatedText = truncateText(cleanedText, MAX_TEXT_LENGTH);
     console.log('[AI Actions] Text prepared for AI:', {
@@ -175,7 +206,8 @@ export async function analyzeUrlAction(url: string): Promise<AnalysisResponse> {
     }
 
     console.log('[AI Actions] Fetching URL content...');
-    // Parse URL content
+    // Parse URL content - dynamically import to avoid analyzing PDF code
+    const { parseURL } = await import("@/lib/ai/content-parser");
     const parsedContent = await parseURL(url.trim());
 
     console.log('[AI Actions] URL parsing complete:', {
@@ -199,8 +231,9 @@ export async function analyzeUrlAction(url: string): Promise<AnalysisResponse> {
 
     // Clean and truncate text for AI analysis
     console.log('[AI Actions] Preparing URL content for AI...');
+    const { cleanText, truncateText: truncateTextUrl } = await import("@/lib/ai/content-parser");
     const cleanedText = cleanText(parsedContent.text);
-    const truncatedText = truncateText(cleanedText, MAX_TEXT_LENGTH);
+    const truncatedText = truncateTextUrl(cleanedText, MAX_TEXT_LENGTH);
 
     // Analyze with AI
     console.log('[AI Actions] Starting AI analysis of URL content...');
@@ -250,8 +283,9 @@ export async function analyzeTextAction(text: string): Promise<AnalysisResponse>
 
     // Clean and truncate text for AI analysis
     console.log('[AI Actions] Cleaning and preparing text...');
+    const { cleanText, truncateText: truncateTextAnalysis } = await import("@/lib/ai/content-parser");
     const cleanedText = cleanText(text);
-    const truncatedText = truncateText(cleanedText, MAX_TEXT_LENGTH);
+    const truncatedText = truncateTextAnalysis(cleanedText, MAX_TEXT_LENGTH);
     console.log('[AI Actions] Text prepared, final length:', truncatedText.length);
 
     // Analyze with AI
