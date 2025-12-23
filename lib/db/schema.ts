@@ -59,6 +59,9 @@ export const dictionaryEntries = pgTable("dictionary_entries", {
   definition: text("definition"),
   usageGuidelines: text("usage_guidelines"),
   category: text("category"),
+  termType: text("term_type"),
+  importance: text("importance"),
+  usageFrequency: text("usage_frequency"),
   
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

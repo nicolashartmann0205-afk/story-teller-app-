@@ -52,6 +52,45 @@ const BODY_FONTS = [
   "Crimson Text",
 ];
 
+const DICTIONARY_CATEGORIES = [
+  "Character Names",
+  "Place Names",
+  "Terminology",
+  "Jargon",
+  "Phrases",
+  "Proper Nouns",
+  "Technical Terms",
+  "Slang",
+  "Idioms",
+  "General",
+];
+
+const TERM_TYPES = [
+  "Noun",
+  "Verb",
+  "Adjective",
+  "Adverb",
+  "Phrase",
+  "Acronym",
+  "Abbreviation",
+  "Other",
+];
+
+const IMPORTANCE_LEVELS = [
+  "Essential",
+  "Important",
+  "Moderate",
+  "Optional",
+];
+
+const USAGE_FREQUENCIES = [
+  "Always",
+  "Often",
+  "Sometimes",
+  "Rarely",
+  "Context-dependent",
+];
+
 export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "visuals" | "dictionary" | "ai-import">("overview");
   const [isSaving, startTransition] = useTransition();
@@ -62,6 +101,10 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
   const [newTerm, setNewTerm] = useState("");
   const [newDefinition, setNewDefinition] = useState("");
   const [newUsage, setNewUsage] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newTermType, setNewTermType] = useState("");
+  const [newImportance, setNewImportance] = useState("");
+  const [newUsageFrequency, setNewUsageFrequency] = useState("");
 
   // AI Import State
   const [aiAnalysisMethod, setAiAnalysisMethod] = useState<"upload" | "url" | "text">("upload");
@@ -80,32 +123,40 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
   };
 
   const handleAddTerm = async () => {
-    if (!newTerm) return;
+    if (!newTerm.trim()) return;
     startTransition(async () => {
         await addDictionaryEntry(guide.id, {
-            term: newTerm,
-            definition: newDefinition,
-            usageGuidelines: newUsage,
-            category: "General",
+            term: newTerm.trim(),
+            definition: newDefinition.trim() || null,
+            usageGuidelines: newUsage.trim() || null,
+            category: newCategory || null,
+            termType: newTermType || null,
+            importance: newImportance || null,
+            usageFrequency: newUsageFrequency || null,
         } as any);
-        // Optimistic update or wait for revalidate? 
-        // We'll rely on revalidate for now, but strictly we should probably fetch or optimistically update.
-        // Since we are inside a client component that received initialDictionary, we can't easily refetch without router refresh.
-        // Actually, the server action revalidates the page, so useRouter().refresh() or just waiting might work if this was a server component wrapper.
-        // But let's just do a simple optimistic update for UX.
+        // Optimistic update for better UX
         setDictionary([...dictionary, {
             id: crypto.randomUUID(),
             styleGuideId: guide.id,
-            term: newTerm,
-            definition: newDefinition,
-            usageGuidelines: newUsage,
-            category: "General",
+            term: newTerm.trim(),
+            definition: newDefinition.trim() || null,
+            usageGuidelines: newUsage.trim() || null,
+            category: newCategory || "General",
+            termType: newTermType || null,
+            importance: newImportance || null,
+            usageFrequency: newUsageFrequency || null,
             createdAt: new Date(),
             updatedAt: new Date()
-        } as DictionaryEntry]); // Temporary ID
+        } as DictionaryEntry]);
+        
+        // Reset all fields
         setNewTerm("");
         setNewDefinition("");
         setNewUsage("");
+        setNewCategory("");
+        setNewTermType("");
+        setNewImportance("");
+        setNewUsageFrequency("");
     });
   };
 
@@ -519,7 +570,9 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
 
               <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700">
                 <h4 className="text-sm font-medium mb-3">Add New Term</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                
+                {/* Row 1: Term and Definition */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                   <input
                     type="text"
                     value={newTerm}
@@ -527,21 +580,82 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                     placeholder="Term (e.g., 'App')"
                     className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
                   />
-                   <input
+                  <input
                     type="text"
                     value={newDefinition}
                     onChange={(e) => setNewDefinition(e.target.value)}
                     placeholder="Definition (Optional)"
                     className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
                   />
-                   <input
+                </div>
+
+                {/* Row 2: Category and Term Type */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                  >
+                    <option value="">Select Category (Optional)</option>
+                    {DICTIONARY_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={newTermType}
+                    onChange={(e) => setNewTermType(e.target.value)}
+                    className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                  >
+                    <option value="">Select Term Type (Optional)</option>
+                    {TERM_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Row 3: Importance and Usage Frequency */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <select
+                    value={newImportance}
+                    onChange={(e) => setNewImportance(e.target.value)}
+                    className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                  >
+                    <option value="">Select Importance (Optional)</option>
+                    {IMPORTANCE_LEVELS.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={newUsageFrequency}
+                    onChange={(e) => setNewUsageFrequency(e.target.value)}
+                    className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                  >
+                    <option value="">Select Usage Frequency (Optional)</option>
+                    {USAGE_FREQUENCIES.map((freq) => (
+                      <option key={freq} value={freq}>
+                        {freq}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Row 4: Usage Rule */}
+                <div className="mb-3">
+                  <input
                     type="text"
                     value={newUsage}
                     onChange={(e) => setNewUsage(e.target.value)}
-                    placeholder="Usage Rule (e.g., 'Capitalize')"
-                    className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                    placeholder="Usage Rule (e.g., 'Capitalize', 'Use sparingly')"
+                    className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
                   />
                 </div>
+
                 <button
                   onClick={handleAddTerm}
                   disabled={!newTerm || isSaving}
@@ -554,10 +668,38 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
               <div className="space-y-2">
                 {dictionary.map((entry) => (
                   <div key={entry.id} className="flex items-start justify-between p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900">
-                    <div>
-                      <p className="font-semibold text-sm">{entry.term}</p>
-                      {entry.definition && <p className="text-xs text-zinc-500">{entry.definition}</p>}
-                      {entry.usageGuidelines && <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">Rule: {entry.usageGuidelines}</p>}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold text-sm">{entry.term}</p>
+                        {entry.category && (
+                          <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
+                            {entry.category}
+                          </span>
+                        )}
+                        {entry.termType && (
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                            {entry.termType}
+                          </span>
+                        )}
+                      </div>
+                      {entry.definition && <p className="text-xs text-zinc-500 mb-1">{entry.definition}</p>}
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {entry.importance && (
+                          <span className="text-orange-600 dark:text-orange-400">
+                            ⭐ {entry.importance}
+                          </span>
+                        )}
+                        {entry.usageFrequency && (
+                          <span className="text-green-600 dark:text-green-400">
+                            📊 {entry.usageFrequency}
+                          </span>
+                        )}
+                      </div>
+                      {entry.usageGuidelines && (
+                        <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                          Rule: {entry.usageGuidelines}
+                        </p>
+                      )}
                     </div>
                     <button
                       onClick={() => handleDeleteTerm(entry.id)}
