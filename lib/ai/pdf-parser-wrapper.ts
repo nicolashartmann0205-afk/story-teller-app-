@@ -189,7 +189,7 @@ export async function parsePDFSafe(buffer: Buffer): Promise<ParsedContent> {
     
     try {
       // Try ESM import - pdf-parse might export as namespace
-      const pdfParseModule = await import("pdf-parse");
+      const pdfParseModule: any = await import("pdf-parse");
       // The module might be the function itself in some builds
       if (typeof pdfParseModule === 'function') {
         pdfParse = pdfParseModule;

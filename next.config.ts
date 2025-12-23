@@ -61,13 +61,11 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
-    // Enable instrumentation hook
-    instrumentationHook: true,
   },
   // Use output.standalone to help with serverless deployments
   output: 'standalone',
   // Externalize pdf-parse to prevent Next.js from analyzing it (we use alias for pdfjs-dist)
-  serverComponentsExternalPackages: ['pdf-parse', '@napi-rs/canvas'],
+  serverExternalPackages: ['pdf-parse', '@napi-rs/canvas'],
   webpack: (config, { isServer, webpack }) => {
     if (isServer) {
       // Provide polyfills for browser APIs needed by pdfjs-dist on the server

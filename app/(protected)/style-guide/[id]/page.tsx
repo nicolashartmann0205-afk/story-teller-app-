@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { InferSelectModel } from "drizzle-orm";
 import { getStyleGuide, getDictionaryEntries } from "../actions";
+import { dictionaryEntries } from "@/lib/db/schema";
 import { StyleGuideEditor } from "./style-guide-editor";
 
 export default async function EditStyleGuidePage({ params }: { params: Promise<{ id: string }> }) {
@@ -11,7 +13,7 @@ export default async function EditStyleGuidePage({ params }: { params: Promise<{
   // #endregion
   
   let guide;
-  let dictionary;
+  let dictionary: InferSelectModel<typeof dictionaryEntries>[];
   
   try {
     guide = await getStyleGuide(id);
