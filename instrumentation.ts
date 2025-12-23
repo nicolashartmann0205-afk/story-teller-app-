@@ -4,9 +4,14 @@
  */
 
 export async function register() {
-  // Run in all Node.js environments, not just 'nodejs' runtime
-  // This ensures polyfills are set up in all server contexts (including serverless)
-  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  // Run in Node.js environments only (not Edge Runtime)
+  // Check for Node.js runtime explicitly to avoid Edge Runtime issues
+  const isNodeRuntime = typeof process !== 'undefined' && 
+    process.env.NEXT_RUNTIME !== 'edge' &&
+    typeof process.versions !== 'undefined' && 
+    process.versions.node;
+  
+  if (isNodeRuntime) {
     // Set up polyfills for browser APIs needed by pdfjs-dist
     const globalObj = globalThis as any;
     
@@ -111,7 +116,7 @@ export async function register() {
             hasImageData: typeof globalObj.ImageData !== 'undefined',
             hasPath2D: typeof globalObj.Path2D !== 'undefined',
             nextRuntime: process.env.NEXT_RUNTIME,
-            nodeVersion: process.versions?.node,
+            nodeVersion: typeof process.versions !== 'undefined' ? process.versions.node : undefined,
           },
           timestamp: Date.now(),
           sessionId: 'debug-session',

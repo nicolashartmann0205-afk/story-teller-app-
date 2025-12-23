@@ -66,6 +66,9 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Externalize pdf-parse to prevent Next.js from analyzing it (we use alias for pdfjs-dist)
   serverExternalPackages: ['pdf-parse', '@napi-rs/canvas'],
+  // Add empty turbopack config to silence the warning about webpack config with Turbopack
+  // The webpack config is still needed for the build process
+  turbopack: {},
   webpack: (config, { isServer, webpack }) => {
     if (isServer) {
       // Provide polyfills for browser APIs needed by pdfjs-dist on the server

@@ -78,8 +78,9 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
     
     // Dynamically import pdf-parse after polyfills are set up
+    // pdf-parse is an ESM module - handle the import structure
     const pdfParseModule = await import("pdf-parse");
-    const pdfParse = pdfParseModule.default || pdfParseModule;
+    const pdfParse = (pdfParseModule as { default?: any } & any).default || pdfParseModule;
     
     const data = await pdfParse(buffer, { max: 0 });
     const text = data.text.trim();
