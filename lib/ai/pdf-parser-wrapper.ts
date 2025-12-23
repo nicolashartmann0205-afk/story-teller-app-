@@ -190,19 +190,27 @@ export async function parsePDFSafe(buffer: Buffer): Promise<ParsedContent> {
     try {
       // Try ESM import - pdf-parse might export as namespace
       const pdfParseModule: any = await import("pdf-parse");
-      // The module might be the function itself in some builds
+      
+      console.log('[PDF Parser] Module type:', typeof pdfParseModule);
+      console.log('[PDF Parser] Module keys:', pdfParseModule ? Object.keys(pdfParseModule).slice(0, 10).join(', ') : 'none');
+      
+      // Try various export patterns
       if (typeof pdfParseModule === 'function') {
         pdfParse = pdfParseModule;
       } else if (pdfParseModule && typeof pdfParseModule.default === 'function') {
         pdfParse = pdfParseModule.default;
+      } else if (pdfParseModule && pdfParseModule.default && typeof pdfParseModule.default.default === 'function') {
+        // Double default export (some bundlers do this)
+        pdfParse = pdfParseModule.default.default;
       } else {
         // Try using createRequire for CommonJS
+        console.log('[PDF Parser] Trying CommonJS require fallback');
         const { createRequire } = await import('module');
-        // @ts-ignore - __dirname might not be available in ESM
-        const requireFunc = createRequire(import.meta.url || __filename || require.resolve('pdf-parse'));
+        const requireFunc = createRequire(import.meta.url || __filename);
         pdfParse = requireFunc('pdf-parse');
       }
     } catch (esmError) {
+      console.error('[PDF Parser] ESM import failed:', esmError);
       // Fallback to CommonJS require if ESM import fails
       // @ts-ignore - require might be available in some contexts
       if (typeof require !== 'undefined') {
