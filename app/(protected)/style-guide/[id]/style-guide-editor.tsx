@@ -610,7 +610,6 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
               <div>
                 <h3 className="text-lg font-semibold mb-4">Color Palette</h3>
                 
-                {/* TODO: Uncomment after running database migration 
                 <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
                   <label className="block text-sm font-medium mb-3">Quick Palette Presets</label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -634,7 +633,6 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                   </div>
                   <p className="text-xs text-zinc-500 mt-2">Click a preset to apply all colors instantly</p>
                 </div>
-                */}
 
                 {/* Individual Color Pickers */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -676,7 +674,6 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                   </div>
                   </div>
                   
-                  {/* TODO: Uncomment after running database migration
                   <div>
                     <label className="block text-sm font-medium mb-2">Tertiary Color</label>
                     <div className="flex gap-2">
@@ -714,7 +711,6 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                       />
                     </div>
                   </div>
-                  */}
                 </div>
               </div>
 

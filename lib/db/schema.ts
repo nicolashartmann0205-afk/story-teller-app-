@@ -43,9 +43,8 @@ export const styleGuides = pgTable("style_guides", {
   // Visuals
   primaryColor: text("primary_color"),
   secondaryColor: text("secondary_color"),
-  // TODO: Uncomment after running migration: ALTER TABLE style_guides ADD COLUMN IF NOT EXISTS tertiary_color TEXT, ADD COLUMN IF NOT EXISTS accent_color TEXT;
-  // tertiaryColor: text("tertiary_color"),
-  // accentColor: text("accent_color"),
+  tertiaryColor: text("tertiary_color"),
+  accentColor: text("accent_color"),
   fontHeading: text("font_heading"),
   fontBody: text("font_body"),
   
