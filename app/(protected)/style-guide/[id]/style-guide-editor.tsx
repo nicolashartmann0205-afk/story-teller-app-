@@ -26,6 +26,32 @@ const COMPLEXITY_LEVELS = [
   "PhD / Technical",
 ];
 
+const HEADING_FONTS = [
+  "Inter",
+  "Playfair Display",
+  "Montserrat",
+  "Poppins",
+  "Roboto Slab",
+  "Merriweather",
+  "Oswald",
+  "Raleway",
+  "Bebas Neue",
+  "Lora",
+];
+
+const BODY_FONTS = [
+  "Inter",
+  "Open Sans",
+  "Roboto",
+  "Lato",
+  "Source Sans Pro",
+  "Nunito",
+  "Merriweather",
+  "PT Sans",
+  "Work Sans",
+  "Crimson Text",
+];
+
 export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "visuals" | "dictionary" | "ai-import">("overview");
   const [isSaving, startTransition] = useTransition();
@@ -451,24 +477,34 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Heading Font</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.fontHeading || ""}
                       onChange={(e) => handleChange("fontHeading", e.target.value)}
-                      placeholder="e.g., Inter, Roboto Slab"
                       className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
-                    />
+                    >
+                      <option value="">Select a heading font</option>
+                      {HEADING_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </select>
                     <p className="text-xs text-zinc-500 mt-1">Google Fonts supported in exports</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Body Font</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.fontBody || ""}
                       onChange={(e) => handleChange("fontBody", e.target.value)}
-                      placeholder="e.g., Open Sans, Lato"
                       className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
-                    />
+                    >
+                      <option value="">Select a body font</option>
+                      {BODY_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
