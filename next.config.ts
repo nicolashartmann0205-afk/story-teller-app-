@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: '15mb', // Increased to handle files up to application limit of 10MB
     },
   },
   // Use output.standalone to help with serverless deployments

@@ -99,6 +99,17 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Check file size client-side before upload (10MB limit)
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_SIZE) {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+      setAnalysisError(`File size (${sizeMB}MB) exceeds the 10MB limit. Please use a smaller file.`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+
     setIsAnalyzing(true);
     setAnalysisError(null);
     setAnalysisResult(null);
