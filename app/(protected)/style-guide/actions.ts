@@ -202,3 +202,22 @@ export async function deleteDictionaryEntry(id: string, styleGuideId: string) {
     await db.delete(dictionaryEntries).where(eq(dictionaryEntries.id, id));
     revalidatePath(`/style-guide/${styleGuideId}`);
 }
+
+export async function updateDictionaryEntry(
+  id: string,
+  data: Partial<typeof dictionaryEntries.$inferInsert>
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("Unauthorized");
+  
+  await db.update(dictionaryEntries)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(dictionaryEntries.id, id));
+    
+  revalidatePath(`/style-guide`);
+}

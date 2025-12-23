@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save, Plus, Trash2, Upload, Link as LinkIcon, FileText, Sparkles, Loader2, CheckCircle, XCircle } from "lucide-react";
-import { updateStyleGuide, addDictionaryEntry, deleteDictionaryEntry } from "../actions";
+import { updateStyleGuide, addDictionaryEntry, deleteDictionaryEntry, updateDictionaryEntry } from "../actions";
 import { analyzeDocumentAction, analyzeUrlAction, analyzeTextAction } from "../ai-actions";
 import { tones, writingStyles, perspectives } from "@/lib/data/styleOptions";
 import { InferSelectModel } from "drizzle-orm";
@@ -91,6 +91,69 @@ const USAGE_FREQUENCIES = [
   "Context-dependent",
 ];
 
+const COLOR_PALETTES = [
+  {
+    id: "modern-purple",
+    name: "Modern Purple",
+    colors: {
+      primary: "#9333EA",
+      secondary: "#EC4899",
+      tertiary: "#8B5CF6",
+      accent: "#F97316",
+    },
+  },
+  {
+    id: "professional-blue",
+    name: "Professional Blue",
+    colors: {
+      primary: "#2563EB",
+      secondary: "#0EA5E9",
+      tertiary: "#3B82F6",
+      accent: "#10B981",
+    },
+  },
+  {
+    id: "warm-sunset",
+    name: "Warm Sunset",
+    colors: {
+      primary: "#DC2626",
+      secondary: "#F59E0B",
+      tertiary: "#EF4444",
+      accent: "#F97316",
+    },
+  },
+  {
+    id: "forest-green",
+    name: "Forest Green",
+    colors: {
+      primary: "#059669",
+      secondary: "#10B981",
+      tertiary: "#14B8A6",
+      accent: "#84CC16",
+    },
+  },
+  {
+    id: "elegant-monochrome",
+    name: "Elegant Monochrome",
+    colors: {
+      primary: "#1F2937",
+      secondary: "#6B7280",
+      tertiary: "#4B5563",
+      accent: "#9333EA",
+    },
+  },
+  {
+    id: "creative-coral",
+    name: "Creative Coral",
+    colors: {
+      primary: "#F43F5E",
+      secondary: "#FB7185",
+      tertiary: "#FD0A7B",
+      accent: "#FBBF24",
+    },
+  },
+];
+
 export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "visuals" | "dictionary" | "ai-import">("overview");
   const [isSaving, startTransition] = useTransition();
@@ -105,6 +168,18 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
   const [newTermType, setNewTermType] = useState("");
   const [newImportance, setNewImportance] = useState("");
   const [newUsageFrequency, setNewUsageFrequency] = useState("");
+
+  // Edit Dictionary Entry State
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    term: "",
+    definition: "",
+    usageGuidelines: "",
+    category: "",
+    termType: "",
+    importance: "",
+    usageFrequency: "",
+  });
 
   // AI Import State
   const [aiAnalysisMethod, setAiAnalysisMethod] = useState<"upload" | "url" | "text">("upload");
@@ -164,6 +239,53 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
       setDictionary(dictionary.filter(d => d.id !== id));
       startTransition(async () => {
           await deleteDictionaryEntry(id, guide.id);
+      });
+  };
+
+  const handleEditEntry = (entry: DictionaryEntry) => {
+    setEditingEntryId(entry.id);
+    setEditFormData({
+      term: entry.term,
+      definition: entry.definition || "",
+      usageGuidelines: entry.usageGuidelines || "",
+      category: entry.category || "",
+      termType: entry.termType || "",
+      importance: entry.importance || "",
+      usageFrequency: entry.usageFrequency || "",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingEntryId) return;
+    
+    startTransition(async () => {
+      await updateDictionaryEntry(editingEntryId, editFormData as any);
+    });
+    
+    // Optimistic update
+    setDictionary(dictionary.map(entry => 
+      entry.id === editingEntryId 
+        ? { ...entry, ...editFormData, updatedAt: new Date() } as DictionaryEntry
+        : entry
+    ));
+    
+    setEditingEntryId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingEntryId(null);
+  };
+
+  const handleApplyPalette = (paletteId: string) => {
+    const palette = COLOR_PALETTES.find(p => p.id === paletteId);
+    if (!palette) return;
+    
+    setFormData({
+      ...formData,
+      primaryColor: palette.colors.primary,
+      secondaryColor: palette.colors.secondary,
+      tertiaryColor: palette.colors.tertiary,
+      accentColor: palette.colors.accent,
       });
   };
 
@@ -485,7 +607,36 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
 
           {activeTab === "visuals" && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold">Color Palette</h3>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Color Palette</h3>
+                
+                {/* TODO: Uncomment after running database migration 
+                <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                  <label className="block text-sm font-medium mb-3">Quick Palette Presets</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {COLOR_PALETTES.map((palette) => (
+                      <button
+                        key={palette.id}
+                        onClick={() => handleApplyPalette(palette.id)}
+                        className="flex flex-col items-center p-3 border-2 border-zinc-200 dark:border-zinc-700 rounded-lg hover:border-purple-500 transition-colors group"
+                      >
+                        <div className="flex gap-1 mb-2">
+                          <div className="w-6 h-6 rounded" style={{ backgroundColor: palette.colors.primary }} />
+                          <div className="w-6 h-6 rounded" style={{ backgroundColor: palette.colors.secondary }} />
+                          <div className="w-6 h-6 rounded" style={{ backgroundColor: palette.colors.tertiary }} />
+                          <div className="w-6 h-6 rounded" style={{ backgroundColor: palette.colors.accent }} />
+                        </div>
+                        <span className="text-xs font-medium group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                          {palette.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-2">Click a preset to apply all colors instantly</p>
+                </div>
+                */}
+
+                {/* Individual Color Pickers */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Primary Color</label>
@@ -494,32 +645,76 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                       type="color"
                       value={formData.primaryColor || "#000000"}
                       onChange={(e) => handleChange("primaryColor", e.target.value)}
-                      className="h-10 w-10 rounded cursor-pointer border-none p-0"
+                        className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
                       value={formData.primaryColor || ""}
                       onChange={(e) => handleChange("primaryColor", e.target.value)}
-                      className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 uppercase"
+                        placeholder="#000000"
+                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
                     />
                   </div>
                 </div>
+                  
                 <div>
                   <label className="block text-sm font-medium mb-2">Secondary Color</label>
                   <div className="flex gap-2">
                     <input
                       type="color"
-                      value={formData.secondaryColor || "#ffffff"}
+                        value={formData.secondaryColor || "#FFFFFF"}
                       onChange={(e) => handleChange("secondaryColor", e.target.value)}
-                      className="h-10 w-10 rounded cursor-pointer border-none p-0"
+                        className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
                       value={formData.secondaryColor || ""}
                       onChange={(e) => handleChange("secondaryColor", e.target.value)}
-                      className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 uppercase"
+                        placeholder="#FFFFFF"
+                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
                     />
                   </div>
+                  </div>
+                  
+                  {/* TODO: Uncomment after running database migration
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Tertiary Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.tertiaryColor || "#8B5CF6"}
+                        onChange={(e) => handleChange("tertiaryColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.tertiaryColor || ""}
+                        onChange={(e) => handleChange("tertiaryColor", e.target.value)}
+                        placeholder="#8B5CF6"
+                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Accent Color</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.accentColor || "#F97316"}
+                        onChange={(e) => handleChange("accentColor", e.target.value)}
+                        className="w-16 h-10 rounded cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={formData.accentColor || ""}
+                        onChange={(e) => handleChange("accentColor", e.target.value)}
+                        placeholder="#F97316"
+                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                  */}
                 </div>
               </div>
 
@@ -580,7 +775,7 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
                     placeholder="Term (e.g., 'App')"
                     className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
                   />
-                  <input
+                   <input
                     type="text"
                     value={newDefinition}
                     onChange={(e) => setNewDefinition(e.target.value)}
@@ -647,7 +842,7 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
 
                 {/* Row 4: Usage Rule */}
                 <div className="mb-3">
-                  <input
+                   <input
                     type="text"
                     value={newUsage}
                     onChange={(e) => setNewUsage(e.target.value)}
@@ -667,46 +862,148 @@ export function StyleGuideEditor({ guide, initialDictionary }: StyleGuideEditorP
 
               <div className="space-y-2">
                 {dictionary.map((entry) => (
-                  <div key={entry.id} className="flex items-start justify-between p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-sm">{entry.term}</p>
-                        {entry.category && (
-                          <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
-                            {entry.category}
-                          </span>
-                        )}
-                        {entry.termType && (
-                          <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
-                            {entry.termType}
-                          </span>
-                        )}
+                  <div key={entry.id} className="border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900">
+                    {editingEntryId === entry.id ? (
+                      // EDIT MODE
+                      <div className="p-4 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            value={editFormData.term}
+                            onChange={(e) => setEditFormData({...editFormData, term: e.target.value})}
+                            placeholder="Term"
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          />
+                          <input
+                            type="text"
+                            value={editFormData.definition}
+                            onChange={(e) => setEditFormData({...editFormData, definition: e.target.value})}
+                            placeholder="Definition"
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <select
+                            value={editFormData.category}
+                            onChange={(e) => setEditFormData({...editFormData, category: e.target.value})}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          >
+                            <option value="">Select Category</option>
+                            {DICTIONARY_CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
+                          
+                          <select
+                            value={editFormData.termType}
+                            onChange={(e) => setEditFormData({...editFormData, termType: e.target.value})}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          >
+                            <option value="">Select Term Type</option>
+                            {TERM_TYPES.map((type) => (
+                              <option key={type} value={type}>{type}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <select
+                            value={editFormData.importance}
+                            onChange={(e) => setEditFormData({...editFormData, importance: e.target.value})}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          >
+                            <option value="">Select Importance</option>
+                            {IMPORTANCE_LEVELS.map((level) => (
+                              <option key={level} value={level}>{level}</option>
+                            ))}
+                          </select>
+                          
+                          <select
+                            value={editFormData.usageFrequency}
+                            onChange={(e) => setEditFormData({...editFormData, usageFrequency: e.target.value})}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                          >
+                            <option value="">Select Usage Frequency</option>
+                            {USAGE_FREQUENCIES.map((freq) => (
+                              <option key={freq} value={freq}>{freq}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <input
+                          type="text"
+                          value={editFormData.usageGuidelines}
+                          onChange={(e) => setEditFormData({...editFormData, usageGuidelines: e.target.value})}
+                          placeholder="Usage Rule"
+                          className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm"
+                        />
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSaveEdit}
+                            className="text-sm bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-sm bg-zinc-500 text-white px-4 py-2 rounded-md hover:bg-zinc-600"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                      {entry.definition && <p className="text-xs text-zinc-500 mb-1">{entry.definition}</p>}
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        {entry.importance && (
-                          <span className="text-orange-600 dark:text-orange-400">
-                            ⭐ {entry.importance}
-                          </span>
-                        )}
-                        {entry.usageFrequency && (
-                          <span className="text-green-600 dark:text-green-400">
-                            📊 {entry.usageFrequency}
-                          </span>
-                        )}
-                      </div>
-                      {entry.usageGuidelines && (
-                        <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-                          Rule: {entry.usageGuidelines}
-                        </p>
-                      )}
+                    ) : (
+                      // VIEW MODE - Make it clickable
+                      <div 
+                        className="flex items-start justify-between p-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                        onClick={() => handleEditEntry(entry)}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold text-sm">{entry.term}</p>
+                            {entry.category && (
+                              <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
+                                {entry.category}
+                              </span>
+                            )}
+                            {entry.termType && (
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                                {entry.termType}
+                              </span>
+                            )}
+                          </div>
+                          {entry.definition && <p className="text-xs text-zinc-500 mb-1">{entry.definition}</p>}
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {entry.importance && (
+                              <span className="text-orange-600 dark:text-orange-400">
+                                ⭐ {entry.importance}
+                              </span>
+                            )}
+                            {entry.usageFrequency && (
+                              <span className="text-green-600 dark:text-green-400">
+                                📊 {entry.usageFrequency}
+                              </span>
+                            )}
+                          </div>
+                          {entry.usageGuidelines && (
+                            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                              Rule: {entry.usageGuidelines}
+                            </p>
+                          )}
                     </div>
                     <button
-                      onClick={() => handleDeleteTerm(entry.id)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering edit when clicking delete
+                            handleDeleteTerm(entry.id);
+                          }}
                       className="text-zinc-400 hover:text-red-500 p-1"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {dictionary.length === 0 && (
