@@ -751,3 +751,12 @@
 {"location":"actions.ts:getDictionaryEntries","message":"Before getUser call","data":{"hasSupabase":true},"timestamp":1766498242450,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
 {"location":"actions.ts:getDictionaryEntries","message":"After getUser call","data":{"hasUser":true,"hasError":false},"timestamp":1766498242504,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
 {"location":"page.tsx:EditStyleGuidePage","message":"After getDictionaryEntries","data":{"hasDictionary":true,"dictionaryLength":1},"timestamp":1766498242867,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"page.tsx:EditStyleGuidePage","message":"Page component entry","data":{"id":"861459a0-da48-4b9b-878b-efa343779ae6"},"timestamp":1766498460550,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getStyleGuide","message":"getStyleGuide entry","data":{"id":"861459a0-da48-4b9b-878b-efa343779ae6"},"timestamp":1766498460554,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getStyleGuide","message":"Before getUser call","data":{"hasSupabase":true},"timestamp":1766498460608,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getStyleGuide","message":"After getUser call","data":{"hasUser":true,"hasError":false},"timestamp":1766498460756,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"page.tsx:EditStyleGuidePage","message":"After getStyleGuide","data":{"hasGuide":true},"timestamp":1766498460928,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getDictionaryEntries","message":"getDictionaryEntries entry","data":{"styleGuideId":"861459a0-da48-4b9b-878b-efa343779ae6"},"timestamp":1766498460930,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getDictionaryEntries","message":"Before getUser call","data":{"hasSupabase":true},"timestamp":1766498460956,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"actions.ts:getDictionaryEntries","message":"After getUser call","data":{"hasUser":true,"hasError":false},"timestamp":1766498461006,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"location":"page.tsx:EditStyleGuidePage","message":"After getDictionaryEntries","data":{"hasDictionary":true,"dictionaryLength":0},"timestamp":1766498461341,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
