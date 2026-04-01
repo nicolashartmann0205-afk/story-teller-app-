@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getAuthCallbackUrl } from "@/lib/config/env";
 import { createClient } from "@/lib/supabase/server";
 import SignInForm from "./sign-in-form";
 
@@ -20,7 +21,7 @@ async function signInAction(previousState: { error?: string; success?: string } 
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo: getAuthCallbackUrl(),
       },
     });
 
@@ -41,6 +42,12 @@ async function signInAction(previousState: { error?: string; success?: string } 
   });
 
   if (error) {
+    if (error.message.includes("Unsupported provider")) {
+      return {
+        error:
+          "Google sign-in is currently not enabled. Please enable Google provider in Supabase Authentication settings and try again.",
+      };
+    }
     return { error: error.message };
   }
 
@@ -53,7 +60,7 @@ async function signInWithGoogleAction() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo: getAuthCallbackUrl(),
     },
   });
 

@@ -125,3 +125,9 @@ export function getAppUrl(): string {
   return appConfig.url;
 }
 
+/** Canonical URL for Supabase OAuth and email redirects (must match Supabase Redirect URLs). */
+export function getAuthCallbackUrl(): string {
+  const base = getAppUrl().replace(/\/$/, "");
+  return `${base}/auth/callback`;
+}
+

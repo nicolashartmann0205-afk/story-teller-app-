@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getAuthCallbackUrl } from "@/lib/config/env";
 import { createClient } from "@/lib/supabase/server";
 import SignUpForm from "./sign-up-form";
 
@@ -24,7 +25,7 @@ async function signUpAction(previousState: { error?: string } | null | void, for
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "http://localhost:3000"}/auth/callback`,
+      emailRedirectTo: getAuthCallbackUrl(),
     },
   });
 

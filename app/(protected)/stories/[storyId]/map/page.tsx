@@ -20,6 +20,10 @@ export default async function StoryMapPage({ params }: PageProps) {
       duration: scene.duration ? scene.duration.toString() : "10.0",
       tension: scene.tension ?? 5,
       description: scene.description ?? undefined,
+      visualStyle:
+        scene.visualStyle && typeof scene.visualStyle === "object"
+          ? (scene.visualStyle as Record<string, unknown>)
+          : undefined,
     }));
 
     const serializedMap = {

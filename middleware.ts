@@ -1,7 +1,14 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // OAuth sometimes lands on Site URL root (?code=) instead of /auth/callback; fix before session logic.
+  const url = request.nextUrl.clone();
+  if (url.pathname === "/" && url.searchParams.has("code")) {
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+
   return await updateSession(request);
 }
 

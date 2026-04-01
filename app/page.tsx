@@ -2,7 +2,30 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-export default async function Home() {
+type HomeProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+// Ensure OAuth ?code= handling is never served from a stale static shell.
+export const dynamic = "force-dynamic";
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  // Supabase may send OAuth code to Site URL root if redirect URL allowlist mismatches; forward to callback.
+  const code = params.code;
+  if (typeof code === "string" && code.length > 0) {
+    const u = new URLSearchParams();
+    for (const [key, val] of Object.entries(params)) {
+      if (val === undefined) continue;
+      if (Array.isArray(val)) {
+        val.forEach((v) => u.append(key, v));
+      } else {
+        u.set(key, val);
+      }
+    }
+    redirect(`/auth/callback?${u.toString()}`);
+  }
+
   // Check authentication - handle errors gracefully
   let user = null;
   let authError = null;
@@ -16,8 +39,14 @@ export default async function Home() {
     } = await supabase.auth.getUser();
 
     if (error) {
-      authError = error;
-      console.error("Error checking authentication:", error);
+      // No cookies / not signed in — getUser() returns this; not a real failure for the landing page.
+      const isMissingSession =
+        error.message?.includes("Auth session missing") ||
+        (error as { name?: string }).name === "AuthSessionMissingError";
+      if (!isMissingSession) {
+        authError = error;
+        console.error("Error checking authentication:", error);
+      }
     } else {
       user = authUser;
     }
