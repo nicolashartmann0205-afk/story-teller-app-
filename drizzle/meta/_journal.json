@@ -50,6 +50,13 @@
       "when": 1766212665176,
       "tag": "0006_odd_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1741123200000,
+      "tag": "0008_blog_posts",
+      "breakpoints": true
     }
   ]
 }

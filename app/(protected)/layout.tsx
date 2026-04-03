@@ -39,6 +39,12 @@ export default function ProtectedLayout({
             >
               Blog
             </Link>
+            <Link
+              href="/blog-admin"
+              className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"
+            >
+              Blog admin
+            </Link>
           </div>
           <SignOutButton />
         </div>

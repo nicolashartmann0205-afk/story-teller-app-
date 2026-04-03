@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PostBody } from "@/components/blog/post-body";
-import { getAllSlugs, getPostBySlug } from "@/lib/blog/posts";
+import { getPostBySlugFromDb } from "@/lib/blog/queries";
 
-type Props = { params: Promise<{ slug: string }> };
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return getAllSlugs().map((slug) => ({ slug }));
-}
+type Props = {
+  params: Promise<{ slug: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlugFromDb(slug);
   if (!post) return { title: "Post not found" };
   return {
     title: post.title,
@@ -30,11 +30,17 @@ function formatDate(iso: string) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlugFromDb(slug);
   if (!post) notFound();
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+    <article
+      className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8"
+      contentEditable={false}
+      spellCheck={false}
+      data-gramm="false"
+      data-gramm_editor="false"
+    >
       <header className="space-y-4 border-b border-zinc-200 pb-10 dark:border-zinc-800">
         <p className="text-sm text-zinc-500 dark:text-zinc-500">{formatDate(post.publishedAt)}</p>
         <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">{post.title}</h1>

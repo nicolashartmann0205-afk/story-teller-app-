@@ -57,8 +57,13 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublic = isPublicRoute(pathname);
 
-  // If user is authenticated and trying to access auth pages, redirect to main app
-  if (user && pathname.startsWith("/auth")) {
+  // If user is authenticated and trying to access auth pages, redirect to main app.
+  // Never redirect away from /auth/callback — OAuth needs this route to exchange ?code= even if a session exists.
+  if (
+    user &&
+    pathname.startsWith("/auth") &&
+    !pathname.startsWith("/auth/callback")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

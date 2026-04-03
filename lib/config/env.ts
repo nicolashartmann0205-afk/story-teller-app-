@@ -125,6 +125,16 @@ export function getAppUrl(): string {
   return appConfig.url;
 }
 
+/** Comma-separated Supabase `auth.users` UUIDs allowed to edit the marketing blog. */
+export function getBlogAdminUserIds(): string[] {
+  const raw = process.env.BLOG_ADMIN_USER_IDS;
+  if (!raw?.trim()) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 /** Canonical URL for Supabase OAuth and email redirects (must match Supabase Redirect URLs). */
 export function getAuthCallbackUrl(): string {
   const base = getAppUrl().replace(/\/$/, "");

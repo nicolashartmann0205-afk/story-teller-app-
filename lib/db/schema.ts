@@ -214,3 +214,16 @@ export const structureAnalytics = pgTable("structure_analytics", {
   completed: boolean("completed").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
+/** Public marketing blog posts (markdown body). */
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+  authorId: uuid("author_id").references(() => authUsers.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

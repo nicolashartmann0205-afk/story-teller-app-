@@ -7,7 +7,8 @@ export type BlogPost = {
   content: string;
 };
 
-const posts: BlogPost[] = [
+/** Default posts used to seed an empty `blog_posts` table (see `lib/blog/seed.ts`). */
+export const STATIC_SEED_POSTS: BlogPost[] = [
   {
     slug: "story-structure",
     title: "Story structure without the overwhelm",
@@ -93,17 +94,3 @@ Does the ending answer the questions the opening raised? If your storytelling ap
 Export when the story is *clear*, not when it is perfect. You can always revise after feedback.`,
   },
 ];
-
-export function getAllPosts(): BlogPost[] {
-  return [...posts].sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-  );
-}
-
-export function getPostBySlug(slug: string): BlogPost | undefined {
-  return posts.find((p) => p.slug === slug);
-}
-
-export function getAllSlugs(): string[] {
-  return posts.map((p) => p.slug);
-}
