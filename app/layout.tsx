@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Story Teller App",
-  description: "Create and share your stories with the world",
+  title: {
+    default: "Story Teller App — tell your story app for writers",
+    template: "%s | Story Teller App",
+  },
+  description:
+    "A storytelling app to plan, draft, and finish your work. The tell your story app for structure, scenes, and export.",
 };
 
 export default function RootLayout({
@@ -31,9 +35,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
         <ClientParticleBackground />
-        {/* Simple header to confirm rendering */}
         <header className="sr-only">
-          <h1>Story Teller App</h1>
+          <p>Story Teller App</p>
         </header>
         <div className="relative z-10">
             {children}

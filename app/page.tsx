@@ -1,6 +1,7 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { HomeLanding } from "@/components/marketing/home-landing";
 
 type HomeProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -8,6 +9,12 @@ type HomeProps = {
 
 // Ensure OAuth ?code= handling is never served from a stale static shell.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Story Teller App — tell your story app for writers",
+  description:
+    "Plan structure, scenes, and reviews in one storytelling app. The tell your story app for finishing drafts, review checks, and export.",
+};
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
@@ -63,31 +70,8 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Story Teller App
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Create and manage your stories. Sign in to get started or create a new account to begin your storytelling journey.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <Link
-            href="/auth/sign-up"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-black dark:bg-zinc-50 px-5 text-white dark:text-black transition-colors hover:bg-zinc-800 dark:hover:bg-zinc-200 md:w-[158px]"
-          >
-            Sign Up
-          </Link>
-          <Link
-            href="/auth/sign-in"
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] dark:border-white/[.145] px-5 text-black dark:text-zinc-50 transition-colors hover:border-transparent hover:bg-black/[.04] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-          >
-            Sign In
-          </Link>
-        </div>
-      </main>
+    <div className="flex min-h-screen flex-col font-sans">
+      <HomeLanding />
     </div>
   );
 }

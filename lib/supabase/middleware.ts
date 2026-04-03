@@ -2,11 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/config/env";
 
-// Public routes that are accessible to everyone
+// Public routes that are accessible to everyone (blog is public marketing content)
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
 
 // Check if a path is a public route
 function isPublicRoute(pathname: string): boolean {
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+    return true;
+  }
   return publicRoutes.some((route) => {
     if (route === "/") {
       return pathname === "/";
