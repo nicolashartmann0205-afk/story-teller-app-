@@ -804,22 +804,57 @@ export async function generateIllustration(
     // Since we are limited to the text SDK here, we will generate a high-quality SVG illustration
     // which acts as a vector image. This is a robust way to get visuals from a text-only LLM.
     
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME }); // Using a capable model for code/SVG
+    // Configure model with optimized generation parameters for higher quality output
+    const model = genAI.getGenerativeModel({ 
+      model: MODEL_NAME,
+      generationConfig: {
+        temperature: 1.0, // Higher creativity for artistic output
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 8192, // Allow more detailed SVG generation
+      },
+    });
 
-    const svgPrompt = `You are an expert AI artist and vector graphics designer.
-    Create a detailed, artistic SVG illustration for the following scene description:
+    // Enhanced style-specific modifiers for better quality
+    const styleModifiers: Record<string, string> = {
+      cinematic: "dramatic lighting, film-quality composition, depth of field, atmospheric, cinematic framing, professional color grading",
+      watercolor: "soft edges, flowing colors, artistic brushstrokes, paper texture, delicate transparency, impressionistic details",
+      cyberpunk: "neon lights, high contrast, futuristic elements, digital aesthetics, glowing effects, urban sci-fi atmosphere",
+      minimalist: "clean lines, simple shapes, negative space, modern design, elegant composition, sophisticated color palette",
+      sketch: "hand-drawn quality, pencil textures, crosshatching, artistic linework, sketch aesthetics, detailed shading",
+      fantasy: "magical atmosphere, rich colors, mythical elements, enchanting details, epic scale, fantastical composition",
+      "oil-painting": "canvas texture, visible brushstrokes, museum quality, rich pigments, classical painting techniques, masterful composition",
+      "digital-art": "crisp details, modern illustration, vibrant colors, professional digital painting, contemporary style, polished finish",
+      anime: "Japanese animation style, expressive features, dynamic poses, vibrant colors, manga-inspired, clean linework",
+      realistic: "photorealistic details, accurate proportions, natural lighting, lifelike textures, high fidelity, true-to-life rendering",
+      storybook: "whimsical charm, children's book quality, warm colors, inviting composition, narrative illustration, friendly aesthetic",
+      "comic-book": "bold linework, dynamic composition, action-oriented, graphic novel quality, dramatic angles, pop art influence",
+      impressionist: "visible brushstrokes, light and color emphasis, artistic interpretation, painterly quality, atmospheric mood",
+      gothic: "dark atmosphere, dramatic shadows, mysterious mood, ornate details, haunting beauty, Victorian influence",
+      "nano-banana": "playful whimsical style, smooth organic curves, warm yellow palette, banana-inspired color scheme, friendly aesthetic, fun composition, lighthearted mood, curved shapes, cheerful atmosphere, artistic cartoonish quality"
+    };
+
+    const styleEnhancement = styleModifiers[style] || styleModifiers.cinematic;
+
+    const svgPrompt = `You are a world-class AI artist and master vector graphics designer specializing in high-quality, professional illustrations.
+
+Create an exceptional, detailed, award-winning SVG illustration for this scene:
     
     "${prompt}"
     
-    Style: ${style}
-    
-    Requirements:
-    - Output ONLY valid SVG code.
-    - Use a standard viewBox="0 0 512 512".
-    - Use complex shapes, gradients, and paths to create a visually impressive image.
-    - Do not include markdown code blocks (e.g., \`\`\`xml). Just the raw <svg>...</svg> string.
-    - Minimize text/labels inside the image; focus on visual composition.
-    `;
+STYLE: ${style}
+QUALITY REQUIREMENTS: ${styleEnhancement}, high quality, masterpiece, professional illustration, sharp focus, vivid colors, detailed composition, visually stunning, artistic excellence
+
+TECHNICAL SPECIFICATIONS:
+- Output ONLY valid SVG code - no markdown, no explanations
+- Use viewBox="0 0 512 512" for optimal scaling
+- Employ advanced SVG techniques: complex gradients, clipping paths, filters, sophisticated shapes
+- Create depth through layering and careful use of opacity
+- Use rich color palettes appropriate to the style
+- Minimize or exclude text; communicate through visual storytelling
+- Ensure professional-grade visual quality that could be used for publication
+
+Focus on creating a visually impressive, memorable image that captures the essence and emotion of the scene.`;
 
     const result = await retryWithBackoff(async () => {
       console.log("Calling Gemini for illustration...");
@@ -853,41 +888,216 @@ export async function generateIllustration(
   }
 }
 
+// Helper function to detect if this is cover art or scene illustration
+function detectIllustrationType(title: string): 'cover' | 'scene' {
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('cover') || titleLower.includes('book cover')) {
+    return 'cover';
+  }
+  return 'scene';
+}
+
+// Helper function to extract clean title from prompt
+function extractTitle(prompt: string): string {
+  // Try to extract actual title from various prompt formats
+  const patterns = [
+    /(?:book cover (?:illustration )?for|a cover illustration for) ["']?([^"'.]+)["']?/i,
+    /["']([^"']+)["']/,
+    /for (.+?)(?:\.|$)/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = prompt.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  // Fallback: use first part of prompt
+  return prompt.substring(0, 30).trim();
+}
+
 export function generateFallbackIllustration(title: string, style: string): string {
-  // Generate a simple SVG placeholder
+  const illustrationType = detectIllustrationType(title);
+  
+  if (illustrationType === 'cover') {
+    return generateBookCoverPhoto(title, style);
+  } else {
+    return generateScenePhoto(title, style);
+  }
+}
+
+// Shared color palettes for visual coordination
+const styleColorPalettes = {
+  cinematic: { bg1: "#1a1a2e", bg2: "#16213e", accent: "#e74c3c", text: "#fff" },
+  watercolor: { bg1: "#fff5e6", bg2: "#ffe0b2", accent: "#ff9a76", text: "#333" },
+  cyberpunk: { bg1: "#0f0c29", bg2: "#302b63", accent: "#00f0ff", text: "#00f0ff" },
+  minimalist: { bg1: "#ffffff", bg2: "#f0f0f0", accent: "#333333", text: "#333" },
+  sketch: { bg1: "#fdfbf7", bg2: "#e6e6e6", accent: "#666666", text: "#666" },
+  fantasy: { bg1: "#2c3e50", bg2: "#34495e", accent: "#9b59b6", text: "#fff" },
+  "oil-painting": { bg1: "#8b4513", bg2: "#cd853f", accent: "#daa520", text: "#fff" },
+  "digital-art": { bg1: "#667eea", bg2: "#764ba2", accent: "#f093fb", text: "#fff" },
+  anime: { bg1: "#ff6b9d", bg2: "#c06c84", accent: "#ffeaa7", text: "#fff" },
+  realistic: { bg1: "#3a3a3a", bg2: "#606060", accent: "#8e8e8e", text: "#fff" },
+  storybook: { bg1: "#ffeaa7", bg2: "#fdcb6e", accent: "#ff6b6b", text: "#333" },
+  "comic-book": { bg1: "#e74c3c", bg2: "#c0392b", accent: "#f39c12", text: "#fff" },
+  impressionist: { bg1: "#74b9ff", bg2: "#a29bfe", accent: "#fd79a8", text: "#fff" },
+  gothic: { bg1: "#2c2c2c", bg2: "#1a1a1a", accent: "#8e44ad", text: "#fff" },
+  "nano-banana": { bg1: "#FFE135", bg2: "#FFF8DC", accent: "#FFA500", text: "#333" }
+};
+
+// Generate photographic book cover
+function generateBookCoverPhoto(prompt: string, style: string): string {
   const width = 512;
   const height = 512;
-  const colors = {
-    cinematic: ["#1a1a2e", "#16213e"],
-    watercolor: ["#fff5e6", "#ffe0b2"],
-    cyberpunk: ["#0f0c29", "#302b63"],
-    minimalist: ["#ffffff", "#f0f0f0"],
-    sketch: ["#fdfbf7", "#e6e6e6"],
-    fantasy: ["#2c3e50", "#34495e"]
-  };
+  const bookTitle = extractTitle(prompt);
   
-  const bgColors = colors[style as keyof typeof colors] || colors.cinematic;
-  const textColor = style === 'watercolor' || style === 'minimalist' || style === 'sketch' ? '#333' : '#fff';
+  const palette = styleColorPalettes[style as keyof typeof styleColorPalettes] || styleColorPalettes.cinematic;
+  const { bg1, bg2, accent, text } = palette;
   
+  // Book cover with 3D effect and photographic styling
   const svg = `
     <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${bgColors[0]};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${bgColors[1]};stop-opacity:1" />
+        <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${bg1};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${bg2};stop-opacity:1" />
         </linearGradient>
+        <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${bg2};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${bg1};stop-opacity:1" />
+        </linearGradient>
+        <filter id="shadow">
+          <feDropShadow dx="4" dy="4" stdDeviation="3" flood-opacity="0.5"/>
+        </filter>
       </defs>
-      <rect width="100%" height="100%" fill="url(#grad)" />
-      <rect width="100%" height="100%" fill="none" stroke="${textColor}" stroke-width="2" stroke-opacity="0.2" />
-      <text x="50%" y="45%" font-family="Arial, sans-serif" font-size="24" fill="${textColor}" text-anchor="middle" font-weight="bold">
-        ${title}
+      
+      <!-- Book background with gradient -->
+      <rect width="100%" height="100%" fill="url(#coverGrad)" />
+      
+      <!-- Book spine (3D effect) -->
+      <rect x="0" y="50" width="40" height="412" fill="url(#spineGrad)" opacity="0.7"/>
+      
+      <!-- Main book cover area -->
+      <rect x="40" y="50" width="432" height="412" fill="${bg1}" fill-opacity="0.3" filter="url(#shadow)"/>
+      
+      <!-- Cover photo/imagery area -->
+      <rect x="70" y="80" width="372" height="220" fill="${accent}" opacity="0.2" rx="4"/>
+      
+      <!-- Decorative border -->
+      <rect x="60" y="70" width="392" height="372" fill="none" stroke="${text}" stroke-width="2" opacity="0.3" rx="4"/>
+      
+      <!-- Title area background -->
+      <rect x="90" y="320" width="332" height="100" fill="${bg2}" opacity="0.4" rx="4"/>
+      
+      <!-- Book title -->
+      <text x="256" y="360" font-family="Georgia, serif" font-size="32" font-weight="bold" fill="${text}" text-anchor="middle">
+        ${bookTitle.substring(0, 20)}
       </text>
-      <text x="50%" y="55%" font-family="Arial, sans-serif" font-size="16" fill="${textColor}" fill-opacity="0.7" text-anchor="middle">
-        (${style} style placeholder)
+      ${bookTitle.length > 20 ? `<text x="256" y="390" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="${text}" text-anchor="middle" opacity="0.9">${bookTitle.substring(20, 40)}</text>` : ''}
+      
+      <!-- Author/subtitle area -->
+      <text x="256" y="430" font-family="Arial, sans-serif" font-size="14" fill="${text}" text-anchor="middle" opacity="0.7" letter-spacing="2">
+        ${style.toUpperCase()} STORY
       </text>
+      
+      <!-- Style-specific cover imagery -->
+      <g opacity="0.6">${getBookCoverImagery(style, accent, text)}</g>
     </svg>
   `;
   
   const base64 = Buffer.from(svg).toString('base64');
   return `data:image/svg+xml;base64,${base64}`;
 }
+
+// Clean book cover imagery - simple elements per style
+function getBookCoverImagery(style: string, accent: string, text: string): string {
+  const imagery: Record<string, string> = {
+    cinematic: `<ellipse cx="256" cy="180" rx="80" ry="50" fill="${text}" opacity="0.3"/><circle cx="256" cy="180" r="40" fill="${accent}" opacity="0.5"/>`,
+    watercolor: `<ellipse cx="200" cy="150" rx="60" ry="80" fill="${accent}" opacity="0.2" transform="rotate(15 200 150)"/><ellipse cx="312" cy="200" rx="50" ry="70" fill="${text}" opacity="0.15" transform="rotate(-20 312 200)"/>`,
+    cyberpunk: `<polygon points="256,120 300,150 256,180 212,150" fill="${accent}" opacity="0.6"/><rect x="220" y="200" width="72" height="72" fill="${text}" opacity="0.3" transform="rotate(45 256 236)"/>`,
+    minimalist: `<circle cx="256" cy="180" r="60" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/><rect x="226" y="210" width="60" height="60" fill="${accent}" opacity="0.2"/>`,
+    sketch: `<path d="M 200 150 L 250 120 L 300 160 L 270 210 L 220 200 Z" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/>`,
+    fantasy: `<polygon points="256,100 266,130 298,130 272,150 282,180 256,160 230,180 240,150 214,130 246,130" fill="${accent}" opacity="0.6"/><circle cx="256" cy="220" r="35" fill="${text}" opacity="0.3"/>`,
+    "oil-painting": `<rect x="180" y="140" width="80" height="100" fill="${accent}" opacity="0.4" transform="rotate(12 220 190)"/><rect x="240" y="160" width="70" height="90" fill="${text}" opacity="0.3" transform="rotate(-8 275 205)"/>`,
+    "digital-art": `<polygon points="256,120 310,160 256,200 202,160" fill="${accent}" opacity="0.5"/><circle cx="256" cy="230" r="30" fill="${text}" opacity="0.4"/>`,
+    anime: `<circle cx="240" cy="170" r="12" fill="${accent}" opacity="0.7"/><circle cx="272" cy="170" r="12" fill="${accent}" opacity="0.7"/><path d="M 230 190 Q 256 205 282 190" fill="none" stroke="${text}" stroke-width="3" opacity="0.6"/>`,
+    realistic: `<ellipse cx="256" cy="160" rx="100" ry="60" fill="${text}" opacity="0.3"/><circle cx="256" cy="120" r="30" fill="${accent}" opacity="0.5"/>`,
+    storybook: `<circle cx="230" cy="170" r="25" fill="${accent}" opacity="0.5"/><polygon points="270,170 290,210 250,210" fill="${text}" opacity="0.4"/><circle cx="300" cy="160" r="20" fill="${accent}" opacity="0.4"/>`,
+    "comic-book": `<polygon points="256,130 280,150 270,180 242,180 232,150" fill="${accent}" opacity="0.6" stroke="${text}" stroke-width="2"/>`,
+    impressionist: `<circle cx="220" cy="160" r="30" fill="${accent}" opacity="0.3"/><circle cx="256" cy="150" r="25" fill="${accent}" opacity="0.25"/><circle cx="292" cy="165" r="28" fill="${text}" opacity="0.2"/>`,
+    gothic: `<path d="M 226 130 Q 256 100 286 130 L 286 230 L 226 230 Z" fill="${text}" opacity="0.5"/><polygon points="256,90 262,110 282,110 266,122 272,142 256,130 240,142 246,122 230,110 250,110" fill="${accent}" opacity="0.5"/>`,
+    "nano-banana": `<path d="M 220 160 Q 240 130 270 150 Q 285 170 275 195 Q 260 215 235 205 Q 215 185 220 160" fill="${accent}" opacity="0.6"/><circle cx="256" cy="170" r="20" fill="${text}" opacity="0.4"/>`
+  };
+  
+  return imagery[style] || imagery.cinematic;
+}
+
+// Generate photographic scene illustration
+function generateScenePhoto(prompt: string, style: string): string {
+  const width = 512;
+  const height = 512;
+  
+  const palette = styleColorPalettes[style as keyof typeof styleColorPalettes] || styleColorPalettes.cinematic;
+  const { bg1, bg2, accent, text } = palette;
+  
+  // Photographic scene with depth and lighting
+  const svg = `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sceneGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:${bg1};stop-opacity:1" />
+          <stop offset="70%" style="stop-color:${bg2};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${bg1};stop-opacity:0.8" />
+        </linearGradient>
+        <radialGradient id="light" cx="50%" cy="30%">
+          <stop offset="0%" style="stop-color:${accent};stop-opacity:0.4" />
+          <stop offset="100%" style="stop-color:${bg2};stop-opacity:0" />
+        </radialGradient>
+      </defs>
+      
+      <!-- Sky/background -->
+      <rect width="100%" height="100%" fill="url(#sceneGrad)" />
+      
+      <!-- Lighting effect -->
+      <ellipse cx="256" cy="150" rx="200" ry="100" fill="url(#light)"/>
+      
+      <!-- Ground/horizon -->
+      <ellipse cx="256" cy="480" rx="250" ry="60" fill="${text}" opacity="0.15"/>
+      <ellipse cx="256" cy="460" rx="220" ry="40" fill="${text}" opacity="0.1"/>
+      
+      <!-- Style-specific scene elements -->
+      <g opacity="0.7">${getSceneElements(style, accent, text)}</g>
+      
+      <!-- Atmospheric depth -->
+      <rect width="100%" height="100%" fill="${bg2}" opacity="0.05"/>
+    </svg>
+  `;
+  
+  const base64 = Buffer.from(svg).toString('base64');
+  return `data:image/svg+xml;base64,${base64}`;
+}
+
+// Get style-specific photographic scene elements
+function getSceneElements(style: string, accent: string, text: string): string {
+  const elements: Record<string, string> = {
+    cinematic: `<ellipse cx="256" cy="320" rx="60" ry="90" fill="${text}" opacity="0.6"/><circle cx="256" cy="280" r="35" fill="${text}" opacity="0.5"/><ellipse cx="150" cy="250" rx="120" ry="80" fill="${accent}" opacity="0.3"/>`,
+    watercolor: `<ellipse cx="180" cy="350" rx="100" ry="70" fill="${accent}" opacity="0.2" transform="rotate(10 180 350)"/><ellipse cx="320" cy="320" rx="90" ry="80" fill="${text}" opacity="0.15" transform="rotate(-15 320 320)"/><path d="M 256 400 Q 240 340 256 290" fill="none" stroke="${text}" stroke-width="4" opacity="0.3"/>`,
+    cyberpunk: `<rect x="150" y="300" width="60" height="120" fill="${accent}" opacity="0.6"/><rect x="300" y="280" width="50" height="140" fill="${accent}" opacity="0.5"/><line x1="0" y1="350" x2="512" y2="350" stroke="${accent}" stroke-width="2" opacity="0.7"/>`,
+    minimalist: `<circle cx="256" cy="300" r="80" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/><rect x="206" y="360" width="100" height="60" fill="${accent}" opacity="0.2"/>`,
+    sketch: `<path d="M 180 350 L 230 300 L 280 350 L 260 400 L 200 400 Z" fill="none" stroke="${text}" stroke-width="2" opacity="0.5"/><path d="M 300 330 Q 350 300 380 340" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/>`,
+    fantasy: `<path d="M 180 420 L 180 300 Q 180 250 256 230 Q 332 250 332 300 L 332 420" fill="${text}" opacity="0.5"/><polygon points="256,210 266,235 295,235 272,252 282,277 256,260 230,277 240,252 217,235 246,235" fill="${accent}" opacity="0.7"/>`,
+    "oil-painting": `<rect x="120" y="280" width="120" height="140" fill="${accent}" opacity="0.4" transform="rotate(5 180 350)"/><rect x="260" y="300" width="110" height="120" fill="${text}" opacity="0.35" transform="rotate(-8 315 360)"/>`,
+    "digital-art": `<polygon points="256,240 320,300 256,360 192,300" fill="${accent}" opacity="0.5"/><rect x="180" y="370" width="152" height="50" fill="${text}" opacity="0.3"/>`,
+    anime: `<circle cx="256" cy="280" r="45" fill="${text}" opacity="0.6"/><ellipse cx="256" cy="350" rx="50" ry="70" fill="${text}" opacity="0.6"/><ellipse cx="240" cy="275" rx="10" ry="15" fill="${accent}" opacity="0.8"/><ellipse cx="272" cy="275" rx="10" ry="15" fill="${accent}" opacity="0.8"/>`,
+    realistic: `<path d="M 80 370 Q 180 320 256 340 Q 332 320 432 370 L 432 420 L 80 420 Z" fill="${text}" opacity="0.5"/><polygon points="180,300 220,240 260,300" fill="${text}" opacity="0.6"/><polygon points="260,300 300,220 340,300" fill="${text}" opacity="0.6"/>`,
+    storybook: `<rect x="220" y="350" width="20" height="70" fill="${text}" opacity="0.5"/><circle cx="230" cy="330" r="45" fill="${text}" opacity="0.4"/><circle cx="210" cy="350" r="30" fill="${text}" opacity="0.35"/><circle cx="250" cy="350" r="30" fill="${text}" opacity="0.35"/>`,
+    "comic-book": `<rect x="140" y="280" width="100" height="140" fill="${accent}" opacity="0.5" stroke="${text}" stroke-width="3"/><rect x="270" y="300" width="100" height="120" fill="${accent}" opacity="0.45" stroke="${text}" stroke-width="3"/><polygon points="200,280 230,240 250,280" fill="${text}" opacity="0.6"/>`,
+    impressionist: `<circle cx="180" cy="320" r="40" fill="${accent}" opacity="0.3"/><circle cx="220" cy="310" r="35" fill="${accent}" opacity="0.25"/><circle cx="290" cy="330" r="45" fill="${text}" opacity="0.2"/><circle cx="330" cy="320" r="38" fill="${text}" opacity="0.18"/>`,
+    gothic: `<path d="M 200 420 L 200 300 Q 200 250 256 230 Q 312 250 312 300 L 312 420" fill="${text}" opacity="0.6"/><circle cx="256" cy="250" r="25" fill="${accent}" opacity="0.5"/><path d="M 180 320 Q 200 300 220 320" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/><path d="M 292 320 Q 312 300 332 320" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/>`,
+    "nano-banana": `<path d="M 180 320 Q 210 280 250 300 Q 270 320 260 360 Q 240 390 205 380 Q 175 360 180 320" fill="${accent}" opacity="0.6"/><circle cx="280" cy="340" r="35" fill="${text}" opacity="0.5"/><circle cx="320" cy="350" r="30" fill="${accent}" opacity="0.5"/><path d="M 256 340 Q 256 360 270 360" fill="none" stroke="${text}" stroke-width="3" opacity="0.6"/>`
+  };
+  
+  return elements[style] || elements.cinematic;
+}
+

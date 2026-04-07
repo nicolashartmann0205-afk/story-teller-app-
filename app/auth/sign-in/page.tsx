@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getAuthCallbackUrl } from "@/lib/config/env";
+import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
+import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
 import SignInForm from "./sign-in-form";
 
@@ -10,6 +11,8 @@ async function signInAction(previousState: { error?: string; success?: string } 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const isMagicLink = formData.get("magicLink") === "true";
+  const rawNext = formData.get("redirectedFrom") as string | null;
+  const nextPath = safeRelativeNextPath(rawNext || undefined);
 
   if (!email) {
     return { error: "Email is required" };
@@ -18,10 +21,12 @@ async function signInAction(previousState: { error?: string; success?: string } 
   const supabase = await createClient();
 
   if (isMagicLink) {
+    const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
+    callbackUrl.searchParams.set("next", nextPath);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: getAuthCallbackUrl(),
+        emailRedirectTo: callbackUrl.toString(),
       },
     });
 
@@ -51,16 +56,18 @@ async function signInAction(previousState: { error?: string; success?: string } 
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  redirect(nextPath);
 }
 
-async function signInWithGoogleAction() {
+async function signInWithGoogleAction(nextPath: string) {
   "use server";
   const supabase = await createClient();
+  const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
+  callbackUrl.searchParams.set("next", safeRelativeNextPath(nextPath));
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: getAuthCallbackUrl(),
+      redirectTo: callbackUrl.toString(),
     },
   });
 
@@ -73,11 +80,29 @@ async function signInWithGoogleAction() {
   }
 }
 
-export default function SignInPage() {
+type SignInPageProps = {
+  searchParams: Promise<{ error?: string; redirectedFrom?: string }>;
+};
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const sp = await searchParams;
+  const oauthError = sp.error === "oauth";
+  const redirectedFrom = sp.redirectedFrom;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-zinc-900 p-8 shadow-lg">
+        {oauthError && (
+          <div
+            className="rounded-md bg-red-50 dark:bg-red-900/20 p-4"
+            role="alert"
+          >
+            <p className="text-sm text-red-800 dark:text-red-200">
+              Sign-in could not be completed. Please try again, or use another
+              sign-in method.
+            </p>
+          </div>
+        )}
         <div>
           <h2 className="text-3xl font-bold text-center text-black dark:text-zinc-50">
             Sign in to your account
@@ -85,7 +110,11 @@ export default function SignInPage() {
           <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Or{" "}
             <Link
-              href="/auth/sign-up"
+              href={
+                redirectedFrom
+                  ? `/auth/sign-up?redirectedFrom=${encodeURIComponent(redirectedFrom)}`
+                  : "/auth/sign-up"
+              }
               className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
             >
               create a new account
@@ -93,9 +122,12 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <SignInForm signInAction={signInAction} signInWithGoogleAction={signInWithGoogleAction} />
+        <SignInForm
+          redirectedFrom={redirectedFrom}
+          signInAction={signInAction}
+          signInWithGoogleAction={signInWithGoogleAction.bind(null, redirectedFrom ?? "")}
+        />
       </div>
     </div>
   );
 }
-

@@ -1,19 +1,57 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+const DEFAULT_NEXT = "/dashboard";
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return redirect(`${origin}${next}`);
-    }
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const safeNext = safeRelativeNextPath(url.searchParams.get("next"));
+  const destination = new URL(safeNext, url.origin);
+
+  if (destination.origin !== url.origin) {
+    return NextResponse.redirect(new URL(DEFAULT_NEXT, url.origin));
   }
 
-  // Return the user to an error page with instructions
-  return redirect(`${origin}/auth/auth-code-error`);
+  const redirectSignInOauthError = () =>
+    NextResponse.redirect(new URL("/auth/sign-in?error=oauth", url.origin));
+
+  if (!code) {
+    return redirectSignInOauthError();
+  }
+
+  const response = NextResponse.redirect(destination);
+
+  const cookieOptions = getSupabaseCookieOptions({
+    host: url.hostname,
+  });
+
+  const supabase = createServerClient(
+    getSupabaseUrl(),
+    getSupabaseAnonKey(),
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+      ...(cookieOptions ? { cookieOptions } : {}),
+    }
+  );
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return redirectSignInOauthError();
+  }
+
+  return response;
 }

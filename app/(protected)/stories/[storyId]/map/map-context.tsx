@@ -1,10 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useOptimistic, useTransition } from "react";
-import { updateSceneOrder, updateMapSettings, createSceneAction } from "./actions";
+import { createContext, useContext, useState, useTransition } from "react";
+import { updateSceneOrder, updateMapSettings, createSceneAction, generateSceneVisualsAction } from "./actions";
 
 // Types
 export type ViewMode = "timeline" | "arc" | "characters";
+
+export interface SceneVisualStyle {
+  mapImageUrl?: string;
+  mapPrompt?: string;
+  mapStyle?: string;
+  provider?: string;
+  generatedAt?: string;
+  [key: string]: unknown;
+}
 
 export interface Scene {
   id: string;
@@ -13,7 +22,7 @@ export interface Scene {
   tension: number;
   duration: string; // numeric string
   description?: string;
-  // ... other fields
+  visualStyle?: SceneVisualStyle;
 }
 
 export interface StoryMap {
@@ -37,6 +46,10 @@ interface MapContextType {
   structureOverlayVisible: boolean;
   toggleStructureOverlay: () => void;
   selectedStructureId: string;
+  generateSceneVisuals: (style?: string) => Promise<void>;
+  isGeneratingVisuals: boolean;
+  visualGenerationError: string | null;
+  clearVisualGenerationError: () => void;
 }
 
 const MapContext = createContext<MapContextType | null>(null);
@@ -59,6 +72,8 @@ export function MapProvider({
   const [zoomLevel, setZoomLevelState] = useState<number>(parseFloat(initialMap.zoomLevel) || 1.0);
   const [structureOverlayVisible, setStructureOverlayVisible] = useState(initialMap.structureOverlayVisible ?? true);
   const [isPending, startTransition] = useTransition();
+  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [visualGenerationError, setVisualGenerationError] = useState<string | null>(null);
 
   // Optimistic updates for drag and drop could be implemented here or in the view component
   // For simplicity, we'll manage state here.
@@ -120,6 +135,43 @@ export function MapProvider({
     });
   };
 
+  const generateSceneVisuals = async (style: string = "cinematic") => {
+    setIsGeneratingVisuals(true);
+    setVisualGenerationError(null);
+
+    try {
+      const result = await generateSceneVisualsAction(storyId, style);
+
+      if (result.updatedScenes.length > 0) {
+        setScenes((prevScenes) =>
+          prevScenes.map((scene) => {
+            const updatedScene = result.updatedScenes.find((s) => s.id === scene.id);
+            if (!updatedScene) return scene;
+            return {
+              ...scene,
+              visualStyle: {
+                ...(scene.visualStyle || {}),
+                ...updatedScene.visualStyle,
+              },
+            };
+          })
+        );
+      }
+
+      if (result.failedCount > 0) {
+        setVisualGenerationError(
+          `Generated ${result.updatedCount} visuals, ${result.failedCount} failed.`
+        );
+      }
+    } catch (error) {
+      setVisualGenerationError(
+        error instanceof Error ? error.message : "Failed to generate scene visuals."
+      );
+    } finally {
+      setIsGeneratingVisuals(false);
+    }
+  };
+
   return (
     <MapContext.Provider
       value={{
@@ -135,6 +187,10 @@ export function MapProvider({
         structureOverlayVisible,
         toggleStructureOverlay,
         selectedStructureId: initialStructureId,
+        generateSceneVisuals,
+        isGeneratingVisuals,
+        visualGenerationError,
+        clearVisualGenerationError: () => setVisualGenerationError(null),
       }}
     >
       {children}

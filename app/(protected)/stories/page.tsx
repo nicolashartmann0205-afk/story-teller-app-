@@ -47,13 +47,6 @@ async function getStories() {
   }
 }
 
-async function handleSignOut() {
-  "use server";
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/auth/sign-in");
-}
-
 async function deleteStoryAction(storyId: string) {
   "use server";
 
@@ -131,7 +124,7 @@ export default async function StoriesPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-black dark:text-zinc-50">
               My Stories
@@ -140,28 +133,12 @@ export default async function StoriesPage() {
               Welcome back, {user?.email || "User"}
             </p>
           </div>
-          <div className="flex gap-4">
-            <Link
-              href="/dashboard"
-              className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/create-story"
-              className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
-            >
-              Create Story
-            </Link>
-            <form action={handleSignOut}>
-              <button
-                type="submit"
-                className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-              >
-                Sign Out
-              </button>
-            </form>
-          </div>
+          <Link
+            href="/create-story"
+            className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
+          >
+            Create Story
+          </Link>
         </div>
 
         {/* Display error message if stories failed to load */}

@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "path";
+import { getCanonicalRedirects } from "./lib/canonical-redirects";
 
 // CRITICAL: Set up polyfills BEFORE any Next.js configuration code runs
 // This ensures they're available during webpack configuration and module analysis
@@ -57,6 +58,15 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  async redirects() {
+    return [
+      ...getCanonicalRedirects(),
+      { source: "/blog", destination: "/blogs", permanent: true },
+      { source: "/blog-admin", destination: "/admin/blogs", permanent: true },
+      { source: "/blog-admin/new", destination: "/admin/blogs/new", permanent: true },
+      { source: "/blog-admin/:slug/edit", destination: "/admin/blogs/:slug/edit", permanent: true },
+    ];
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '15mb', // Increased to handle files up to application limit of 10MB

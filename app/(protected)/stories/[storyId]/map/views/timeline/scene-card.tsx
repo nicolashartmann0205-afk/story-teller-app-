@@ -22,6 +22,10 @@ export function SceneCard({ scene }: SceneCardProps) {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const mapImageUrl =
+    scene.visualStyle && typeof scene.visualStyle === "object"
+      ? (scene.visualStyle.mapImageUrl as string | undefined)
+      : undefined;
 
   return (
     <div
@@ -33,6 +37,23 @@ export function SceneCard({ scene }: SceneCardProps) {
         isDragging ? "opacity-50 shadow-lg border-zinc-400 dark:border-zinc-600 z-50" : "hover:border-zinc-300 dark:hover:border-zinc-700"
       }`}
     >
+      <div className="mb-3 h-28 w-full overflow-hidden rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900">
+        {mapImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={mapImageUrl}
+            alt={`${scene.title} visual`}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-zinc-100 via-zinc-200 to-zinc-300 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900 flex items-center justify-center">
+            <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300 px-2 text-center">
+              No visual yet
+            </span>
+          </div>
+        )}
+      </div>
+
       <div className="flex justify-between items-start mb-2">
         <h4 className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
           {scene.title}

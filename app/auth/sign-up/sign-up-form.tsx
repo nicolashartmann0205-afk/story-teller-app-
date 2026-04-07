@@ -4,11 +4,18 @@ import { useActionState } from "react";
 
 type SignUpAction = (previousState: { error?: string } | null | void, formData: FormData) => Promise<{ error?: string } | void | null>;
 
-export default function SignUpForm({ signUpAction }: { signUpAction: SignUpAction }) {
+export default function SignUpForm({
+  redirectedFrom,
+  signUpAction,
+}: {
+  redirectedFrom?: string;
+  signUpAction: SignUpAction;
+}) {
   const [state, formAction, isPending] = useActionState(signUpAction, null);
 
   return (
     <form className="mt-8 space-y-6" action={formAction}>
+      <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
       {state?.error && (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>

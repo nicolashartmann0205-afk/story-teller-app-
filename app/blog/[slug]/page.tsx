@@ -50,9 +50,9 @@ export default async function BlogPostPage({ params }: Props) {
         <PostBody content={post.content} />
       </div>
       <footer className="mt-16 border-t border-zinc-200 pt-10 dark:border-zinc-800">
-        <p className="flex flex-wrap gap-4 text-sm">
+        <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link
-            href="/blog"
+            href="/blogs"
             className="font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
           >
             ← All posts
@@ -62,6 +62,18 @@ export default async function BlogPostPage({ params }: Props) {
             className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Home
+          </Link>
+          <Link
+            href={`/auth/sign-in?redirectedFrom=${encodeURIComponent(`/blog/${slug}`)}`}
+            className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            Sign in
+          </Link>
+          <Link
+            href={`/auth/sign-up?redirectedFrom=${encodeURIComponent(`/blog/${slug}`)}`}
+            className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            Sign up
           </Link>
         </p>
       </footer>

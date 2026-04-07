@@ -10,6 +10,11 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:check": "tsx scripts/check-db-state.ts",
+    "db:repair-blog-posts": "tsx scripts/apply-blog-posts-table.ts",
+    "db:sync-blog-posts": "tsx scripts/sync-blog-posts.ts",
+    "db:import-blog-json": "tsx scripts/import-blog-posts-from-json.ts",
+    "db:check-blog-target": "tsx scripts/check-blog-posts-target.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },

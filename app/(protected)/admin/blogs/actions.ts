@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
-import { isBlogAdminUser } from "@/lib/blog/admin";
+import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
 import { eq } from "drizzle-orm";
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -23,8 +23,11 @@ async function requireBlogAdmin() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user || !isBlogAdminUser(user.id)) {
-    redirect("/dashboard");
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+  if (!isBlogAdminUser(user.id)) {
+    redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
   return user;
 }
@@ -67,9 +70,10 @@ export async function createBlogPostAction(_prev: unknown, formData: FormData) {
   }
 
   revalidatePath("/blog");
-  revalidatePath("/blog-admin");
+  revalidatePath("/blogs");
+  revalidatePath(BLOG_ADMIN_BASE_PATH);
   revalidatePath(`/blog/${slug}`);
-  redirect(`/blog-admin/${slug}/edit`);
+  redirect(`${BLOG_ADMIN_BASE_PATH}/${slug}/edit`);
 }
 
 export async function updateBlogPostAction(slug: string, _prev: unknown, formData: FormData) {
@@ -105,9 +109,10 @@ export async function updateBlogPostAction(slug: string, _prev: unknown, formDat
   }
 
   revalidatePath("/blog");
-  revalidatePath("/blog-admin");
+  revalidatePath("/blogs");
+  revalidatePath(BLOG_ADMIN_BASE_PATH);
   revalidatePath(`/blog/${slug}`);
-  redirect(`/blog-admin/${slug}/edit?saved=1`);
+  redirect(`${BLOG_ADMIN_BASE_PATH}/${slug}/edit?saved=1`);
 }
 
 export async function deleteBlogPostAction(slug: string, _formData?: FormData) {
@@ -116,7 +121,8 @@ export async function deleteBlogPostAction(slug: string, _formData?: FormData) {
   await db.delete(blogPosts).where(eq(blogPosts.slug, slug));
 
   revalidatePath("/blog");
-  revalidatePath("/blog-admin");
+  revalidatePath("/blogs");
+  revalidatePath(BLOG_ADMIN_BASE_PATH);
   revalidatePath(`/blog/${slug}`);
-  redirect("/blog-admin");
+  redirect(BLOG_ADMIN_BASE_PATH);
 }

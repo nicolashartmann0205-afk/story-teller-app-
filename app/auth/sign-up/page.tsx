@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getAuthCallbackUrl } from "@/lib/config/env";
+import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
+import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
 import SignUpForm from "./sign-up-form";
 
@@ -14,6 +15,8 @@ async function signUpAction(previousState: { error?: string } | null | void, for
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const rawNext = formData.get("redirectedFrom") as string | null;
+  const nextPath = safeRelativeNextPath(rawNext || undefined);
 
   if (!email || !password) {
     return { error: "Email and password are required" };
@@ -21,11 +24,14 @@ async function signUpAction(previousState: { error?: string } | null | void, for
 
   const supabase = await createClient();
 
+  const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
+  callbackUrl.searchParams.set("next", nextPath);
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: getAuthCallbackUrl(),
+      emailRedirectTo: callbackUrl.toString(),
     },
   });
 
@@ -33,10 +39,19 @@ async function signUpAction(previousState: { error?: string } | null | void, for
     return { error: error.message };
   }
 
-  redirect("/auth/sign-in");
+  const back = rawNext
+    ? `/auth/sign-in?redirectedFrom=${encodeURIComponent(rawNext)}`
+    : "/auth/sign-in";
+  redirect(back);
 }
 
-export default function SignUpPage() {
+type SignUpPageProps = {
+  searchParams: Promise<{ redirectedFrom?: string }>;
+};
+
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const sp = await searchParams;
+  const redirectedFrom = sp.redirectedFrom;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
@@ -48,7 +63,11 @@ export default function SignUpPage() {
           <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Or{" "}
             <Link
-              href="/auth/sign-in"
+              href={
+                redirectedFrom
+                  ? `/auth/sign-in?redirectedFrom=${encodeURIComponent(redirectedFrom)}`
+                  : "/auth/sign-in"
+              }
               className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
             >
               sign in to your existing account
@@ -56,7 +75,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <SignUpForm signUpAction={signUpAction} />
+        <SignUpForm redirectedFrom={redirectedFrom} signUpAction={signUpAction} />
       </div>
     </div>
   );

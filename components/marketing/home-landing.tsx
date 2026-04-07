@@ -70,7 +70,7 @@ export function HomeLanding() {
                 Sign in
               </Link>
               <Link
-                href="/blog"
+                href="/blogs"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-transparent px-4 text-sm font-semibold text-zinc-800 underline decoration-zinc-400 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-700 dark:text-zinc-200 dark:decoration-zinc-500 dark:hover:text-white dark:hover:decoration-zinc-300 sm:px-6"
               >
                 Read the guides
@@ -133,7 +133,7 @@ export function HomeLanding() {
                 FAQ
               </Link>
               <Link
-                href="/blog"
+                href="/blogs"
                 className="inline-flex items-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-50 dark:ring-zinc-600 dark:hover:bg-zinc-700"
               >
                 Guides on the blog
@@ -162,7 +162,7 @@ export function HomeLanding() {
             </p>
             <ul className="list-inside list-disc space-y-2 text-zinc-700 dark:text-zinc-300">
               <li>
-                <Link href="/blog" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                <Link href="/blogs" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
                   Story blog — outlines and updates
                 </Link>
               </li>

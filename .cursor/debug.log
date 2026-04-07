@@ -760,3 +760,4 @@
 {"location":"actions.ts:getDictionaryEntries","message":"Before getUser call","data":{"hasSupabase":true},"timestamp":1766498460956,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
 {"location":"actions.ts:getDictionaryEntries","message":"After getUser call","data":{"hasUser":true,"hasError":false},"timestamp":1766498461006,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
 {"location":"page.tsx:EditStyleGuidePage","message":"After getDictionaryEntries","data":{"hasDictionary":true,"dictionaryLength":0},"timestamp":1766498461341,"sessionId":"debug-session","runId":"initial","hypothesisId":"C"}
+{"sessionId":"5cc3a7","runId":"pre-fix","hypothesisId":"H5","location":"app/auth/sign-in/sign-in-form.tsx:18","message":"Google button pressed","data":{"hasStateError":false,"isPending":false},"timestamp":1775047053385}

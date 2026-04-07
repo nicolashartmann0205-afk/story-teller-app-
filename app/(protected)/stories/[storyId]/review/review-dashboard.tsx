@@ -8,7 +8,7 @@ import { IllustrationPanel } from "./_components/illustration-panel";
 import Link from "next/link";
 
 export function ReviewDashboard() {
-    const { story, generateDraft, isGenerating, draftContent } = useReview();
+    const { story, scenes, generateDraft, isGenerating, draftContent } = useReview();
     const [showExport, setShowExport] = useState(false);
     const [generationError, setGenerationError] = useState<string | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState(story.language || "en");
@@ -82,6 +82,8 @@ export function ReviewDashboard() {
                         initialIllustrations={story.illustrations || []}
                         storyTitle={story.title}
                         storyDescription={story.description || ""}
+                        scenes={scenes}
+                        draftContent={draftContent}
                     />
                     
                     <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">

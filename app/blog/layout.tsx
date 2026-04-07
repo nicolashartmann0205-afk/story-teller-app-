@@ -1,5 +1,3 @@
-import { BlogHeader } from "@/components/blog/blog-header";
-
 /** Keeps blog HTML read-only in the DOM and signals writing extensions not to treat the page as an editor. */
 const blogReadOnlyRootProps = {
   contentEditable: false as const,
@@ -11,7 +9,6 @@ const blogReadOnlyRootProps = {
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen font-sans">
-      <BlogHeader />
       <main>
         <div {...blogReadOnlyRootProps}>{children}</div>
       </main>

@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { generateFullStoryDraft, improveText, generateIllustration, generateFallbackFullDraft, generateFallbackIllustration } from "@/lib/ai/story-generator";
+import { generateFullStoryDraft, improveText, generateFallbackFullDraft } from "@/lib/ai/story-generator";
+import { providerRouter } from "@/lib/ai/image-providers/router";
 
 export async function getReviewData(storyId: string) {
   const supabase = await createClient();
@@ -28,19 +29,44 @@ export async function getReviewData(storyId: string) {
   return { story, scenes: storyScenes };
 }
 
-export async function generateIllustrationAction(storyId: string, prompt: string, style: string, useFallback: boolean = false) {
+export async function generateIllustrationAction(
+    storyId: string, 
+    prompt: string, 
+    style: string, 
+    useFallback: boolean = false,
+    preferredProvider?: string
+) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) throw new Error("Unauthorized");
     
-    // Fetch story title for fallback if needed
-    const [storyData] = await db.select({ title: stories.title }).from(stories).where(eq(stories.id, storyId));
+    let imageUrl: string;
+    let providerUsed: string;
+    let wasAutoFallback = false;
+    let cost = 0;
     
-    // Generate image
-    const imageUrl = useFallback 
-        ? generateFallbackIllustration(storyData?.title || "Story Illustration", style)
-        : await generateIllustration(prompt, style);
+    if (useFallback) {
+        // Explicitly requested fallback - force use fallback provider
+        const result = await providerRouter.generateWithFallback(prompt, style, "fallback");
+        imageUrl = result.imageUrl;
+        providerUsed = result.provider;
+        wasAutoFallback = false;
+        cost = result.cost || 0;
+    } else {
+        // Use provider router with automatic fallback
+        try {
+            const result = await providerRouter.generateWithFallback(prompt, style, preferredProvider);
+            imageUrl = result.imageUrl;
+            providerUsed = result.provider;
+            wasAutoFallback = result.wasAutoFallback;
+            cost = result.cost || 0;
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("[Server] All providers failed:", errorMsg);
+            throw error;
+        }
+    }
     
     // Fetch current story to update illustrations array
     const [story] = await db
@@ -57,7 +83,10 @@ export async function generateIllustrationAction(storyId: string, prompt: string
         url: imageUrl, // base64 data url
         prompt,
         style,
-        createdAt: new Date().toISOString()
+        provider: providerUsed,
+        cost,
+        createdAt: new Date().toISOString(),
+        wasAutoFallback // Signal to client that fallback was used
     };
     
     const updatedIllustrations = [newIllustration, ...currentIllustrations];

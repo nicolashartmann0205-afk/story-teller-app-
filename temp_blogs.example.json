@@ -1,0 +1,12 @@
+{
+  "posts": [
+    {
+      "slug": "example-post",
+      "title": "Example post title",
+      "description": "One-line summary shown on the blog index.",
+      "content": "# Heading\n\nMarkdown body copied from your local DB or API.",
+      "publishedAt": "2026-01-15",
+      "author_id": null
+    }
+  ]
+}

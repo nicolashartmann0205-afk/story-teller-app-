@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateBlogPostAction, deleteBlogPostAction } from "@/app/(protected)/blog-admin/actions";
+import { updateBlogPostAction, deleteBlogPostAction } from "@/app/(protected)/admin/blogs/actions";
 import type { BlogPost } from "@/lib/blog/posts";
 
 const inputClass =

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { stories, storyMaps, scenes } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { providerRouter } from "@/lib/ai/image-providers/router";
 
 export async function getStoryMapData(storyId: string) {
   const supabase = await createClient();
@@ -166,6 +167,154 @@ export async function createSceneAction(storyId: string, title: string) {
 
   revalidatePath(`/stories/${storyId}/map`);
   return { success: true, scene: newScene };
+}
+
+interface SceneVisualResult {
+  id: string;
+  visualStyle: {
+    mapImageUrl: string;
+    mapPrompt: string;
+    mapStyle: string;
+    provider: string;
+    generatedAt: string;
+  };
+}
+
+function buildSceneVisualPrompt(
+  story: { title: string; description: string | null },
+  scene: { title: string; description: string | null; sceneContent: string | null }
+) {
+  const sceneText = scene.sceneContent?.trim() || scene.description?.trim() || scene.title;
+  const storyDescription = story.description?.trim() || "A narrative-driven story";
+  return `Scene illustration for "${story.title}". Story context: ${storyDescription}. Scene: "${scene.title}". Details: ${sceneText}. Focus on cinematic composition and story consistency.`;
+}
+
+export async function generateSceneVisualsAction(storyId: string, style: string = "cinematic") {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const [story] = await db
+    .select({
+      id: stories.id,
+      title: stories.title,
+      description: stories.description,
+      userId: stories.userId,
+    })
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
+    .limit(1);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  const storyScenes = await db
+    .select({
+      id: scenes.id,
+      title: scenes.title,
+      description: scenes.description,
+      sceneContent: scenes.sceneContent,
+      visualStyle: scenes.visualStyle,
+    })
+    .from(scenes)
+    .where(eq(scenes.storyId, storyId))
+    .orderBy(asc(scenes.order));
+
+  if (storyScenes.length === 0) {
+    return {
+      success: true,
+      updatedCount: 0,
+      failedCount: 0,
+      failures: [] as Array<{ sceneId: string; message: string }>,
+      updatedScenes: [] as SceneVisualResult[],
+    };
+  }
+
+  const failures: Array<{ sceneId: string; message: string }> = [];
+  const updatedScenes: SceneVisualResult[] = [];
+  const batchSize = 2;
+
+  for (let i = 0; i < storyScenes.length; i += batchSize) {
+    const batch = storyScenes.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map(async (scene) => {
+        try {
+          const prompt = buildSceneVisualPrompt(story, scene);
+          const generation = await providerRouter.generateWithFallback(prompt, style);
+
+          const existingVisualStyle =
+            scene.visualStyle && typeof scene.visualStyle === "object"
+              ? (scene.visualStyle as Record<string, unknown>)
+              : {};
+
+          const nextVisualStyle = {
+            ...existingVisualStyle,
+            mapImageUrl: generation.imageUrl,
+            mapPrompt: prompt,
+            mapStyle: style,
+            provider: generation.provider,
+            generatedAt: new Date().toISOString(),
+          };
+
+          await db
+            .update(scenes)
+            .set({
+              visualStyle: nextVisualStyle,
+              updatedAt: new Date(),
+            })
+            .where(and(eq(scenes.id, scene.id), eq(scenes.storyId, storyId)));
+
+          return {
+            success: true as const,
+            sceneId: scene.id,
+            visualStyle: nextVisualStyle,
+          };
+        } catch (error) {
+          return {
+            success: false as const,
+            sceneId: scene.id,
+            message: error instanceof Error ? error.message : String(error),
+          };
+        }
+      })
+    );
+
+    for (const result of batchResults) {
+      if (result.success) {
+        updatedScenes.push({
+          id: result.sceneId,
+          visualStyle: {
+            mapImageUrl: String(result.visualStyle.mapImageUrl),
+            mapPrompt: String(result.visualStyle.mapPrompt),
+            mapStyle: String(result.visualStyle.mapStyle),
+            provider: String(result.visualStyle.provider),
+            generatedAt: String(result.visualStyle.generatedAt),
+          },
+        });
+      } else {
+        failures.push({
+          sceneId: result.sceneId,
+          message: result.message,
+        });
+      }
+    }
+  }
+
+  revalidatePath(`/stories/${storyId}/map`);
+
+  return {
+    success: true,
+    updatedCount: updatedScenes.length,
+    failedCount: failures.length,
+    failures,
+    updatedScenes,
+  };
 }
 
 import { analyzeStoryStructure } from "@/lib/ai/story-generator";

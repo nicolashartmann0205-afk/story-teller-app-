@@ -164,3 +164,4 @@ After deployment, test PDF upload and check Vercel logs:
 - All other file types (DOCX, TXT, URL, text paste) work perfectly
 - Users have multiple alternative options if PDF fails
 
+

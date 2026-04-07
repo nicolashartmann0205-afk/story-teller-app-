@@ -1,13 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/config/env";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 // Public routes that are accessible to everyone (blog is public marketing content)
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
 
 // Check if a path is a public route
 function isPublicRoute(pathname: string): boolean {
-  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+  if (
+    pathname === "/blog" ||
+    pathname.startsWith("/blog/") ||
+    pathname === "/blogs" ||
+    pathname.startsWith("/blogs/")
+  ) {
     return true;
   }
   return publicRoutes.some((route) => {
@@ -18,9 +24,29 @@ function isPublicRoute(pathname: string): boolean {
   });
 }
 
+/**
+ * Preserve refreshed Supabase session cookies when returning a redirect.
+ * Next.js middleware may serialize cookies to `x-middleware-set-cookie`; copy that plus re-apply cookies.
+ */
+function redirectWithSessionCookies(url: URL, supabaseResponse: NextResponse): NextResponse {
+  const redirectResponse = NextResponse.redirect(url);
+  const serialized = supabaseResponse.headers.get("x-middleware-set-cookie");
+  if (serialized) {
+    redirectResponse.headers.set("x-middleware-set-cookie", serialized);
+  }
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    redirectResponse.cookies.set(cookie);
+  }
+  return redirectResponse;
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
+  });
+
+  const cookieOptions = getSupabaseCookieOptions({
+    host: request.nextUrl.hostname,
   });
 
   const supabase = createServerClient(
@@ -32,7 +58,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
@@ -43,6 +69,7 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
+      ...(cookieOptions ? { cookieOptions } : {}),
     }
   );
 
@@ -57,6 +84,12 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublic = isPublicRoute(pathname);
 
+  // Server Action POSTs use the `next-action` header. Middleware redirects (302 HTML)
+  // break the client, which expects `text/x-component` or `x-action-redirect`.
+  if (request.headers.get("next-action")) {
+    return supabaseResponse;
+  }
+
   // If user is authenticated and trying to access auth pages, redirect to main app.
   // Never redirect away from /auth/callback — OAuth needs this route to exchange ?code= even if a session exists.
   if (
@@ -66,7 +99,7 @@ export async function updateSession(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
-    return NextResponse.redirect(url);
+    return redirectWithSessionCookies(url, supabaseResponse);
   }
 
   // If user is not authenticated and trying to access protected route, redirect to sign-in
@@ -74,7 +107,7 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/sign-in";
     url.searchParams.set("redirectedFrom", pathname);
-    return NextResponse.redirect(url);
+    return redirectWithSessionCookies(url, supabaseResponse);
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
@@ -82,7 +115,7 @@ export async function updateSession(request: NextRequest) {
   // 1. Pass the request in it, like so:
   //    const myNewResponse = NextResponse.next({ request })
   // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
+  //    supabaseResponse.cookies.getAll().forEach((c) => myNewResponse.cookies.set(c))
   // 3. Change the myNewResponse object to fit your needs, but avoid changing
   //    the cookies!
   // 4. Finally:

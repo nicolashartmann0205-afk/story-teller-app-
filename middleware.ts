@@ -1,12 +1,68 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
+function registrableHost(hostname: string): string {
+  const h = hostname.toLowerCase();
+  return h.startsWith("www.") ? h.slice(4) : h;
+}
+
+/**
+ * OAuth root callback: send the browser to `/auth/callback` on a single stable origin.
+ *
+ * When `NEXT_PUBLIC_APP_URL` is set and matches the same site as the request (apex vs www),
+ * use that origin — avoids apex↔www redirect loops when forwarded headers disagree with Vercel.
+ * Otherwise fall back to `x-forwarded-host` / `host` (local preview, missing env).
+ */
+function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
+  const url = request.nextUrl;
+  if (url.pathname !== "/" || !url.searchParams.has("code")) {
+    return null;
+  }
+
+  const search = url.search;
+  const rawApp = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (rawApp) {
+    try {
+      const canonical = new URL(rawApp);
+      const forwarded = request.headers.get("x-forwarded-host");
+      const hostHeader =
+        forwarded?.split(",")[0]?.trim() || request.headers.get("host") || "";
+      const reqHostname = hostHeader.split(":")[0]?.toLowerCase() ?? "";
+      if (
+        !reqHostname ||
+        registrableHost(reqHostname) ===
+          registrableHost(canonical.hostname)
+      ) {
+        return new URL(`/auth/callback${search}`, canonical.origin);
+      }
+    } catch {
+      // fall through to forwarded headers
+    }
+  }
+
+  const forwarded = request.headers.get("x-forwarded-host");
+  const hostHeader =
+    forwarded?.split(",")[0]?.trim() || request.headers.get("host") || "";
+  if (!hostHeader) {
+    const fallback = url.clone();
+    fallback.pathname = "/auth/callback";
+    return fallback;
+  }
+
+  const proto =
+    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    (process.env.NODE_ENV === "production" ? "https" : "http");
+
+  return new URL(`/auth/callback${search}`, `${proto}://${hostHeader}`);
+}
+
 export async function middleware(request: NextRequest) {
-  // OAuth sometimes lands on Site URL root (?code=) instead of /auth/callback; fix before session logic.
-  const url = request.nextUrl.clone();
-  if (url.pathname === "/" && url.searchParams.has("code")) {
-    url.pathname = "/auth/callback";
-    return NextResponse.redirect(url);
+  // OAuth sometimes lands on Site URL root (?code=) instead of /auth/callback; redirect so path matches /auth/callback (cookies/PKCE).
+  // If this redirect ever changes origin vs where the PKCE cookie was set, exchange can fail — align NEXT_PUBLIC_APP_URL,
+  // AUTH_COOKIE_DOMAIN, and Supabase Redirect URLs (see docs/oauth-callback-production.md).
+  const oauthRedirect = redirectUrlForOAuthRootCode(request);
+  if (oauthRedirect) {
+    return NextResponse.redirect(oauthRedirect);
   }
 
   return await updateSession(request);

@@ -1,0 +1,2 @@
+{"sessionId":"5cc3a7","runId":"pre-fix","hypothesisId":"H1","location":"app/auth/sign-in/page.tsx:59","message":"Google OAuth start","data":{"hasEnvAppUrl":true,"redirectTo":"https://storyinthemaking.com/auth/callback"},"timestamp":1775047053442}
+{"sessionId":"5cc3a7","runId":"pre-fix","hypothesisId":"H1","location":"app/auth/sign-in/page.tsx:66","message":"Google OAuth response","data":{"hasError":false,"errorMessage":null,"hasDataUrl":true,"oauthUrlHost":"kkdtauildibghgiohucb.supabase.co"},"timestamp":1775047053472}

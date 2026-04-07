@@ -94,3 +94,4 @@ if (typeof globalObj.Path2D === 'undefined') {
   };
 }
 
+

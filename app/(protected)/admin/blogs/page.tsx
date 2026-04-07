@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isBlogAdminUser } from "@/lib/blog/admin";
+import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 
-export default async function BlogAdminPage() {
+export default async function AdminBlogsPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user || !isBlogAdminUser(user.id)) {
-    redirect("/dashboard");
+  if (!user) {
+    redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(BLOG_ADMIN_BASE_PATH)}`);
+  }
+  if (!isBlogAdminUser(user.id)) {
+    redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
 
   const rows = await db.select().from(blogPosts).orderBy(desc(blogPosts.publishedAt));
@@ -25,7 +28,7 @@ export default async function BlogAdminPage() {
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Create and edit public blog posts.</p>
         </div>
         <Link
-          href="/blog-admin/new"
+          href={`${BLOG_ADMIN_BASE_PATH}/new`}
           className="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-black dark:hover:bg-zinc-200"
         >
           New post
@@ -45,7 +48,7 @@ export default async function BlogAdminPage() {
                 </p>
               </div>
               <Link
-                href={`/blog-admin/${row.slug}/edit`}
+                href={`${BLOG_ADMIN_BASE_PATH}/${row.slug}/edit`}
                 className="text-sm font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
               >
                 Edit
@@ -56,7 +59,7 @@ export default async function BlogAdminPage() {
       )}
 
       <p className="mt-10">
-        <Link href="/blog" className="text-sm text-zinc-600 hover:underline dark:text-zinc-400">
+        <Link href="/blogs" className="text-sm text-zinc-600 hover:underline dark:text-zinc-400">
           View public blog
         </Link>
       </p>

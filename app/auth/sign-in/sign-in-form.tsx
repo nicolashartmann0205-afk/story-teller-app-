@@ -5,10 +5,12 @@ import { useActionState, useState } from "react";
 type SignInAction = (previousState: { error?: string; success?: string } | null | void, formData: FormData) => Promise<{ error?: string; success?: string } | void | null>;
 type GoogleSignInAction = () => Promise<{ error?: string } | void>;
 
-export default function SignInForm({ 
-  signInAction, 
-  signInWithGoogleAction 
-}: { 
+export default function SignInForm({
+  redirectedFrom,
+  signInAction,
+  signInWithGoogleAction,
+}: {
+  redirectedFrom?: string;
   signInAction: SignInAction;
   signInWithGoogleAction: GoogleSignInAction;
 }) {
@@ -18,6 +20,7 @@ export default function SignInForm({
   return (
     <form className="mt-8 space-y-6" action={formAction}>
       <input type="hidden" name="magicLink" value={useMagicLink.toString()} />
+      <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
       
       {state?.error && (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">

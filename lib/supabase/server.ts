@@ -1,9 +1,20 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { getSupabaseUrl, getSupabaseAnonKey } from "@/lib/config/env";
+import { cookies, headers } from "next/headers";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
+
+function hostnameFromHostHeader(host: string | null): string | undefined {
+  if (!host) return undefined;
+  const hostname = host.split(":")[0]?.trim().toLowerCase();
+  return hostname || undefined;
+}
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const headerList = await headers();
+  const cookieOptions = getSupabaseCookieOptions({
+    host: hostnameFromHostHeader(headerList.get("host")),
+  });
 
   return createServerClient(
     getSupabaseUrl(),
@@ -25,6 +36,7 @@ export async function createClient() {
           }
         },
       },
+      ...(cookieOptions ? { cookieOptions } : {}),
     }
   );
 }

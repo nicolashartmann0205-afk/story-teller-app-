@@ -11,9 +11,16 @@ import { TimelineView } from "./views/timeline/timeline-view";
 import { EmotionalArcView } from "./views/emotional-arc/emotional-arc-view";
 import { CharacterTracksView } from "./views/character-tracks/character-tracks-view";
 import { useMap } from "./map-context";
+import { ImageIcon, Loader2 } from "lucide-react";
 
 function MapContent() {
-  const { viewMode } = useMap();
+  const {
+    viewMode,
+    generateSceneVisuals,
+    isGeneratingVisuals,
+    visualGenerationError,
+    clearVisualGenerationError,
+  } = useMap();
   const mapRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -27,9 +34,39 @@ function MapContent() {
         </div>
         <div className="flex items-center gap-4">
           <ExportButton targetRef={mapRef} />
+          <button
+            type="button"
+            onClick={() => generateSceneVisuals("cinematic")}
+            disabled={isGeneratingVisuals}
+            className="inline-flex items-center gap-2 rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
+          >
+            {isGeneratingVisuals ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating visuals...
+              </>
+            ) : (
+              <>
+                <ImageIcon className="h-4 w-4" />
+                Generate Visuals
+              </>
+            )}
+          </button>
           <AddSceneButton />
         </div>
       </div>
+      {visualGenerationError && (
+        <div className="mx-4 mt-3 rounded-md border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 flex items-center justify-between gap-3">
+          <span>{visualGenerationError}</span>
+          <button
+            type="button"
+            onClick={clearVisualGenerationError}
+            className="underline underline-offset-2"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* View Area */}
       <div className="flex-1 overflow-hidden bg-zinc-50 dark:bg-zinc-900/50 relative">

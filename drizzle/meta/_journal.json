@@ -57,6 +57,13 @@
       "when": 1741123200000,
       "tag": "0008_blog_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775229829273,
+      "tag": "0009_rls_public_tables",
+      "breakpoints": true
     }
   ]
 }

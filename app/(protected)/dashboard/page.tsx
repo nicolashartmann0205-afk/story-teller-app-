@@ -58,13 +58,20 @@ async function getDashboardData(userId: string) {
   };
 }
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{ blogAdmin?: string }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
     redirect("/auth/sign-in");
   }
+
+  const sp = await searchParams;
+  const blogAdminAccessDenied = sp.blogAdmin === "denied";
 
   const { stats, recentStories } = await getDashboardData(user.id);
   // Fetch style guides for the selector
@@ -79,6 +86,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black pb-12">
+      {blogAdminAccessDenied && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/40">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p className="text-sm text-amber-950 dark:text-amber-100">
+              <span className="font-medium">Blog admin is restricted.</span> Your account is signed in, but it is not in{" "}
+              <code className="rounded bg-amber-100/80 px-1 py-0.5 text-xs dark:bg-amber-900/50">BLOG_ADMIN_USER_IDS</code>.
+              Your current user id is{" "}
+              <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs dark:bg-amber-900/50">{user.id}</code>
+              — add this exact value to that env var locally and on your host, then redeploy.
+            </p>
+            <Link
+              href="/dashboard"
+              className="shrink-0 text-sm font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50"
+            >
+              Dismiss
+            </Link>
+          </div>
+        </div>
+      )}
       {/* Header Section */}
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
