@@ -38,6 +38,9 @@ export async function createBlogPostAction(_prev: unknown, formData: FormData) {
   const slug = normalizeSlug(String(formData.get("slug") ?? ""));
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
+  const seoTitle = String(formData.get("seoTitle") ?? "").trim();
+  const metaDescription = String(formData.get("metaDescription") ?? "").trim();
+  const canonicalUrl = String(formData.get("canonicalUrl") ?? "").trim();
   const content = String(formData.get("content") ?? "");
   const publishedAtRaw = String(formData.get("publishedAt") ?? "").trim();
 
@@ -57,6 +60,9 @@ export async function createBlogPostAction(_prev: unknown, formData: FormData) {
       slug,
       title,
       description,
+      seoTitle: seoTitle || null,
+      metaDescription: metaDescription || null,
+      canonicalUrl: canonicalUrl || null,
       content,
       publishedAt,
       authorId: user.id,
@@ -81,6 +87,9 @@ export async function updateBlogPostAction(slug: string, _prev: unknown, formDat
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
+  const seoTitle = String(formData.get("seoTitle") ?? "").trim();
+  const metaDescription = String(formData.get("metaDescription") ?? "").trim();
+  const canonicalUrl = String(formData.get("canonicalUrl") ?? "").trim();
   const content = String(formData.get("content") ?? "");
   const publishedAtRaw = String(formData.get("publishedAt") ?? "").trim();
 
@@ -97,6 +106,9 @@ export async function updateBlogPostAction(slug: string, _prev: unknown, formDat
     .set({
       title,
       description,
+      seoTitle: seoTitle || null,
+      metaDescription: metaDescription || null,
+      canonicalUrl: canonicalUrl || null,
       content,
       publishedAt,
       updatedAt: new Date(),

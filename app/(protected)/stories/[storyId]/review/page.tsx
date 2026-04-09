@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { getReviewData } from "./actions";
 import { ReviewProvider } from "./review-context";
 import { ReviewDashboard } from "./review-dashboard";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storyId: string }>;
+}): Promise<Metadata> {
+  const { storyId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/review`);
+}
 
 export default async function ReviewPage({
   params,

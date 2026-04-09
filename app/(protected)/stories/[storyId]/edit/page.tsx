@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getAppUrl } from "@/lib/config/env";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -71,6 +72,15 @@ async function updateStoryAction(
     }
     return { error: "Failed to update story" };
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storyId: string }>;
+}): Promise<Metadata> {
+  const { storyId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/edit`);
 }
 
 export default async function EditStoryPage({

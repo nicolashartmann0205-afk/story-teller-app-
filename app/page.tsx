@@ -1,23 +1,20 @@
-import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { HomeLanding } from "@/components/marketing/home-landing";
+import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 
 // OAuth ?code= on `/` is redirected to `/auth/callback` in middleware.ts (no duplicate redirect here).
 // Ensure OAuth handling is never served from a stale static shell.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Story Teller — Writing app for structure, scenes & story maps",
-  description:
-    "Plan structure, scenes, and reviews in one app. Story maps, beats, and exports for writers who want more than a blank page—start free and finish your draft.",
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    url: "/",
-  },
-};
+export async function generateMetadata() {
+  return buildDynamicPageMetadata("home", {
+    title: "Writing app - scenes & story maps",
+    description:
+      "Plan structure, scenes, and story maps in one writing app built for momentum. Start free, draft faster, and finish with confidence. Learn more.",
+    canonicalPath: "/",
+  });
+}
 
 export default async function Home() {
   // Check authentication - handle errors gracefully

@@ -8,16 +8,23 @@ const inactive =
   "text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors";
 const active =
   "text-sm font-semibold text-zinc-900 dark:text-zinc-50 hover:underline transition-colors";
+const SEO_ADMIN_PATH = "/seo-admin";
 
 function navClass(isActive: boolean) {
   return isActive ? active : inactive;
 }
 
 /**
- * Primary app navigation (Dashboard, stories, settings, blogs, blog admin).
+ * Primary app navigation (Dashboard, stories, settings, blogs, blog admin, seo admin).
  * Shared by the protected layout and the public blog header when signed in.
  */
-export function AppShellNavLinks() {
+export function AppShellNavLinks({
+  showBlogAdmin = true,
+  showSeoAdmin = false,
+}: {
+  showBlogAdmin?: boolean;
+  showSeoAdmin?: boolean;
+}) {
   const pathname = usePathname() ?? "";
 
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
@@ -29,6 +36,7 @@ export function AppShellNavLinks() {
     pathname === "/blog" ||
     pathname.startsWith("/blog/");
   const isBlogAdmin = pathname === BLOG_ADMIN_BASE_PATH || pathname.startsWith(`${BLOG_ADMIN_BASE_PATH}/`);
+  const isSeoAdmin = pathname === SEO_ADMIN_PATH || pathname.startsWith(`${SEO_ADMIN_PATH}/`);
 
   return (
     <>
@@ -44,9 +52,16 @@ export function AppShellNavLinks() {
       <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
         Blogs
       </Link>
-      <Link href={BLOG_ADMIN_BASE_PATH} className={navClass(isBlogAdmin)}>
-        Blog Admin
-      </Link>
+      {showBlogAdmin ? (
+        <Link href={BLOG_ADMIN_BASE_PATH} className={navClass(isBlogAdmin)}>
+          Blog Admin
+        </Link>
+      ) : null}
+      {showSeoAdmin ? (
+        <Link href={SEO_ADMIN_PATH} className={navClass(isSeoAdmin)}>
+          SEO Admin
+        </Link>
+      ) : null}
     </>
   );
 }

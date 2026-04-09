@@ -3,7 +3,22 @@ import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
+import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignInForm from "./sign-in-form";
+
+export async function generateMetadata() {
+  const metadata = await buildDynamicPageMetadata("sign-in", {
+    title: "Sign in - secure account access",
+    description:
+      "Sign in to Story Teller to plan structure, scenes, and maps in one place, then continue your drafts with less friction and better momentum. Continue now.",
+    canonicalPath: "/auth/sign-in",
+  });
+
+  return {
+    ...metadata,
+    robots: { index: false, follow: true },
+  };
+}
 
 async function signInAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
   "use server";

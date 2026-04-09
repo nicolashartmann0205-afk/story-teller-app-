@@ -215,6 +215,17 @@ export const structureAnalytics = pgTable("structure_analytics", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+/** Admin-managed SEO metadata overrides per page key. */
+export const siteMetadata = pgTable("site_metadata", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  pageKey: text("page_key").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  canonicalUrl: text("canonical_url").notNull(),
+  updatedBy: uuid("updated_by").references(() => authUsers.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 /** Public marketing blog posts (markdown body). */
 export const blogPosts = pgTable("blog_posts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -222,6 +233,9 @@ export const blogPosts = pgTable("blog_posts", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   content: text("content").notNull(),
+  seoTitle: text("seo_title"),
+  metaDescription: text("meta_description"),
+  canonicalUrl: text("canonical_url"),
   publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
   authorId: uuid("author_id").references(() => authUsers.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

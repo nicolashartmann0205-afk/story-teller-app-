@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
@@ -23,6 +25,15 @@ async function getStory(storyId: string) {
     .limit(1);
 
   return story || null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storyId: string }>;
+}): Promise<Metadata> {
+  const { storyId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/structure`);
 }
 
 export default async function StructurePage({

@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPostsFromDb } from "@/lib/blog/queries";
+import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Blogs",
-  description:
-    "Guides on story structure, scenes, review, and workflow—written for Story Teller writers.",
-};
+export async function generateMetadata() {
+  return buildDynamicPageMetadata("blogs", {
+    title: "Blog - writing guides & workflow tips",
+    description:
+      "Discover writing guides on story structure, scene design, editing workflows, and momentum habits. Read practical tutorials for stronger drafts. Read now.",
+    canonicalPath: "/blogs",
+  });
+}
 
 function formatDate(iso: string) {
   return new Date(iso + "T12:00:00").toLocaleDateString("en-US", {

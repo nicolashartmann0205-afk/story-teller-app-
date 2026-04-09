@@ -1,8 +1,11 @@
 import { Suspense } from "react";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { getStyleGuides } from "./actions";
 import { StyleGuideList } from "./style-guide-list";
 import { CreateGuideButton } from "./create-guide-button";
 import ParticleBackground from "@/components/ui/particle-background";
+
+export const metadata = selfReferencingCanonical("/style-guide");
 
 export default async function StyleGuidePage() {
   const guides = await getStyleGuides();

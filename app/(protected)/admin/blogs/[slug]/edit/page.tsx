@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { createClient } from "@/lib/supabase/server";
 import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
 import { getPostBySlugFromDb } from "@/lib/blog/queries";
@@ -9,6 +11,11 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ saved?: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  return selfReferencingCanonical(`/admin/blogs/${slug}/edit`);
+}
 
 export default async function AdminBlogsEditPage({ params, searchParams }: Props) {
   const { slug } = await params;
@@ -22,6 +29,7 @@ export default async function AdminBlogsEditPage({ params, searchParams }: Props
   if (!isBlogAdminUser(user.id)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
+  const canEditSeo = isBlogAdminUser(user.id);
   const sp = await searchParams;
   const post = await getPostBySlugFromDb(slug);
   if (!post) {
@@ -36,7 +44,7 @@ export default async function AdminBlogsEditPage({ params, searchParams }: Props
         </Link>
         <h1 className="mt-4 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Edit post</h1>
       </div>
-      <EditPostForm slug={slug} post={post} showSaved={sp.saved === "1"} />
+      <EditPostForm slug={slug} post={post} showSaved={sp.saved === "1"} showSeoTab={canEditSeo} />
     </div>
   );
 }

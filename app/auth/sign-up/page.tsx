@@ -3,7 +3,22 @@ import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
+import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignUpForm from "./sign-up-form";
+
+export async function generateMetadata() {
+  const metadata = await buildDynamicPageMetadata("sign-up", {
+    title: "Sign up - create your free account",
+    description:
+      "Create a free Story Teller account to plan structure, scenes, and maps with guided workflows, then start your first draft and build momentum today. Sign up now.",
+    canonicalPath: "/auth/sign-up",
+  });
+
+  return {
+    ...metadata,
+    robots: { index: false, follow: true },
+  };
+}
 
 async function signUpAction(previousState: { error?: string } | null | void, formData: FormData) {
   "use server";

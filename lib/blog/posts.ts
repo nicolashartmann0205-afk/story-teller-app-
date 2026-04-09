@@ -2,6 +2,9 @@ export type BlogPost = {
   slug: string;
   title: string;
   description: string;
+  seoTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
   publishedAt: string;
   /** Markdown body — use ## / ### only; page template renders the post title as H1. */
   content: string;

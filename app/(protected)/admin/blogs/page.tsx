@@ -5,6 +5,9 @@ import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } 
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
+
+export const metadata = selfReferencingCanonical("/admin/blogs");
 
 export default async function AdminBlogsPage() {
   const supabase = await createClient();

@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = process.env.GEMINI_API_KEY;
 // Use a specific model version to avoid 404s with generic alias
 const MODEL_NAME = "gemini-3-flash-preview";
+// Scene drafting is currently more reliable on this model than preview aliases.
+const SCENE_MODEL_NAME = process.env.GEMINI_SCENE_MODEL || "gemini-2.0-flash-exp";
 
 if (!apiKey) {
   console.warn("GEMINI_API_KEY is not set. AI story generation will fail if called.");
@@ -440,7 +442,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
     }
   
     try {
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+      const modelCandidates = [SCENE_MODEL_NAME, MODEL_NAME];
   
       const prompt = `You are a creative writing assistant helping to develop a scene for a story.
   
@@ -475,12 +477,50 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
   
   Write in a style suitable for a ${storyContext.storyType}. Output ONLY the scene text in Markdown.`;
   
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      let lastError: unknown = null;
+
+      for (const modelName of modelCandidates) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelName });
+          const text = await retryWithBackoff(async () => {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+          });
+
+          if (!text?.trim()) {
+            throw new Error("AI returned an empty scene draft");
+          }
+
+          return text;
+        } catch (err) {
+          lastError = err;
+          const msg = err instanceof Error ? err.message : String(err);
+          const recoverableModelError =
+            msg.includes("404") ||
+            msg.toLowerCase().includes("not found") ||
+            msg.toLowerCase().includes("unsupported") ||
+            msg.toLowerCase().includes("model");
+
+          if (!recoverableModelError) {
+            throw err;
+          }
+        }
+      }
+      
+      throw lastError instanceof Error
+        ? lastError
+        : new Error("No available Gemini model could generate a scene draft.");
     } catch (error) {
       console.error("Error generating scene draft with Gemini:", error);
-      throw new Error("Failed to generate scene draft.");
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("429") || message.toLowerCase().includes("quota")) {
+        throw new Error("AI service is busy right now (rate limit). Please try again in a moment.");
+      }
+      if (message.includes("GEMINI_API_KEY")) {
+        throw new Error("AI is not configured on the server (missing Gemini API key).");
+      }
+      throw new Error(`Failed to generate scene draft: ${message}`);
     }
   }
   
@@ -943,7 +983,17 @@ const styleColorPalettes = {
   "comic-book": { bg1: "#e74c3c", bg2: "#c0392b", accent: "#f39c12", text: "#fff" },
   impressionist: { bg1: "#74b9ff", bg2: "#a29bfe", accent: "#fd79a8", text: "#fff" },
   gothic: { bg1: "#2c2c2c", bg2: "#1a1a1a", accent: "#8e44ad", text: "#fff" },
-  "nano-banana": { bg1: "#FFE135", bg2: "#FFF8DC", accent: "#FFA500", text: "#333" }
+  "nano-banana": { bg1: "#FFE135", bg2: "#FFF8DC", accent: "#FFA500", text: "#333" },
+  "line-art": { bg1: "#fafafa", bg2: "#e8e8e8", accent: "#111111", text: "#111111" },
+  noir: { bg1: "#0d0d0d", bg2: "#1a1a1a", accent: "#c0c0c0", text: "#e0e0e0" },
+  vaporwave: { bg1: "#2b1055", bg2: "#7597de", accent: "#ff71ce", text: "#01ffff" },
+  "pixel-art": { bg1: "#1d2b53", bg2: "#7e2553", accent: "#ff004d", text: "#fff1e8" },
+  claymation: { bg1: "#c4a484", bg2: "#8b6914", accent: "#e8c39e", text: "#4a3728" },
+  "art-nouveau": { bg1: "#1a3a2f", bg2: "#2d5a4a", accent: "#c9a227", text: "#f5e6c8" },
+  steampunk: { bg1: "#3d2914", bg2: "#5c4033", accent: "#b87333", text: "#d4af37" },
+  "ukiyo-e": { bg1: "#1a2744", bg2: "#c41e3a", accent: "#f5f0e1", text: "#0a1628" },
+  papercraft: { bg1: "#fff8f0", bg2: "#ffe4e1", accent: "#ff6b6b", text: "#2d3436" },
+  "stained-glass": { bg1: "#1e3a5f", bg2: "#0f172a", accent: "#f59e0b", text: "#38bdf8" }
 };
 
 // Generate photographic book cover
@@ -1027,7 +1077,17 @@ function getBookCoverImagery(style: string, accent: string, text: string): strin
     "comic-book": `<polygon points="256,130 280,150 270,180 242,180 232,150" fill="${accent}" opacity="0.6" stroke="${text}" stroke-width="2"/>`,
     impressionist: `<circle cx="220" cy="160" r="30" fill="${accent}" opacity="0.3"/><circle cx="256" cy="150" r="25" fill="${accent}" opacity="0.25"/><circle cx="292" cy="165" r="28" fill="${text}" opacity="0.2"/>`,
     gothic: `<path d="M 226 130 Q 256 100 286 130 L 286 230 L 226 230 Z" fill="${text}" opacity="0.5"/><polygon points="256,90 262,110 282,110 266,122 272,142 256,130 240,142 246,122 230,110 250,110" fill="${accent}" opacity="0.5"/>`,
-    "nano-banana": `<path d="M 220 160 Q 240 130 270 150 Q 285 170 275 195 Q 260 215 235 205 Q 215 185 220 160" fill="${accent}" opacity="0.6"/><circle cx="256" cy="170" r="20" fill="${text}" opacity="0.4"/>`
+    "nano-banana": `<path d="M 220 160 Q 240 130 270 150 Q 285 170 275 195 Q 260 215 235 205 Q 215 185 220 160" fill="${accent}" opacity="0.6"/><circle cx="256" cy="170" r="20" fill="${text}" opacity="0.4"/>`,
+    "line-art": `<rect x="200" y="140" width="112" height="160" fill="none" stroke="${text}" stroke-width="3" opacity="0.7"/><circle cx="256" cy="200" r="40" fill="none" stroke="${accent}" stroke-width="2" opacity="0.6"/>`,
+    noir: `<rect x="120" y="160" width="272" height="8" fill="${text}" opacity="0.4"/><circle cx="256" cy="200" r="50" fill="none" stroke="${accent}" stroke-width="2" opacity="0.5"/><path d="M 180 320 L 332 320" stroke="${text}" stroke-width="2" opacity="0.3"/>`,
+    vaporwave: `<polygon points="256,140 320,220 256,300 192,220" fill="${accent}" opacity="0.4"/><line x1="80" y1="380" x2="432" y2="380" stroke="${text}" stroke-width="2" opacity="0.5"/>`,
+    "pixel-art": `<rect x="200" y="160" width="32" height="32" fill="${accent}" opacity="0.8"/><rect x="240" y="200" width="32" height="32" fill="${text}" opacity="0.7"/><rect x="280" y="240" width="32" height="32" fill="${accent}" opacity="0.6"/>`,
+    claymation: `<ellipse cx="256" cy="200" rx="70" ry="55" fill="${accent}" opacity="0.6"/><ellipse cx="220" cy="320" rx="40" ry="50" fill="${text}" opacity="0.5"/>`,
+    "art-nouveau": `<path d="M 180 200 Q 256 120 332 200 Q 300 280 256 300 Q 212 280 180 200" fill="none" stroke="${accent}" stroke-width="3" opacity="0.6"/><circle cx="256" cy="220" r="30" fill="${text}" opacity="0.3"/>`,
+    steampunk: `<circle cx="256" cy="200" r="50" fill="none" stroke="${accent}" stroke-width="4" opacity="0.7"/><rect x="206" y="280" width="100" height="60" fill="${text}" opacity="0.4"/>`,
+    "ukiyo-e": `<ellipse cx="256" cy="200" rx="100" ry="40" fill="${accent}" opacity="0.5"/><rect x="180" y="260" width="152" height="80" fill="${text}" opacity="0.35"/>`,
+    papercraft: `<polygon points="256,160 300,220 256,280 212,220" fill="${accent}" opacity="0.5"/><polygon points="200,300 256,340 312,300" fill="${text}" opacity="0.4"/>`,
+    "stained-glass": `<polygon points="256,140 290,200 256,260 222,200" fill="${accent}" opacity="0.6" stroke="${text}" stroke-width="2"/><polygon points="200,260 256,320 312,260" fill="${text}" opacity="0.4" stroke="${accent}" stroke-width="2"/>`
   };
   
   return imagery[style] || imagery.cinematic;
@@ -1095,7 +1155,17 @@ function getSceneElements(style: string, accent: string, text: string): string {
     "comic-book": `<rect x="140" y="280" width="100" height="140" fill="${accent}" opacity="0.5" stroke="${text}" stroke-width="3"/><rect x="270" y="300" width="100" height="120" fill="${accent}" opacity="0.45" stroke="${text}" stroke-width="3"/><polygon points="200,280 230,240 250,280" fill="${text}" opacity="0.6"/>`,
     impressionist: `<circle cx="180" cy="320" r="40" fill="${accent}" opacity="0.3"/><circle cx="220" cy="310" r="35" fill="${accent}" opacity="0.25"/><circle cx="290" cy="330" r="45" fill="${text}" opacity="0.2"/><circle cx="330" cy="320" r="38" fill="${text}" opacity="0.18"/>`,
     gothic: `<path d="M 200 420 L 200 300 Q 200 250 256 230 Q 312 250 312 300 L 312 420" fill="${text}" opacity="0.6"/><circle cx="256" cy="250" r="25" fill="${accent}" opacity="0.5"/><path d="M 180 320 Q 200 300 220 320" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/><path d="M 292 320 Q 312 300 332 320" fill="none" stroke="${text}" stroke-width="2" opacity="0.4"/>`,
-    "nano-banana": `<path d="M 180 320 Q 210 280 250 300 Q 270 320 260 360 Q 240 390 205 380 Q 175 360 180 320" fill="${accent}" opacity="0.6"/><circle cx="280" cy="340" r="35" fill="${text}" opacity="0.5"/><circle cx="320" cy="350" r="30" fill="${accent}" opacity="0.5"/><path d="M 256 340 Q 256 360 270 360" fill="none" stroke="${text}" stroke-width="3" opacity="0.6"/>`
+    "nano-banana": `<path d="M 180 320 Q 210 280 250 300 Q 270 320 260 360 Q 240 390 205 380 Q 175 360 180 320" fill="${accent}" opacity="0.6"/><circle cx="280" cy="340" r="35" fill="${text}" opacity="0.5"/><circle cx="320" cy="350" r="30" fill="${accent}" opacity="0.5"/><path d="M 256 340 Q 256 360 270 360" fill="none" stroke="${text}" stroke-width="3" opacity="0.6"/>`,
+    "line-art": `<path d="M 160 360 L 200 280 L 256 320 L 312 280 L 352 360" fill="none" stroke="${text}" stroke-width="4" opacity="0.6"/><circle cx="256" cy="250" r="60" fill="none" stroke="${accent}" stroke-width="3" opacity="0.5"/>`,
+    noir: `<rect x="100" y="300" width="312" height="4" fill="${text}" opacity="0.35"/><ellipse cx="256" cy="280" rx="80" ry="100" fill="${accent}" opacity="0.15"/><path d="M 180 380 L 332 380" stroke="${text}" stroke-width="3" opacity="0.4"/>`,
+    vaporwave: `<polygon points="256,220 340,340 172,340" fill="${accent}" opacity="0.35"/><line x1="0" y1="400" x2="512" y2="400" stroke="${text}" stroke-width="2" opacity="0.4"/>`,
+    "pixel-art": `<rect x="180" y="300" width="48" height="48" fill="${accent}" opacity="0.75"/><rect x="284" y="320" width="48" height="48" fill="${text}" opacity="0.65"/>`,
+    claymation: `<ellipse cx="256" cy="320" rx="90" ry="70" fill="${accent}" opacity="0.55"/><circle cx="230" cy="300" r="18" fill="${text}" opacity="0.6"/><circle cx="282" cy="300" r="18" fill="${text}" opacity="0.6"/>`,
+    "art-nouveau": `<path d="M 150 380 Q 256 240 362 380" fill="none" stroke="${accent}" stroke-width="4" opacity="0.5"/><ellipse cx="256" cy="300" rx="40" ry="80" fill="${text}" opacity="0.25"/>`,
+    steampunk: `<circle cx="256" cy="320" r="70" fill="none" stroke="${accent}" stroke-width="5" opacity="0.55"/><rect x="196" y="360" width="120" height="40" fill="${text}" opacity="0.35"/>`,
+    "ukiyo-e": `<ellipse cx="256" cy="340" rx="120" ry="50" fill="${accent}" opacity="0.4"/><rect x="196" y="280" width="120" height="60" fill="${text}" opacity="0.3"/>`,
+    papercraft: `<polygon points="256,260 320,340 192,340" fill="${accent}" opacity="0.45"/><rect x="216" y="360" width="80" height="40" fill="${text}" opacity="0.35"/>`,
+    "stained-glass": `<polygon points="256,240 300,300 256,360 212,300" fill="${accent}" opacity="0.5" stroke="${text}" stroke-width="3"/><polygon points="180,320 256,400 332,320" fill="${text}" opacity="0.35" stroke="${accent}" stroke-width="2"/>`
   };
   
   return elements[style] || elements.cinematic;

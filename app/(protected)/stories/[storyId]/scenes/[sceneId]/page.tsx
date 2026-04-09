@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { db } from "@/lib/db";
 import { scenes } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import SceneEditor from "./scene-editor";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storyId: string; sceneId: string }>;
+}): Promise<Metadata> {
+  const { storyId, sceneId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/scenes/${sceneId}`);
+}
 
 export default async function SceneEditorPage({
   params,
@@ -21,10 +32,17 @@ export default async function SceneEditorPage({
     notFound();
   }
 
-  // We might also need other data like characters (archetypes) or structure beats
-  // For now, let's just pass the scene data
+  const storyScenes = await db
+    .select({
+      id: scenes.id,
+      title: scenes.title,
+      order: scenes.order,
+    })
+    .from(scenes)
+    .where(eq(scenes.storyId, storyId))
+    .orderBy(asc(scenes.order));
 
-  return <SceneEditor scene={scene} storyId={storyId} />;
+  return <SceneEditor scene={scene} storyId={storyId} allScenes={storyScenes} />;
 }
 
 

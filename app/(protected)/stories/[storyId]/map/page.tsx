@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { getStoryMapData } from "./actions";
 import { StoryMapClient } from "./story-map-client";
 import { redirect } from "next/navigation";
@@ -6,6 +8,11 @@ interface PageProps {
   params: Promise<{
     storyId: string;
   }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { storyId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/map`);
 }
 
 export default async function StoryMapPage({ params }: PageProps) {

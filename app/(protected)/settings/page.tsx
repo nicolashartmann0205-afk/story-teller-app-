@@ -1,9 +1,21 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SeoReferenceTabs } from "@/components/settings/seo-reference-tabs";
+import { getAppUrl } from "@/lib/config/env";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_PAGE_TITLE,
+  SITE_NAME,
+  TITLE_TEMPLATE,
+  selfReferencingCanonical,
+} from "@/lib/seo/site-metadata";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import ProfileForm from "./profile-form";
+
+export const metadata = selfReferencingCanonical("/settings");
 
 async function updateProfileAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
   "use server";
@@ -34,8 +46,6 @@ async function updateProfileAction(previousState: { error?: string; success?: st
   }
 }
 
-import Link from "next/link";
-
 export default async function ProfilePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -46,6 +56,8 @@ export default async function ProfilePage() {
 
   // Fetch user profile from DB
   const [userProfile] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+
+  const metadataBaseUrl = getAppUrl().replace(/\/$/, "") || "http://localhost:3000";
 
   // If profile doesn't exist in public table yet (e.g. old user), create it or just use auth data
   // For now, we'll assume we can display what we have. 
@@ -78,6 +90,31 @@ export default async function ProfilePage() {
               user={user} 
               profile={userProfile} 
               updateProfileAction={updateProfileAction} 
+            />
+          </div>
+        </div>
+
+        <div className="mt-8 bg-white dark:bg-zinc-900 shadow rounded-lg overflow-hidden">
+          <div className="px-4 py-5 sm:px-6 border-b border-zinc-200 dark:border-zinc-800">
+            <h3 className="text-lg font-medium leading-6 text-zinc-900 dark:text-zinc-100">SEO reference</h3>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Read-only values your site uses for title, meta description, and canonical URLs. Changes require editing
+              code or deployment configuration.
+            </p>
+          </div>
+          <div className="px-4 py-5 sm:p-6">
+            <SeoReferenceTabs
+              siteName={SITE_NAME}
+              titleTemplate={TITLE_TEMPLATE}
+              defaultPageTitle={DEFAULT_PAGE_TITLE}
+              defaultDescription={DEFAULT_DESCRIPTION}
+              metadataBaseUrl={metadataBaseUrl}
+              exampleCanonicalPaths={[
+                { path: "/", label: "Home" },
+                { path: "/blogs", label: "Blogs index" },
+                { path: "/blog/your-post-slug", label: "Example blog post (replace slug)" },
+                { path: "/auth/sign-in", label: "Sign in (robots noindex)" },
+              ]}
             />
           </div>
         </div>

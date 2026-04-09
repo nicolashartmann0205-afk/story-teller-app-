@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PostBody } from "@/components/blog/post-body";
 import { getPostBySlugFromDb } from "@/lib/blog/queries";
+import { buildPageMetadata, SITE_NAME } from "@/lib/seo/site-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +10,24 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlugFromDb(slug);
-  if (!post) return { title: "Post not found" };
-  return {
-    title: post.title,
-    description: post.description,
-  };
+  if (!post) {
+    return {
+      title: { absolute: `Blog post not found | ${SITE_NAME}` },
+      robots: { index: false, follow: false },
+    };
+  }
+  return buildPageMetadata({
+    title: post.seoTitle?.trim() || post.title,
+    description:
+      post.metaDescription?.trim() ||
+      post.description?.trim() ||
+      `Read "${post.title}" on Story Teller for practical structure, scenes, and drafting insights. Open the full article and learn more.`,
+    canonicalPath: post.canonicalUrl?.trim() || `/blog/${slug}`,
+    openGraphType: "article",
+  });
 }
 
 function formatDate(iso: string) {

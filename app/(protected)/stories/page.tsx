@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+export const metadata = selfReferencingCanonical("/stories");
 
 async function getStories() {
   try {

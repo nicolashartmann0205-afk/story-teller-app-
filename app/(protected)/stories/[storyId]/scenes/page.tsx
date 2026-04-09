@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { getScenes, createScene } from "./actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storyId: string }>;
+}): Promise<Metadata> {
+  const { storyId } = await params;
+  return selfReferencingCanonical(`/stories/${storyId}/scenes`);
+}
 
 export default async function ScenesPage({
   params,
@@ -31,7 +42,7 @@ export default async function ScenesPage({
               Scene Development
             </h1>
             <p className="text-zinc-600 dark:text-zinc-400 mt-2">
-              Build your story scene by scene using the Movie Time framework.
+              Build your story scene by scene using the Movie Time framework. Add as many scenes as you need—there is no limit.
             </p>
           </div>
           <form action={handleCreateScene}>

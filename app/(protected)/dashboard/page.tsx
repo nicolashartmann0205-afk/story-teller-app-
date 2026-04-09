@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
@@ -7,6 +8,8 @@ import { eq, desc, sql } from "drizzle-orm";
 import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucide-react";
 import { getStyleGuides } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
+
+export const metadata = selfReferencingCanonical("/dashboard");
 
 async function getDashboardData(userId: string) {
   // 1. Get total stories count

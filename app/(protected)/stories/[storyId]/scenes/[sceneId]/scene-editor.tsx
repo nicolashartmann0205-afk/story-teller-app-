@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { updateScene, generateSceneDraftAction, analyzeShowDontTellAction, suggestSensoryDetailsAction } from "../actions";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  createScene,
+  updateScene,
+  generateSceneDraftAction,
+  analyzeShowDontTellAction,
+  suggestSensoryDetailsAction,
+} from "../actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Sparkles, AlertCircle, Check, Eye, Target, MapPin, Heart, Lightbulb } from "lucide-react";
@@ -44,20 +50,43 @@ interface Scene {
   lastFeedback: any;
 }
 
-export default function SceneEditor({ scene, storyId }: { scene: any; storyId: string }) {
+type SceneSummary = { id: string; title: string; order: number };
+
+export default function SceneEditor({
+  scene,
+  storyId,
+  allScenes,
+}: {
+  scene: any;
+  storyId: string;
+  allScenes: SceneSummary[];
+}) {
   const router = useRouter();
   const [localScene, setLocalScene] = useState<Scene>(scene);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAddingScene, setIsAddingScene] = useState(false);
   const [feedback, setFeedback] = useState<any>(scene.lastFeedback);
   const [activeTab, setActiveTab] = useState<'framework' | 'draft'>('framework');
+  const editorCanvasRef = useRef<HTMLDivElement | null>(null);
 
   // Helper to safely get nested properties
   const getAction = () => (localScene.movieTimeAction as MovieTimeAction) || { where: "", what: "", next: "", sensory_details: [] };
   const getEmotion = () => (localScene.movieTimeEmotion as MovieTimeEmotion) || { characters: "", stakes: "", tone: "neutral" };
   const getMeaning = () => (localScene.movieTimeMeaning as MovieTimeMeaning) || { change: "", significance: "", takeaway: "", purposes: [] };
+  const sceneWordCount = (localScene.sceneContent ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const isFirstScene = (localScene.order ?? 0) === 1;
+  const sceneFinished =
+    sceneWordCount >= 200 ||
+    localScene.completenessStatus === "drafted" ||
+    localScene.completenessStatus === "completed";
+  const isGrowthState = isFirstScene && sceneFinished;
+  const canAddAnotherScene = (localScene.order ?? 0) > 1 || isGrowthState;
 
   const handleUpdate = useCallback(async (updates: Partial<Scene>) => {
     setLocalScene(prev => ({ ...prev, ...updates }));
@@ -83,6 +112,13 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
     }, 1000);
     return () => clearTimeout(timer);
   }, [localScene]);
+
+  useEffect(() => {
+    const focus = new URLSearchParams(window.location.search).get("focus");
+    if (focus === "canvas") {
+      editorCanvasRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
 
   const updateAction = (field: keyof MovieTimeAction, value: any) => {
     const current = getAction();
@@ -111,7 +147,15 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
       handleUpdate({ sceneContent: draft, completenessStatus: 'drafted' });
       setActiveTab('draft');
     } catch (error) {
-      alert("Failed to generate draft. Please try again.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : typeof error === "object" && error !== null && "message" in error
+              ? String((error as { message?: unknown }).message || "")
+              : "Failed to generate draft. Please try again.";
+      alert(message);
     } finally {
       setIsGenerating(false);
     }
@@ -128,6 +172,45 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
       alert("Analysis failed.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleSceneJump = (nextId: string) => {
+    if (nextId && nextId !== scene.id) {
+      router.push(`/stories/${storyId}/scenes/${nextId}`);
+    }
+  };
+
+  const handleAddScene = async () => {
+    if (!canAddAnotherScene || isAddingScene) return;
+    setIsAddingScene(true);
+    try {
+      // Force-save current scene before moving to the next one.
+      await updateScene(scene.id, storyId, {
+        title: localScene.title,
+        movieTimeAction: getAction(),
+        movieTimeEmotion: getEmotion(),
+        movieTimeMeaning: getMeaning(),
+        sceneContent: localScene.sceneContent,
+        completenessStatus: localScene.completenessStatus,
+      });
+
+      const nextSeed = {
+        actionWhere: getAction().where,
+        actionWhat: "",
+        emotionCharacters: getEmotion().characters,
+        emotionStakes: getEmotion().stakes,
+        emotionTone: getEmotion().tone,
+      };
+
+      const newScene = await createScene(storyId, nextSeed);
+      router.push(`/stories/${storyId}/scenes/${newScene.id}?focus=canvas`);
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert("Could not add a new scene. Please try again.");
+    } finally {
+      setIsAddingScene(false);
     }
   };
 
@@ -149,12 +232,13 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
     <div className="min-h-screen bg-zinc-50 dark:bg-black pb-20">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-4 shadow-sm">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link href={`/stories/${storyId}/scenes`} className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300">
+        <div className="max-w-6xl mx-auto space-y-3">
+        <div className="flex flex-wrap justify-between items-center gap-3">
+          <div className="flex items-center gap-4 min-w-0">
+            <Link href={`/stories/${storyId}/scenes`} className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
                <span className="text-xs font-mono text-zinc-500">Scene {localScene.order || "?"}</span>
                <input 
                  value={localScene.title}
@@ -165,7 +249,26 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-zinc-400">
+            {canAddAnotherScene && (
+              <button
+                type="button"
+                onClick={handleAddScene}
+                disabled={isAddingScene}
+                className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              >
+                {isAddingScene ? "Adding..." : "+ Add Scene"}
+              </button>
+            )}
+            <span
+              className={`rounded-full px-2 py-1 text-[11px] font-medium ${
+                isGrowthState
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                  : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              }`}
+            >
+              {isGrowthState ? "Growth state" : "Save state"}
+            </span>
+            <span className="text-xs text-zinc-400 min-w-[4rem] text-right">
               {isSaving ? "Saving..." : lastSaved ? "Saved" : ""}
             </span>
             <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
@@ -184,9 +287,50 @@ export default function SceneEditor({ scene, storyId }: { scene: any; storyId: s
             </div>
           </div>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800 sm:border-0 sm:pt-0">
+          <label htmlFor="scene-switcher" className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Scenes
+          </label>
+          <select
+            id="scene-switcher"
+            value={scene.id}
+            onChange={(e) => handleSceneJump(e.target.value)}
+            className="text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2 py-1.5 min-w-[12rem] max-w-[min(100vw-6rem,28rem)]"
+          >
+            {allScenes.map((s) => (
+              <option key={s.id} value={s.id}>
+                Scene {s.order}: {s.title}
+              </option>
+            ))}
+          </select>
+          {canAddAnotherScene ? (
+            <div className="flex items-center gap-2">
+              {isGrowthState && (
+                <Link
+                  href={`/stories/${storyId}/review`}
+                  className="text-sm rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Finish & Export
+                </Link>
+              )}
+            </div>
+          ) : (
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              Reach 200+ words in scene 1 to unlock “Add scene”
+            </span>
+          )}
+          <Link
+            href={`/stories/${storyId}/scenes`}
+            className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 underline underline-offset-2"
+          >
+            All scenes
+          </Link>
+        </div>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div ref={editorCanvasRef} className="max-w-6xl mx-auto px-4 py-8">
         {activeTab === 'framework' ? (
             <div className="grid gap-8">
                 {/* ACTION SECTION */}

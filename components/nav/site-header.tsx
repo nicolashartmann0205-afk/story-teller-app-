@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
 import { PublicNavLinks } from "@/components/nav/public-nav-links";
+import { isBlogAdminUser } from "@/lib/blog/admin";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -12,6 +13,8 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const canSeeBlogAdmin = isBlogAdminUser(user?.id);
+  const canSeeSeoAdmin = (user?.email || "").trim().toLowerCase() === "nicolas@hartmanns.net";
 
   return (
     <header
@@ -26,7 +29,11 @@ export async function SiteHeader() {
           >
             Story Teller
           </Link>
-          {user ? <AppShellNavLinks /> : <PublicNavLinks />}
+          {user ? (
+            <AppShellNavLinks showBlogAdmin={canSeeBlogAdmin} showSeoAdmin={canSeeSeoAdmin} />
+          ) : (
+            <PublicNavLinks />
+          )}
         </div>
         {user ? <SignOutButton /> : null}
       </div>

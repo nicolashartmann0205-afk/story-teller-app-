@@ -21,6 +21,9 @@ function rowToPost(row: typeof blogPosts.$inferSelect): BlogPost {
     slug: row.slug,
     title: row.title,
     description: row.description,
+    seoTitle: row.seoTitle,
+    metaDescription: row.metaDescription,
+    canonicalUrl: row.canonicalUrl,
     content: row.content,
     publishedAt: iso,
   };

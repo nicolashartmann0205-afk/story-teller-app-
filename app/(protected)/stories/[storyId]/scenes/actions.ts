@@ -6,6 +6,14 @@ import { eq, and, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateSceneDraft, analyzeShowDontTell, suggestSensoryDetails } from "@/lib/ai/story-generator";
 
+type CreateSceneSeed = {
+  actionWhere?: string;
+  actionWhat?: string;
+  emotionCharacters?: string;
+  emotionStakes?: string;
+  emotionTone?: string;
+};
+
 export async function getScenes(storyId: string) {
   return await db
     .select()
@@ -14,14 +22,14 @@ export async function getScenes(storyId: string) {
     .orderBy(asc(scenes.order));
 }
 
-export async function createScene(storyId: string) {
-  // Get the current max order
+export async function createScene(storyId: string, seed?: CreateSceneSeed) {
   const existingScenes = await db
-    .select()
+    .select({ order: scenes.order })
     .from(scenes)
     .where(eq(scenes.storyId, storyId));
-  
-  const newOrder = existingScenes.length + 1;
+
+  const newOrder =
+    existingScenes.length > 0 ? Math.max(...existingScenes.map((s) => s.order)) + 1 : 1;
 
   const [newScene] = await db
     .insert(scenes)
@@ -30,15 +38,15 @@ export async function createScene(storyId: string) {
       title: `Scene ${newOrder}`,
       order: newOrder,
       movieTimeAction: {
-        where: "",
-        what: "",
+        where: seed?.actionWhere?.trim() || "",
+        what: seed?.actionWhat?.trim() || "",
         next: "",
         sensory_details: []
       },
       movieTimeEmotion: {
-        characters: "",
-        stakes: "",
-        tone: "neutral",
+        characters: seed?.emotionCharacters?.trim() || "",
+        stakes: seed?.emotionStakes?.trim() || "",
+        tone: seed?.emotionTone?.trim() || "neutral",
         internal_feeling: "",
         external_show: "",
         audience_feeling: ""
@@ -78,18 +86,23 @@ export async function deleteScene(sceneId: string, storyId: string) {
 }
 
 export async function generateSceneDraftAction(sceneData: any, storyId: string) {
-    // Fetch story context
-    const [story] = await db.select().from(stories).where(eq(stories.id, storyId));
-    
-    if (!story) throw new Error("Story not found");
+    try {
+      // Fetch story context
+      const [story] = await db.select().from(stories).where(eq(stories.id, storyId));
+      
+      if (!story) throw new Error("Story not found");
 
-    const storyContext = {
-        storyType: (story.storyType as any)?.name || "General Fiction",
-        overallStakes: (story.hooks as any)?.selected?.whyItWorks || "Survival", // simplified fallback
-        theme: "Transformation" // Should fetch from story data if available
-    };
+      const storyContext = {
+          storyType: (story.storyType as any)?.name || "General Fiction",
+          overallStakes: (story.hooks as any)?.selected?.whyItWorks || "Survival", // simplified fallback
+          theme: "Transformation" // Should fetch from story data if available
+      };
 
-    return await generateSceneDraft(sceneData, storyContext);
+      return await generateSceneDraft(sceneData, storyContext);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(message || "Failed to generate scene draft. Please try again.");
+    }
 }
 
 export async function analyzeShowDontTellAction(content: string) {
