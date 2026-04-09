@@ -95,13 +95,6 @@ export function SeoReferenceTabs({
               Best practice is one H1 per page. Multiple H1s can dilute keyword focus and confuse search engines
               about the page&apos;s primary topic.
             </p>
-            <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
-              WARNING: No JSON-LD structured data detected. Schema markup helps search engines understand your
-              content. Schema markup enables rich snippets in SERPs, increasing CTR by 20-30%.
-            </p>
-            <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
-              WARNING: Page has less than 300 words of visible text. Search engines prefer substantial content.
-            </p>
           </div>
         )}
 
