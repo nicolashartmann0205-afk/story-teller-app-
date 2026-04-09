@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MapProvider, Scene, StoryMap } from "./map-context";
 import { ViewSelector } from "./controls/view-selector";
 import { ZoomControls } from "./controls/zoom-controls";
 import { AddSceneButton } from "./controls/add-scene-button";
 import { ExportButton } from "./controls/export-button";
+import { VisualStylePicker } from "./controls/visual-style-picker";
+import { DEFAULT_MAP_VISUAL_STYLE } from "@/lib/ai/map-visual-styles";
 import { AIAnalysisPanel } from "./ai-analysis/panel";
 import { TimelineView } from "./views/timeline/timeline-view";
 import { EmotionalArcView } from "./views/emotional-arc/emotional-arc-view";
@@ -22,6 +24,7 @@ function MapContent() {
     clearVisualGenerationError,
   } = useMap();
   const mapRef = useRef<HTMLDivElement>(null);
+  const [visualStyle, setVisualStyle] = useState(DEFAULT_MAP_VISUAL_STYLE);
 
   return (
     <div className="flex flex-col h-full relative">
@@ -32,11 +35,16 @@ function MapContent() {
           <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800" />
           <ZoomControls />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-end justify-end gap-3 sm:gap-4">
           <ExportButton targetRef={mapRef} />
+          <VisualStylePicker
+            value={visualStyle}
+            onChange={setVisualStyle}
+            disabled={isGeneratingVisuals}
+          />
           <button
             type="button"
-            onClick={() => generateSceneVisuals("cinematic")}
+            onClick={() => generateSceneVisuals(visualStyle)}
             disabled={isGeneratingVisuals}
             className="inline-flex items-center gap-2 rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
           >

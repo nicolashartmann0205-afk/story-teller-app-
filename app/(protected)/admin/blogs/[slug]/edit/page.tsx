@@ -29,7 +29,7 @@ export default async function AdminBlogsEditPage({ params, searchParams }: Props
   if (!isBlogAdminUser(user.id)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
-  const canEditSeo = isBlogAdminUser(user.id);
+  const canEditSeo = user.email === "nicolas@hartmanns.net";
   const sp = await searchParams;
   const post = await getPostBySlugFromDb(slug);
   if (!post) {

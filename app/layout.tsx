@@ -4,6 +4,11 @@ import "./globals.css";
 import { SiteHeader } from "@/components/nav/site-header";
 import ClientParticleBackground from "@/components/ui/client-particle-background";
 import { getAppUrl } from "@/lib/config/env";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_PAGE_TITLE,
+  TITLE_TEMPLATE,
+} from "@/lib/seo/site-metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +23,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl().replace(/\/$/, "") || "http://localhost:3000"),
   title: {
-    default: "Story Teller App — tell your story app for writers",
-    template: "%s | Story Teller App",
+    default: DEFAULT_PAGE_TITLE,
+    template: TITLE_TEMPLATE,
   },
-  description:
-    "A storytelling app to plan, draft, and finish your work. The tell your story app for structure, scenes, and export.",
+  description: DEFAULT_DESCRIPTION,
 };
 
 export default async function RootLayout({

@@ -23,7 +23,17 @@ const styleModifiers: Record<string, string> = {
   "comic-book": "bold linework, dynamic composition, action-oriented, graphic novel quality, dramatic angles, pop art influence",
   impressionist: "visible brushstrokes, light and color emphasis, artistic interpretation, painterly quality, atmospheric mood",
   gothic: "dark atmosphere, dramatic shadows, mysterious mood, ornate details, haunting beauty, Victorian influence",
-  "nano-banana": "playful whimsical style, smooth organic curves, warm yellow palette, banana-inspired color scheme, friendly aesthetic, fun composition, lighthearted mood, curved shapes, cheerful atmosphere, artistic cartoonish quality"
+  "nano-banana": "playful whimsical style, smooth organic curves, warm yellow palette, banana-inspired color scheme, friendly aesthetic, fun composition, lighthearted mood, curved shapes, cheerful atmosphere, artistic cartoonish quality",
+  "line-art": "bold clean ink outlines, editorial illustration, limited or flat fill, confident strokes, graphic clarity",
+  noir: "high contrast black and white, venetian blind shadows, 1940s mystery film, dramatic chiaroscuro, rain-slick streets mood",
+  vaporwave: "synthwave palette, retro grid horizon, neon pink and cyan, chrome reflections, 1980s nostalgia, dreamy digital haze",
+  "pixel-art": "retro game aesthetic, visible pixel grid, limited color palette, crisp dithering, 16-bit charm, nostalgic sprites",
+  claymation: "stop-motion clay look, soft rounded forms, fingerprint texture, warm studio lighting, tactile handmade charm",
+  "art-nouveau": "flowing organic lines, decorative borders, elegant curves, botanical motifs, Mucha-inspired elegance",
+  steampunk: "brass and copper tones, Victorian machinery, gears and rivets, steam-era invention, industrial romance",
+  "ukiyo-e": "Japanese woodblock print style, flat color planes, bold outlines, traditional composition, subtle paper grain",
+  papercraft: "layered paper cutouts, soft cast shadows, craft aesthetic, tactile depth, clean edges",
+  "stained-glass": "vibrant glass panels, dark lead lines, cathedral light, luminous jewel tones, sacred geometry"
 };
 
 /**

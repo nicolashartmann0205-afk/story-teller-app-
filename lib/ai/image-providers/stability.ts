@@ -50,7 +50,17 @@ export class StabilityProvider implements ImageProvider {
       "comic-book": { negativePrompt: "realistic, photograph, blurry", stylePreset: "comic-book" },
       impressionist: { negativePrompt: "sharp, detailed, photograph", stylePreset: "analog-film" },
       gothic: { negativePrompt: "bright, cheerful, modern", stylePreset: "cinematic" },
-      "nano-banana": { negativePrompt: "dark, serious, realistic", stylePreset: "comic-book" }
+      "nano-banana": { negativePrompt: "dark, serious, realistic", stylePreset: "comic-book" },
+      "line-art": { negativePrompt: "photograph, full color painting, blurry", stylePreset: "line-art" },
+      noir: { negativePrompt: "color, cartoon, flat illustration", stylePreset: "cinematic" },
+      vaporwave: { negativePrompt: "natural earth tones, documentary", stylePreset: "neon-punk" },
+      "pixel-art": { negativePrompt: "smooth gradients, photorealistic", stylePreset: "digital-art" },
+      claymation: { negativePrompt: "flat vector, photograph", stylePreset: "comic-book" },
+      "art-nouveau": { negativePrompt: "minimalist, brutalist, photograph", stylePreset: "fantasy-art" },
+      steampunk: { negativePrompt: "modern minimal, photograph", stylePreset: "fantasy-art" },
+      "ukiyo-e": { negativePrompt: "western cartoon, 3d render", stylePreset: "anime" },
+      papercraft: { negativePrompt: "photorealistic, oil painting", stylePreset: "low-poly" },
+      "stained-glass": { negativePrompt: "photograph, sketch", stylePreset: "digital-art" }
     };
 
     const config = styleConfigs[style] || styleConfigs.cinematic;

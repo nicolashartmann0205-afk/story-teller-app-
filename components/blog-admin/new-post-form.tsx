@@ -23,7 +23,7 @@ export function NewPostForm({ showSeoTab = false }: { showSeoTab?: boolean }) {
       <Tabs defaultValue="content" className="w-full">
         <TabsList className={showSeoTab ? "grid h-auto w-full grid-cols-2 gap-1 p-1" : "w-full"}>
           <TabsTrigger value="content" className="w-full">
-            Main content
+            Content
           </TabsTrigger>
           {showSeoTab ? (
             <TabsTrigger
@@ -31,7 +31,7 @@ export function NewPostForm({ showSeoTab = false }: { showSeoTab?: boolean }) {
               className="w-full gap-1.5 bg-blue-50/80 text-blue-900 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-950 dark:bg-blue-950/50 dark:text-blue-100 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-50"
             >
               <Lock className="size-3.5 shrink-0 opacity-80" aria-hidden />
-              SEO settings
+              SEO Settings
             </TabsTrigger>
           ) : null}
         </TabsList>

@@ -50,7 +50,17 @@ export class OpenAIProvider implements ImageProvider {
       "comic-book": "comic book art style, bold lines, dynamic",
       impressionist: "impressionist painting style, visible brushstrokes",
       gothic: "gothic art style, dark atmosphere, Victorian",
-      "nano-banana": "playful whimsical art, banana-inspired colors, fun and cheerful"
+      "nano-banana": "playful whimsical art, banana-inspired colors, fun and cheerful",
+      "line-art": "bold line art illustration, clean ink outlines, minimal shading",
+      noir: "film noir black and white, dramatic shadows, mystery atmosphere",
+      vaporwave: "vaporwave aesthetic, neon pink cyan, retro 80s dreamscape",
+      "pixel-art": "pixel art style, retro video game graphics, crisp pixels",
+      claymation: "claymation stop-motion look, soft sculpted forms",
+      "art-nouveau": "art nouveau decorative illustration, flowing organic lines",
+      steampunk: "steampunk style, brass gears, Victorian sci-fi",
+      "ukiyo-e": "ukiyo-e Japanese woodblock print style",
+      papercraft: "paper cutout layered collage style",
+      "stained-glass": "stained glass window art, luminous colored glass"
     };
 
     const styleModifier = stylePrompts[style] || stylePrompts.cinematic;

@@ -195,6 +195,28 @@ export function HomeLanding() {
               ))}
             </div>
           </section>
+          <footer className="space-y-3 border-t border-zinc-200 pt-10 dark:border-zinc-800" aria-label="Company and legal links">
+            <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+              Company
+            </h2>
+            <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+              <Link href="/about" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                About
+              </Link>
+              <Link href="/team" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                Team
+              </Link>
+              <Link href="/contact" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                Contact
+              </Link>
+              <Link href="/privacy" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                Privacy
+              </Link>
+              <Link href="/terms" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                Terms
+              </Link>
+            </nav>
+          </footer>
         </article>
       </div>
     </>
