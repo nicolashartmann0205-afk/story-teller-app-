@@ -26,7 +26,7 @@ async function requireBlogAdmin() {
   if (!user) {
     redirect("/auth/sign-in");
   }
-  if (!isBlogAdminUser(user.id)) {
+  if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
   return user;

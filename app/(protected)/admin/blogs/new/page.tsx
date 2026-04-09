@@ -15,7 +15,7 @@ export default async function AdminBlogsNewPage() {
   if (!user) {
     redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(`${BLOG_ADMIN_BASE_PATH}/new`)}`);
   }
-  if (!isBlogAdminUser(user.id)) {
+  if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
   const canEditSeo = user.email === "nicolas@hartmanns.net";

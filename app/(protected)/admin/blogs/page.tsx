@@ -17,7 +17,7 @@ export default async function AdminBlogsPage() {
   if (!user) {
     redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(BLOG_ADMIN_BASE_PATH)}`);
   }
-  if (!isBlogAdminUser(user.id)) {
+  if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
 

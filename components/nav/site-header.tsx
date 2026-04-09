@@ -13,7 +13,7 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const canSeeBlogAdmin = isBlogAdminUser(user?.id);
+  const canSeeBlogAdmin = isBlogAdminUser(user?.id, user?.email);
   const canSeeSeoAdmin = (user?.email || "").trim().toLowerCase() === "nicolas@hartmanns.net";
 
   return (
