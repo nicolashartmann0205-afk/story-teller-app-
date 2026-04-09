@@ -29,21 +29,41 @@ export default async function SeoAdminPage() {
     redirect("/dashboard");
   }
 
-  const rows = await db
-    .select({
-      slug: blogPosts.slug,
-      title: blogPosts.title,
-      seoTitle: blogPosts.seoTitle,
-      metaDescription: blogPosts.metaDescription,
-      canonicalUrl: blogPosts.canonicalUrl,
-      updatedAt: blogPosts.updatedAt,
-    })
-    .from(blogPosts)
-    .orderBy(desc(blogPosts.publishedAt));
-  const serializedRows = rows.map((row) => ({
-    ...row,
-    updatedAt: row.updatedAt.toISOString(),
-  }));
+  let serializedRows: {
+    slug: string;
+    title: string;
+    seoTitle: string | null;
+    metaDescription: string | null;
+    canonicalUrl: string | null;
+    updatedAt: string;
+  }[] = [];
+  let loadError: string | null = null;
+
+  try {
+    const rows = await db
+      .select({
+        slug: blogPosts.slug,
+        title: blogPosts.title,
+        seoTitle: blogPosts.seoTitle,
+        metaDescription: blogPosts.metaDescription,
+        canonicalUrl: blogPosts.canonicalUrl,
+        updatedAt: blogPosts.updatedAt,
+      })
+      .from(blogPosts)
+      .orderBy(desc(blogPosts.publishedAt));
+
+    serializedRows = rows.map((row) => ({
+      ...row,
+      updatedAt:
+        row.updatedAt instanceof Date
+          ? row.updatedAt.toISOString()
+          : new Date(row.updatedAt).toISOString(),
+    }));
+  } catch (error) {
+    console.error("Failed loading SEO admin blog rows:", error);
+    loadError =
+      "Could not load blog SEO rows. Verify production DB migrations (blog_posts seo_title/meta_description/canonical_url) and DATABASE_URL/POOLING_DATABASE_URL env vars.";
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6">
@@ -59,7 +79,13 @@ export default async function SeoAdminPage() {
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Update canonical URL, meta description, and SEO title for each blog post.
         </p>
-        <SeoBlogPostsEditor rows={serializedRows} updateAction={updateBlogSeoAction} />
+        {loadError ? (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+            {loadError}
+          </div>
+        ) : (
+          <SeoBlogPostsEditor rows={serializedRows} updateAction={updateBlogSeoAction} />
+        )}
       </section>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
