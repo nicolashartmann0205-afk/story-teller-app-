@@ -8,6 +8,7 @@ import {
   DEFAULT_DESCRIPTION,
   DEFAULT_PAGE_TITLE,
   TITLE_TEMPLATE,
+  buildGlobalJsonLd,
 } from "@/lib/seo/site-metadata";
 
 const geistSans = Geist({
@@ -34,8 +35,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = buildGlobalJsonLd(getAppUrl());
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >

@@ -22,6 +22,34 @@ export const DEFAULT_PAGE_TITLE = `Write stories - scenes & maps | ${SITE_NAME}`
 export const DEFAULT_DESCRIPTION =
   "Plan structure, scenes, maps, and revisions in one writing app built for momentum. Start free, shape your draft faster, and finish with confidence. Learn more.";
 
+/**
+ * Global JSON-LD for search engines.
+ * Inject this in the root layout head so every page exposes software/site context.
+ */
+export function buildGlobalJsonLd(siteUrl: string) {
+  const url = siteUrl.replace(/\/$/, "");
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url,
+        description: DEFAULT_DESCRIPTION,
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: SITE_NAME,
+        operatingSystem: "Web",
+        applicationCategory: "WritingApplication",
+        applicationSubCategory: "Storytelling",
+        description: "Write stories, scenes, and maps with ease.",
+        url,
+      },
+    ],
+  };
+}
+
 export type BuildPageMetadataInput = {
   title: string;
   description: string;
