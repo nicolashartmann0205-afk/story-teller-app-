@@ -83,10 +83,15 @@ export function HomeLanding() {
               What Story Teller helps you do
             </h2>
             <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Turn scattered ideas into a clear narrative. This storytelling app focuses on story architecture—so your scenes, tension, and character beats stay connected from first draft to final polish.
+              Turn scattered ideas into a clear narrative system. Story Teller is built for writers who need more than
+              a blank document and random notes. You can map your plot, define your world, and manage scenes in one
+              place, so the story keeps moving even when your energy is low. Instead of juggling five different tools,
+              you keep structure, context, and draft progress connected.
             </p>
             <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Whether you write short fiction or a longer project, you get a workflow designed for writers who outgrow generic tools. That is why many users call it their favorite tell your story app.
+              Whether you write short fiction, novels, or episodic content, the workflow helps you make clear choices
+              at each stage. You can move from concept to scenes without losing your main arc, then review your draft
+              with better visibility into pacing, tension, and continuity.
             </p>
           </section>
 
@@ -100,7 +105,8 @@ export function HomeLanding() {
                   1. Shape your story
                 </h3>
                 <p className="mt-2 leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  Start with hooks, character, and structure so the tell your story app can guide what comes next.
+                  Start with hooks, character goals, and a structure path that fits your project. Story Teller helps
+                  you choose direction early so you do not drift into disconnected chapters later.
                 </p>
               </div>
               <div>
@@ -108,15 +114,17 @@ export function HomeLanding() {
                   2. Build scenes with intent
                 </h3>
                 <p className="mt-2 leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  Move through scenes with tension and purpose. Story Teller keeps each beat tied to the whole.
+                  Build scene by scene with clear intent. Each scene gets a purpose, emotional weight, and relationship
+                  to the broader arc, making revision easier and first drafts less chaotic.
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                  3. Review and export
+                  3. Review, refine, and export
                 </h3>
                 <p className="mt-2 leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  Finish in one place: review completeness, then export when you are ready to share.
+                  Review for continuity and completeness, then export when your draft is ready. You can ship work
+                  faster because planning and writing stay aligned from start to finish.
                 </p>
               </div>
             </div>
@@ -141,15 +149,36 @@ export function HomeLanding() {
             </div>
           </section>
 
+          <section id="writer-block" aria-labelledby="writer-block-heading" className="space-y-4">
+            <h2 id="writer-block-heading" className="text-2xl font-semibold text-black dark:text-zinc-50">
+              Beat writer&apos;s block with a visual workflow
+            </h2>
+            <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
+              Writer&apos;s block often comes from uncertainty, not lack of talent. When you cannot see what happens next,
+              drafting stalls. Story Teller reduces that friction with visual story mapping and scene-level guidance.
+              You can quickly inspect where tension drops, where character motivation is unclear, or where transitions
+              feel weak. That visibility turns vague frustration into concrete edits.
+            </p>
+            <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
+              World-building also becomes practical, not overwhelming. Keep your setting details, tone decisions, and
+              story logic near the draft so you do not lose consistency. As your project grows, scene management keeps
+              momentum: reorder scenes, clarify outcomes, and maintain arc coherence without rewriting everything from
+              scratch. The goal is simple: fewer stalled sessions, more finished pages.
+            </p>
+          </section>
+
           <section id="why-choose" aria-labelledby="why-heading" className="space-y-4">
             <h2 id="why-heading" className="text-2xl font-semibold text-black dark:text-zinc-50">
               Why writers choose this tell your story app
             </h2>
             <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Story Teller is built for narrative work: structure overlays, scene cards, and review checks. If you have tried a plain doc and lost the thread, this tell your story app gives you rails without killing creativity.
+              Story Teller is built for narrative work: structure overlays, scene cards, map-based planning, and
+              review checks. If you have used plain docs and lost the thread, this tell your story app gives you
+              guidance without killing creativity.
             </p>
             <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
-              You still own every word. The storytelling app simply helps you see the shape of the story while you write it.
+              You still own every word. The software simply helps you see the shape of the story while you write it,
+              so decisions happen faster and your draft quality stays consistent.
             </p>
           </section>
 
