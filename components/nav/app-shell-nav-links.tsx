@@ -30,6 +30,7 @@ export function AppShellNavLinks({
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   const isStories = pathname === "/stories" || pathname.startsWith("/stories/");
   const isSettings = pathname === "/settings" || pathname.startsWith("/settings/");
+  const isSupport = pathname === "/support" || pathname.startsWith("/support/");
   const isBlogs =
     pathname === "/blogs" ||
     pathname.startsWith("/blogs/") ||
@@ -48,6 +49,9 @@ export function AppShellNavLinks({
       </Link>
       <Link href="/settings" className={navClass(isSettings)}>
         Settings
+      </Link>
+      <Link href="/support" className={navClass(isSupport)}>
+        Support
       </Link>
       <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
         Blogs
