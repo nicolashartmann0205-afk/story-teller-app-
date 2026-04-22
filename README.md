@@ -6,3 +6,4 @@ What are next features: hook generator, structures, archetype of characters, bra
 
 Security setup notes:
 - Supabase Auth hardening checklist: `docs/supabase-auth-security-checklist.md`
+- Pre-deploy security checks: see `Pre-Deploy Security Checklist` in `docs/supabase-auth-security-checklist.md`
