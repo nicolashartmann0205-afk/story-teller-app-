@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const tokenHash = url.searchParams.get("token_hash");
   const otpType = url.searchParams.get("type");
+  const oauthRetry = url.searchParams.get("oauthRetry") === "1";
   const safeNext = safeRelativeNextPath(url.searchParams.get("next"));
   const destination = new URL(safeNext, url.origin);
 
@@ -92,6 +93,18 @@ export async function GET(request: NextRequest) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
+      const lower = error.message.toLowerCase();
+      const isPkceMissing = lower.includes("pkce code verifier not found");
+      if (isPkceMissing && !oauthRetry) {
+        const restartUrl = new URL("/auth/google", url.origin);
+        restartUrl.searchParams.set("next", safeNext);
+        restartUrl.searchParams.set("oauthRetry", "1");
+        const retryResponse = NextResponse.redirect(restartUrl);
+        setAuthDebugHeader(retryResponse, "callback-host", url.host);
+        setAuthDebugHeader(retryResponse, "exchange-error", true);
+        setAuthDebugHeader(retryResponse, "exchange-restarted-oauth", true);
+        return retryResponse;
+      }
       const errorResponse = redirectSignInError("oauth", "exchange_failed", error.message);
       setAuthDebugHeader(errorResponse, "callback-host", url.host);
       setAuthDebugHeader(errorResponse, "exchange-error", true);

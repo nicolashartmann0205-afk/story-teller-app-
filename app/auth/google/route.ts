@@ -1,0 +1,79 @@
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
+
+function registrableHost(hostname: string): string {
+  const h = hostname.toLowerCase();
+  return h.startsWith("www.") ? h.slice(4) : h;
+}
+
+function getCanonicalOrigin(currentUrl: URL): string {
+  const rawApp = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (!rawApp) return currentUrl.origin;
+  try {
+    const canonical = new URL(rawApp);
+    if (registrableHost(canonical.hostname) === registrableHost(currentUrl.hostname)) {
+      return canonical.origin;
+    }
+    return currentUrl.origin;
+  } catch {
+    return currentUrl.origin;
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const nextPath = safeRelativeNextPath(url.searchParams.get("next"));
+  const oauthRetry = url.searchParams.get("oauthRetry");
+  const callbackUrl = new URL("/auth/callback", getCanonicalOrigin(url));
+  callbackUrl.searchParams.set("next", nextPath);
+  if (oauthRetry === "1") {
+    callbackUrl.searchParams.set("oauthRetry", "1");
+  }
+
+  let supabaseResponse = NextResponse.redirect(new URL("/auth/sign-in", url.origin));
+  const cookieOptions = getSupabaseCookieOptions({
+    host: url.hostname,
+  });
+
+  const supabase = createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, options);
+        });
+      },
+    },
+    ...(cookieOptions ? { cookieOptions } : {}),
+  });
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: callbackUrl.toString(),
+    },
+  });
+
+  if (error || !data?.url) {
+    const signInUrl = new URL("/auth/sign-in", url.origin);
+    signInUrl.searchParams.set("error", "oauth");
+    signInUrl.searchParams.set("error_code", "google_start_failed");
+    signInUrl.searchParams.set(
+      "error_description",
+      error?.message || "Could not start Google sign-in."
+    );
+    return NextResponse.redirect(signInUrl);
+  }
+
+  const redirectResponse = NextResponse.redirect(data.url);
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    redirectResponse.cookies.set(cookie);
+  }
+  return redirectResponse;
+}
+

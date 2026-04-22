@@ -42,7 +42,6 @@ export default function SignInForm({
   const [clientError, setClientError] = useState<string | null>(null);
   const [clientSuccess, setClientSuccess] = useState<string | null>(null);
   const [clientPending, setClientPending] = useState(false);
-  const [googlePending, setGooglePending] = useState(false);
   const [otpSentLocal, setOtpSentLocal] = useState(false);
   const [resendCooldownSeconds, setResendCooldownSeconds] = useState(0);
   const [email, setEmail] = useState("");
@@ -168,27 +167,6 @@ export default function SignInForm({
     }
   }
 
-  async function handleGoogleSignIn() {
-    setClientError(null);
-    setClientSuccess(null);
-    setGooglePending(true);
-    try {
-      const callbackUrl = new URL("/auth/callback", window.location.origin);
-      callbackUrl.searchParams.set("next", redirectedFrom || "/dashboard");
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: callbackUrl.toString(),
-        },
-      });
-      if (error) {
-        setClientError(toFriendlyAuthError(error.message));
-      }
-    } finally {
-      setGooglePending(false);
-    }
-  }
-
   return (
     <form
       className="mt-8 space-y-6"
@@ -300,7 +278,7 @@ export default function SignInForm({
       <div className="flex flex-col gap-4">
         <button
           type="submit"
-          disabled={isPending || clientPending || googlePending}
+          disabled={isPending || clientPending}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black dark:bg-zinc-50 dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {(isPending || clientPending)
@@ -325,10 +303,8 @@ export default function SignInForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={googlePending || clientPending || isPending}
+        <a
+          href={`/auth/google?next=${encodeURIComponent(redirectedFrom || "/dashboard")}`}
           className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-zinc-300 dark:border-zinc-700 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -349,8 +325,8 @@ export default function SignInForm({
               fill="#EA4335"
             />
           </svg>
-          {googlePending ? "Redirecting to Google..." : "Sign in with Google"}
-        </button>
+          Sign in with Google
+        </a>
 
         <button
           type="button"

@@ -4,7 +4,7 @@ import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 // Public routes that are accessible to everyone (blog is public marketing content)
-const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
+const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback", "/auth/google"];
 const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
 
 function setAuthDebugHeader(response: NextResponse, key: string, value: string | boolean) {
@@ -61,6 +61,17 @@ function redirectWithSessionCookies(url: URL, supabaseResponse: NextResponse): N
 }
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith("/auth/callback") || pathname.startsWith("/auth/google")) {
+    const passthrough = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+    setAuthDebugHeader(passthrough, "auth-bypass-route", pathname);
+    return passthrough;
+  }
+
   const requestHeaders = new Headers(request.headers);
   let supabaseResponse = NextResponse.next({
     request: {
@@ -114,7 +125,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
   const isPublic = isPublicRoute(pathname);
   if (user) {
     requestHeaders.set("x-auth-user-id", user.id);
