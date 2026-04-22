@@ -76,8 +76,13 @@ async function signInAction(
 
   if (authMethod === "otp") {
     if (!otp) {
+      const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
+      callbackUrl.searchParams.set("next", nextPath);
       const { error } = await supabase.auth.signInWithOtp({
         email,
+        options: {
+          emailRedirectTo: callbackUrl.toString(),
+        },
       });
 
       if (error) {

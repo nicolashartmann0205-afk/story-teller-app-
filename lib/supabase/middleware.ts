@@ -18,7 +18,9 @@ function isPublicRoute(pathname: string): boolean {
     pathname === "/blog" ||
     pathname.startsWith("/blog/") ||
     pathname === "/blogs" ||
-    pathname.startsWith("/blogs/")
+    pathname.startsWith("/blogs/") ||
+    pathname === "/feedback" ||
+    pathname.startsWith("/feedback/")
   ) {
     return true;
   }

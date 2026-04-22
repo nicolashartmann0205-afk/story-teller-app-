@@ -101,6 +101,8 @@ export default async function SeoAdminPage() {
             { path: "/blog/story-structure", label: "Blog article example" },
             { path: "/about", label: "About page" },
             { path: "/support", label: "Support / feedback" },
+            { path: "/feedback", label: "Feedback form" },
+            { path: "/support-agent", label: "Support agent" },
           ]}
         />
       </div>

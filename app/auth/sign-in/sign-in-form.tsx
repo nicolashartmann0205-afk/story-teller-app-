@@ -104,8 +104,13 @@ export default function SignInForm({
       const normalizedCode = otp.trim().replace(/\s|-/g, "");
 
       if (!normalizedCode) {
+        const callbackUrl = new URL("/auth/callback", window.location.origin);
+        callbackUrl.searchParams.set("next", redirectedFrom || "/dashboard");
         const { error } = await supabase.auth.signInWithOtp({
           email: email.trim(),
+          options: {
+            emailRedirectTo: callbackUrl.toString(),
+          },
         });
         if (error) {
           setClientError(error.message);

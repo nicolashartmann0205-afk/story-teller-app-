@@ -215,6 +215,44 @@ export const structureAnalytics = pgTable("structure_analytics", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+/** Public feedback submissions (admin-readable in app). */
+export const feedbackSubmissions = pgTable("feedback_submissions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  submittedBy: uuid("submitted_by").references(() => authUsers.id, { onDelete: "set null" }),
+  email: text("email"),
+  category: text("category").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Signed-in support assistant sessions. */
+export const supportSessions = pgTable("support_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  title: text("title").notNull().default("IT support session"),
+  status: text("status").notNull().default("open"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Messages for support sessions (user + assistant). */
+export const supportMessages = pgTable("support_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sessionId: uuid("session_id")
+    .notNull()
+    .references(() => supportSessions.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // "user" | "assistant" | "system"
+  content: text("content").notNull(),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 /** Admin-managed SEO metadata overrides per page key. */
 export const siteMetadata = pgTable("site_metadata", {
   id: uuid("id").defaultRandom().primaryKey(),

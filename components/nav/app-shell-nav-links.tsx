@@ -9,6 +9,8 @@ const inactive =
 const active =
   "text-sm font-semibold text-zinc-900 dark:text-zinc-50 hover:underline transition-colors";
 const SEO_ADMIN_PATH = "/seo-admin";
+const SUPPORT_AGENT_PATH = "/support-agent";
+const FEEDBACK_ADMIN_PATH = "/admin/feedback";
 
 function navClass(isActive: boolean) {
   return isActive ? active : inactive;
@@ -30,13 +32,18 @@ export function AppShellNavLinks({
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   const isStories = pathname === "/stories" || pathname.startsWith("/stories/");
   const isSettings = pathname === "/settings" || pathname.startsWith("/settings/");
-  const isSupport = pathname === "/support" || pathname.startsWith("/support/");
+  const isSupport =
+    pathname === SUPPORT_AGENT_PATH ||
+    pathname.startsWith(`${SUPPORT_AGENT_PATH}/`) ||
+    pathname === "/support" ||
+    pathname.startsWith("/support/");
   const isBlogs =
     pathname === "/blogs" ||
     pathname.startsWith("/blogs/") ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/");
   const isBlogAdmin = pathname === BLOG_ADMIN_BASE_PATH || pathname.startsWith(`${BLOG_ADMIN_BASE_PATH}/`);
+  const isFeedbackAdmin = pathname === FEEDBACK_ADMIN_PATH || pathname.startsWith(`${FEEDBACK_ADMIN_PATH}/`);
   const isSeoAdmin = pathname === SEO_ADMIN_PATH || pathname.startsWith(`${SEO_ADMIN_PATH}/`);
 
   return (
@@ -50,7 +57,7 @@ export function AppShellNavLinks({
       <Link href="/settings" className={navClass(isSettings)}>
         Settings
       </Link>
-      <Link href="/support" className={navClass(isSupport)}>
+      <Link href={SUPPORT_AGENT_PATH} className={navClass(isSupport)}>
         Support
       </Link>
       <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
@@ -59,6 +66,11 @@ export function AppShellNavLinks({
       {showBlogAdmin ? (
         <Link href={BLOG_ADMIN_BASE_PATH} className={navClass(isBlogAdmin)}>
           Blog Admin
+        </Link>
+      ) : null}
+      {showBlogAdmin ? (
+        <Link href={FEEDBACK_ADMIN_PATH} className={navClass(isFeedbackAdmin)}>
+          Feedback Admin
         </Link>
       ) : null}
       {showSeoAdmin ? (

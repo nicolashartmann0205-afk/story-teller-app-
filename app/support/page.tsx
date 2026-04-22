@@ -56,11 +56,15 @@ export default function SupportPage() {
             IT support
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            For sign-in trouble, browser compatibility, loading or connectivity issues, or anything that smells like a device or network problem, email{" "}
+            For sign-in trouble, browser compatibility, loading or connectivity issues, or anything that smells like a device or network problem, use our{" "}
+            <Link href="/support-agent" className="underline underline-offset-2 text-zinc-800 dark:text-zinc-200">
+              AI IT support agent
+            </Link>
+            . You can still email{" "}
             <a className="underline" href={itMail}>
               {SUPPORT_EMAIL}
             </a>{" "}
-            with what you tried and what you see (screenshots help). Include your account email when relevant.
+            if needed.
           </p>
         </section>
 
@@ -85,6 +89,19 @@ export default function SupportPage() {
             For partnerships or anything that is not feedback or technical support, use the{" "}
             <Link href="/contact" className="underline underline-offset-2 text-zinc-800 dark:text-zinc-200">
               contact page
+            </Link>
+            .
+          </p>
+        </section>
+
+        <section className="space-y-3" aria-labelledby="feedback-page-heading">
+          <h2 id="feedback-page-heading" className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+            Submit feedback in-app
+          </h2>
+          <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            Prefer a website form instead of email?{" "}
+            <Link href="/feedback" className="underline underline-offset-2 text-zinc-800 dark:text-zinc-200">
+              Open the feedback page
             </Link>
             .
           </p>
