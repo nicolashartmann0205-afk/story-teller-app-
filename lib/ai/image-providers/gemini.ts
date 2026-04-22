@@ -5,7 +5,7 @@ import {
 } from "@google/generative-ai";
 import { ImageProvider } from "./base";
 
-const MODEL_NAME = "gemini-2.0-flash-exp";
+const MODEL_NAME = "gemini-1.5-flash";
 
 // Style-specific modifiers for better quality
 const styleModifiers: Record<string, string> = {

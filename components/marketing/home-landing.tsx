@@ -238,8 +238,8 @@ export function HomeLanding() {
               <Link href="/contact" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
                 Contact
               </Link>
-              <Link href="/support" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
-                Feedback & support
+              <Link href="/feedback" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
+                Feedback
               </Link>
               <Link href="/privacy" className="underline underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100">
                 Privacy

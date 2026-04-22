@@ -9,7 +9,6 @@ const inactive =
 const active =
   "text-sm font-semibold text-zinc-900 dark:text-zinc-50 hover:underline transition-colors";
 const SEO_ADMIN_PATH = "/seo-admin";
-const SUPPORT_AGENT_PATH = "/support-agent";
 const FEEDBACK_ADMIN_PATH = "/admin/feedback";
 
 function navClass(isActive: boolean) {
@@ -32,11 +31,9 @@ export function AppShellNavLinks({
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   const isStories = pathname === "/stories" || pathname.startsWith("/stories/");
   const isSettings = pathname === "/settings" || pathname.startsWith("/settings/");
-  const isSupport =
-    pathname === SUPPORT_AGENT_PATH ||
-    pathname.startsWith(`${SUPPORT_AGENT_PATH}/`) ||
-    pathname === "/support" ||
-    pathname.startsWith("/support/");
+  const isFeedback =
+    pathname === "/feedback" ||
+    pathname.startsWith("/feedback/");
   const isBlogs =
     pathname === "/blogs" ||
     pathname.startsWith("/blogs/") ||
@@ -57,8 +54,8 @@ export function AppShellNavLinks({
       <Link href="/settings" className={navClass(isSettings)}>
         Settings
       </Link>
-      <Link href={SUPPORT_AGENT_PATH} className={navClass(isSupport)}>
-        Support
+      <Link href="/feedback" className={navClass(isFeedback)}>
+        Feedback
       </Link>
       <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
         Blogs

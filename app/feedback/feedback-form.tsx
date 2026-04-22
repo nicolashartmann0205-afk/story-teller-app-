@@ -44,7 +44,7 @@ export function FeedbackForm({
             <option value="">Select category</option>
             <option value="product-feedback">Product feedback</option>
             <option value="bug-report">Bug report</option>
-            <option value="it-support">IT support issue</option>
+            <option value="technical-issue">Technical issue</option>
             <option value="account">Account issue</option>
             <option value="other">Other</option>
           </select>

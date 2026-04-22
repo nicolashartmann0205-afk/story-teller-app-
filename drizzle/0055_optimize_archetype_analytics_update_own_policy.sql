@@ -1,0 +1,46 @@
+-- Optimize archetype_analytics_update_own per advisor recommendation.
+-- Replace auth.uid() with (select auth.uid()) across USING and WITH CHECK predicates.
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'archetype_analytics'
+      AND policyname = 'archetype_analytics_update_own'
+  ) THEN
+    ALTER POLICY "archetype_analytics_update_own"
+      ON "public"."archetype_analytics"
+      USING (
+        (
+          story_id IS NULL
+          AND user_id = (select auth.uid())
+        )
+        OR (
+          story_id IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM public.stories s
+            WHERE s.id = archetype_analytics.story_id
+              AND s.user_id = (select auth.uid())
+          )
+        )
+      )
+      WITH CHECK (
+        (
+          story_id IS NULL
+          AND user_id = (select auth.uid())
+        )
+        OR (
+          story_id IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM public.stories s
+            WHERE s.id = archetype_analytics.story_id
+              AND s.user_id = (select auth.uid())
+          )
+        )
+      );
+  END IF;
+END $$;

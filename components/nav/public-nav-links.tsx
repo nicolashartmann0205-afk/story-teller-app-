@@ -30,11 +30,9 @@ function signUpHref(pathname: string | null) {
 export function PublicNavLinks() {
   const pathname = usePathname() ?? "";
 
-  const isSupport =
-    pathname === "/support-agent" ||
-    pathname.startsWith("/support-agent/") ||
-    pathname === "/support" ||
-    pathname.startsWith("/support/");
+  const isFeedback =
+    pathname === "/feedback" ||
+    pathname.startsWith("/feedback/");
   const isBlogs =
     pathname === "/blogs" ||
     pathname.startsWith("/blogs/") ||
@@ -45,8 +43,8 @@ export function PublicNavLinks() {
 
   return (
     <>
-      <Link href="/support-agent" className={navClass(isSupport)}>
-        Support
+      <Link href="/feedback" className={navClass(isFeedback)}>
+        Feedback
       </Link>
       {!isSignIn ? (
         <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">

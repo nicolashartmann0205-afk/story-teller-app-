@@ -4,7 +4,7 @@ const apiKey = process.env.GEMINI_API_KEY;
 // Use a specific model version to avoid 404s with generic alias
 const MODEL_NAME = "gemini-3-flash-preview";
 // Scene drafting is currently more reliable on this model than preview aliases.
-const SCENE_MODEL_NAME = process.env.GEMINI_SCENE_MODEL || "gemini-2.0-flash-exp";
+const SCENE_MODEL_NAME = process.env.GEMINI_SCENE_MODEL || "gemini-1.5-pro";
 
 if (!apiKey) {
   console.warn("GEMINI_API_KEY is not set. AI story generation will fail if called.");
