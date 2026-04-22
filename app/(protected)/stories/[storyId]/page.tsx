@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
@@ -45,7 +46,7 @@ async function deleteStoryAction(storyId: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect(AUTH_ROUTES.SIGN_IN);
   }
 
   try {

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import Link from "next/link";
 import { db } from "@/lib/db";
@@ -69,7 +70,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const { user, error } = await getRequestUser();
 
   if (error || !user) {
-    redirect("/auth/sign-in?reason=dashboard-auth");
+    redirect(`${AUTH_ROUTES.SIGN_IN}?reason=dashboard-auth`);
   }
 
   const sp = await searchParams;

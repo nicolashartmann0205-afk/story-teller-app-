@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 
 const inactive =
   "text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors";
@@ -13,21 +14,15 @@ function navClass(isActive: boolean) {
 }
 
 function signInHref(pathname: string | null) {
-  if (!pathname || pathname.startsWith("/auth/")) {
-    return "/auth/sign-in";
-  }
-  return `/auth/sign-in?redirectedFrom=${encodeURIComponent(pathname)}`;
+  return withRedirectedFrom(AUTH_ROUTES.SIGN_IN, pathname);
 }
 
 function signUpHref(pathname: string | null) {
-  if (!pathname || pathname.startsWith("/auth/")) {
-    return "/auth/sign-up";
-  }
-  return `/auth/sign-up?redirectedFrom=${encodeURIComponent(pathname)}`;
+  return withRedirectedFrom(AUTH_ROUTES.SIGN_UP, pathname);
 }
 
 /** Marketing / signed-out navigation shown in the global header. */
-export function PublicNavLinks() {
+export function PublicPrimaryNavLinks() {
   const pathname = usePathname() ?? "";
 
   const isFeedback =
@@ -38,25 +33,38 @@ export function PublicNavLinks() {
     pathname.startsWith("/blogs/") ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/");
-  const isSignIn = pathname.startsWith("/auth/sign-in");
-  const isSignUp = pathname.startsWith("/auth/sign-up");
-
   return (
     <>
       <Link href="/feedback" className={navClass(isFeedback)}>
         Feedback
       </Link>
-      {!isSignIn ? (
-        <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
-          Blogs
-        </Link>
-      ) : null}
+      <Link href="/blogs" className={navClass(isBlogs)} aria-label="Guides and articles">
+        Blogs
+      </Link>
+    </>
+  );
+}
+
+export function PublicAuthLinks() {
+  const pathname = usePathname() ?? "";
+  const isSignIn = pathname.startsWith(AUTH_ROUTES.SIGN_IN);
+  const isSignUp = pathname.startsWith(AUTH_ROUTES.SIGN_UP);
+
+  return (
+    <div className="ml-auto flex items-center space-x-4">
       <Link href={signInHref(pathname)} className={navClass(isSignIn)}>
         Sign in
       </Link>
-      <Link href={signUpHref(pathname)} className={navClass(isSignUp)}>
+      <Link
+        href={signUpHref(pathname)}
+        className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          isSignUp
+            ? "bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black"
+            : "bg-black text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-black dark:hover:bg-zinc-200"
+        }`}
+      >
         Sign up
       </Link>
-    </>
+    </div>
   );
 }

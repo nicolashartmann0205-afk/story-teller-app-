@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
 import { NewPostForm } from "@/components/blog-admin/new-post-form";
@@ -13,7 +14,7 @@ export default async function AdminBlogsNewPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(`${BLOG_ADMIN_BASE_PATH}/new`)}`);
+    redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, `${BLOG_ADMIN_BASE_PATH}/new`));
   }
   if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);

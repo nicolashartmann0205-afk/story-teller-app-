@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     errorCode?: string | null,
     errorDescription?: string | null
   ) => {
-    const signInUrl = new URL("/auth/sign-in", url.origin);
+    const signInUrl = new URL(AUTH_ROUTES.SIGN_IN, url.origin);
     signInUrl.searchParams.set("error", error);
     if (errorCode) signInUrl.searchParams.set("error_code", errorCode);
     if (errorDescription) signInUrl.searchParams.set("error_description", errorDescription);
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
       const lower = error.message.toLowerCase();
       const isPkceMissing = lower.includes("pkce code verifier not found");
       if (isPkceMissing && !oauthRetry) {
-        const restartUrl = new URL("/auth/google", url.origin);
+        const restartUrl = new URL(AUTH_ROUTES.GOOGLE, url.origin);
         restartUrl.searchParams.set("next", safeNext);
         restartUrl.searchParams.set("oauthRetry", "1");
         const retryResponse = NextResponse.redirect(restartUrl);

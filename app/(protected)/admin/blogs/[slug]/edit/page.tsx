@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { createClient } from "@/lib/supabase/server";
 import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
@@ -24,7 +25,7 @@ export default async function AdminBlogsEditPage({ params, searchParams }: Props
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(`${BLOG_ADMIN_BASE_PATH}/${slug}/edit`)}`);
+    redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, `${BLOG_ADMIN_BASE_PATH}/${slug}/edit`));
   }
   if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);

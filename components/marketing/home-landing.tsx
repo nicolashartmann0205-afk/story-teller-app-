@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 
 const faqItems: { question: string; answer: string }[] = [
   {
@@ -58,13 +59,13 @@ export function HomeLanding() {
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <Link
-                href="/auth/sign-up"
+                href={AUTH_ROUTES.SIGN_UP}
                 className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-200"
               >
                 Sign up free
               </Link>
               <Link
-                href="/auth/sign-in"
+                href={AUTH_ROUTES.SIGN_IN}
                 className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-900"
               >
                 Sign in
@@ -127,25 +128,6 @@ export function HomeLanding() {
                   faster because planning and writing stay aligned from start to finish.
                 </p>
               </div>
-            </div>
-            <div
-              className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50/90 px-4 py-3 text-base text-zinc-800 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-200"
-              role="navigation"
-              aria-label="Jump ahead on this page"
-            >
-              <span className="font-medium text-zinc-600 dark:text-zinc-400">Jump ahead:</span>
-              <Link
-                href="#faq"
-                className="inline-flex items-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-50 dark:ring-zinc-600 dark:hover:bg-zinc-700"
-              >
-                FAQ
-              </Link>
-              <Link
-                href="/blogs"
-                className="inline-flex items-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-zinc-200 transition hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-50 dark:ring-zinc-600 dark:hover:bg-zinc-700"
-              >
-                Guides on the blog
-              </Link>
             </div>
           </section>
 

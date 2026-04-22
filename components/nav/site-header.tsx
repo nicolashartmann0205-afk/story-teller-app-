@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
-import { PublicNavLinks } from "@/components/nav/public-nav-links";
+import { PublicAuthLinks, PublicPrimaryNavLinks } from "@/components/nav/public-nav-links";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,7 +32,10 @@ export async function SiteHeader() {
           {user ? (
             <AppShellNavLinks showBlogAdmin={canSeeBlogAdmin} showSeoAdmin={canSeeSeoAdmin} />
           ) : (
-            <PublicNavLinks />
+            <>
+              <PublicPrimaryNavLinks />
+              <PublicAuthLinks />
+            </>
           )}
         </div>
         {user ? <SignOutButton /> : null}

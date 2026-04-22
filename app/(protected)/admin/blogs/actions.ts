@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
@@ -24,7 +25,7 @@ async function requireBlogAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect(AUTH_ROUTES.SIGN_IN);
   }
   if (!isBlogAdminUser(user.id, user.email)) {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { PostBody } from "@/components/blog/post-body";
 import { getPostBySlugFromDb } from "@/lib/blog/queries";
 import { buildPageMetadata, SITE_NAME } from "@/lib/seo/site-metadata";
@@ -129,13 +130,13 @@ export default async function BlogPostPage({ params }: Props) {
             Home
           </Link>
           <Link
-            href={`/auth/sign-in?redirectedFrom=${encodeURIComponent(`/blog/${slug}`)}`}
+            href={withRedirectedFrom(AUTH_ROUTES.SIGN_IN, `/blog/${slug}`)}
             className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Sign in
           </Link>
           <Link
-            href={`/auth/sign-up?redirectedFrom=${encodeURIComponent(`/blog/${slug}`)}`}
+            href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, `/blog/${slug}`)}
             className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Sign up

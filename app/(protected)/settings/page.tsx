@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 import { SeoReferenceTabs } from "@/components/settings/seo-reference-tabs";
 import { getAppUrl } from "@/lib/config/env";
@@ -51,7 +52,7 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect(AUTH_ROUTES.SIGN_IN);
   }
 
   // Fetch user profile from DB
@@ -113,7 +114,7 @@ export default async function ProfilePage() {
                 { path: "/", label: "Home" },
                 { path: "/blogs", label: "Blogs index" },
                 { path: "/blog/your-post-slug", label: "Example blog post (replace slug)" },
-                { path: "/auth/sign-in", label: "Sign in (robots noindex)" },
+                { path: AUTH_ROUTES.SIGN_IN, label: "Sign in (robots noindex)" },
               ]}
             />
           </div>

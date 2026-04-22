@@ -1,10 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { AUTH_ROUTE_PREFIX, AUTH_ROUTES } from "@/lib/auth/routes";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 // Public routes that are accessible to everyone (blog is public marketing content)
-const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback", "/auth/google"];
+const publicRoutes = [
+  "/",
+  AUTH_ROUTES.SIGN_IN,
+  AUTH_ROUTES.SIGN_UP,
+  AUTH_ROUTES.CALLBACK,
+  AUTH_ROUTES.GOOGLE,
+];
 const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
 
 function setAuthDebugHeader(response: NextResponse, key: string, value: string | boolean) {
@@ -62,7 +69,7 @@ function redirectWithSessionCookies(url: URL, supabaseResponse: NextResponse): N
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  if (pathname.startsWith("/auth/callback") || pathname.startsWith("/auth/google")) {
+  if (pathname.startsWith(AUTH_ROUTES.CALLBACK) || pathname.startsWith(AUTH_ROUTES.GOOGLE)) {
     const passthrough = NextResponse.next({
       request: {
         headers: request.headers,
@@ -164,8 +171,8 @@ export async function updateSession(request: NextRequest) {
   // Never redirect away from /auth/callback — OAuth needs this route to exchange ?code= even if a session exists.
   if (
     user &&
-    pathname.startsWith("/auth") &&
-    !pathname.startsWith("/auth/callback")
+    pathname.startsWith(AUTH_ROUTE_PREFIX) &&
+    !pathname.startsWith(AUTH_ROUTES.CALLBACK)
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
@@ -175,7 +182,7 @@ export async function updateSession(request: NextRequest) {
   // If user is not authenticated and trying to access protected route, redirect to sign-in
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/sign-in";
+    url.pathname = AUTH_ROUTES.SIGN_IN;
     url.searchParams.set("redirectedFrom", pathname);
     return redirectWithSessionCookies(url, supabaseResponse);
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SeoReferenceTabs } from "@/components/settings/seo-reference-tabs";
 import { SeoBlogPostsEditor } from "@/components/settings/seo-blog-posts-editor";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { selfReferencingCanonical, SITE_NAME, TITLE_TEMPLATE, DEFAULT_PAGE_TITLE, DEFAULT_DESCRIPTION } from "@/lib/seo/site-metadata";
 import { getAppUrl } from "@/lib/config/env";
 import { createClient } from "@/lib/supabase/server";
@@ -22,7 +23,7 @@ export default async function SeoAdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(SEO_ADMIN_PATH)}`);
+    redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, SEO_ADMIN_PATH));
   }
 
   if (user.email !== SEO_ADMIN_EMAIL) {

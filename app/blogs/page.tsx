@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getAllPostsFromDb } from "@/lib/blog/queries";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 
@@ -74,13 +75,13 @@ export default async function BlogsIndexPage() {
             ← Back to home
           </Link>
           <Link
-            href={`/auth/sign-in?redirectedFrom=${encodeURIComponent("/blogs")}`}
+            href={withRedirectedFrom(AUTH_ROUTES.SIGN_IN, "/blogs")}
             className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Sign in
           </Link>
           <Link
-            href={`/auth/sign-up?redirectedFrom=${encodeURIComponent("/blogs")}`}
+            href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, "/blogs")}
             className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Sign up

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { updateSession } from "@/lib/supabase/middleware";
 
 function registrableHost(hostname: string): string {
@@ -42,7 +43,7 @@ function redirectUrlForCanonicalHost(request: NextRequest): URL | null {
 }
 
 /**
- * OAuth root callback: send the browser to `/auth/callback` on a single stable origin.
+ * OAuth root callback: send the browser to `AUTH_ROUTES.CALLBACK` on a single stable origin.
  *
  * When `NEXT_PUBLIC_APP_URL` is set and matches the same site as the request (apex vs www),
  * use that origin — avoids apex↔www redirect loops when forwarded headers disagree with Vercel.
@@ -68,7 +69,7 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
         registrableHost(reqHostname) ===
           registrableHost(canonical.hostname)
       ) {
-        return new URL(`/auth/callback${search}`, canonical.origin);
+        return new URL(`${AUTH_ROUTES.CALLBACK}${search}`, canonical.origin);
       }
     } catch {
       // fall through to forwarded headers
@@ -80,7 +81,7 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
     forwarded?.split(",")[0]?.trim() || request.headers.get("host") || "";
   if (!hostHeader) {
     const fallback = url.clone();
-    fallback.pathname = "/auth/callback";
+    fallback.pathname = AUTH_ROUTES.CALLBACK;
     return fallback;
   }
 
@@ -88,7 +89,7 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
     request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
     (process.env.NODE_ENV === "production" ? "https" : "http");
 
-  return new URL(`/auth/callback${search}`, `${proto}://${hostHeader}`);
+  return new URL(`${AUTH_ROUTES.CALLBACK}${search}`, `${proto}://${hostHeader}`);
 }
 
 export async function middleware(request: NextRequest) {

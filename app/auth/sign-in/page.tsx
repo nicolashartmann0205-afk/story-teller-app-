@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createActionClient } from "@/lib/supabase/server-action";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
@@ -48,7 +49,7 @@ export async function generateMetadata() {
     title: "Sign in - secure account access",
     description:
       "Sign in to Story Teller to plan structure, scenes, and maps in one place, then continue your drafts with less friction and better momentum. Continue now.",
-    canonicalPath: "/auth/sign-in",
+    canonicalPath: AUTH_ROUTES.SIGN_IN,
   });
 
   return {
@@ -204,11 +205,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Or{" "}
             <Link
-              href={
-                redirectedFrom
-                  ? `/auth/sign-up?redirectedFrom=${encodeURIComponent(redirectedFrom)}`
-                  : "/auth/sign-up"
-              }
+              href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, redirectedFrom)}
               className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
             >
               create a new account

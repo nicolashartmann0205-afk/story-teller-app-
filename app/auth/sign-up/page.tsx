@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
@@ -11,7 +12,7 @@ export async function generateMetadata() {
     title: "Sign up - create your free account",
     description:
       "Create a free Story Teller account to plan structure, scenes, and maps with guided workflows, then start your first draft and build momentum today. Sign up now.",
-    canonicalPath: "/auth/sign-up",
+    canonicalPath: AUTH_ROUTES.SIGN_UP,
   });
 
   return {
@@ -55,8 +56,8 @@ async function signUpAction(previousState: { error?: string } | null | void, for
   }
 
   const back = rawNext
-    ? `/auth/sign-in?redirectedFrom=${encodeURIComponent(rawNext)}`
-    : "/auth/sign-in";
+    ? withRedirectedFrom(AUTH_ROUTES.SIGN_IN, rawNext)
+    : AUTH_ROUTES.SIGN_IN;
   redirect(back);
 }
 
@@ -78,11 +79,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
           <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Or{" "}
             <Link
-              href={
-                redirectedFrom
-                  ? `/auth/sign-in?redirectedFrom=${encodeURIComponent(redirectedFrom)}`
-                  : "/auth/sign-in"
-              }
+              href={withRedirectedFrom(AUTH_ROUTES.SIGN_IN, redirectedFrom)}
               className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
             >
               sign in to your existing account

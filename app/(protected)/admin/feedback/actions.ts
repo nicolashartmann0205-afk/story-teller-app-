@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { feedbackSubmissions } from "@/lib/db/schema";
@@ -16,7 +17,7 @@ async function requireFeedbackAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect(`/auth/sign-in?redirectedFrom=${encodeURIComponent(FEEDBACK_ADMIN_PATH)}`);
+    redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, FEEDBACK_ADMIN_PATH));
   }
   if (!isBlogAdminUser(user.id, user.email)) {
     redirect("/dashboard?blogAdmin=denied");
