@@ -16,6 +16,9 @@ function isPublicRoute(pathname: string): boolean {
   ) {
     return true;
   }
+  if (pathname === "/support" || pathname.startsWith("/support/")) {
+    return true;
+  }
   return publicRoutes.some((route) => {
     if (route === "/") {
       return pathname === "/";
