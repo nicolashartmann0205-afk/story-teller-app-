@@ -24,14 +24,11 @@ export type SupportAgentState = {
   error?: string;
 };
 
-async function requireUser() {
+async function getOptionalUser() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
   return user;
 }
 
@@ -99,7 +96,7 @@ export async function sendSupportMessageAction(
   formData: FormData
 ): Promise<SupportAgentState> {
   try {
-    const user = await requireUser();
+    const user = await getOptionalUser();
     const rawMessage = String(formData.get("message") ?? "").trim();
     if (!rawMessage) {
       return {
@@ -113,6 +110,36 @@ export async function sendSupportMessageAction(
         sessionId: prev?.sessionId,
         messages: prev?.messages || [],
         error: "Message is too long. Please keep it under 4000 characters.",
+      };
+    }
+
+    if (!user) {
+      const syntheticHistory = [
+        ...(prev?.messages || []),
+        {
+          id: crypto.randomUUID(),
+          role: "user" as const,
+          content: rawMessage,
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      const assistantText = await buildAssistantReply(
+        syntheticHistory.map((m) => ({
+          role: (m.role as Role) || "user",
+          content: m.content,
+        }))
+      );
+      return {
+        sessionId: prev?.sessionId,
+        messages: [
+          ...syntheticHistory,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: assistantText,
+            createdAt: new Date().toISOString(),
+          },
+        ],
       };
     }
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { asc, desc, eq } from "drizzle-orm";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import { createClient } from "@/lib/supabase/server";
@@ -23,35 +22,33 @@ export default async function SupportAgentPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in?redirectedFrom=%2Fsupport-agent");
-  }
-
-  const [latestSession] = await db
-    .select()
-    .from(supportSessions)
-    .where(eq(supportSessions.userId, user.id))
-    .orderBy(desc(supportSessions.updatedAt))
-    .limit(1);
-
   let initialState: SupportAgentState = { messages: [] };
 
-  if (latestSession) {
-    const messages = await db
+  if (user) {
+    const [latestSession] = await db
       .select()
-      .from(supportMessages)
-      .where(eq(supportMessages.sessionId, latestSession.id))
-      .orderBy(asc(supportMessages.createdAt));
+      .from(supportSessions)
+      .where(eq(supportSessions.userId, user.id))
+      .orderBy(desc(supportSessions.updatedAt))
+      .limit(1);
 
-    initialState = {
-      sessionId: latestSession.id,
-      messages: messages.map((m) => ({
-        id: m.id,
-        role: (m.role as "user" | "assistant" | "system") || "assistant",
-        content: m.content,
-        createdAt: m.createdAt.toISOString(),
-      })),
-    };
+    if (latestSession) {
+      const messages = await db
+        .select()
+        .from(supportMessages)
+        .where(eq(supportMessages.sessionId, latestSession.id))
+        .orderBy(asc(supportMessages.createdAt));
+
+      initialState = {
+        sessionId: latestSession.id,
+        messages: messages.map((m) => ({
+          id: m.id,
+          role: (m.role as "user" | "assistant" | "system") || "assistant",
+          content: m.content,
+          createdAt: m.createdAt.toISOString(),
+        })),
+      };
+    }
   }
 
   return (
@@ -65,6 +62,16 @@ export default async function SupportAgentPage() {
         </div>
 
         <SupportAgentClient initialState={initialState} />
+
+        {!user ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            You are using temporary guest support mode.{" "}
+            <Link href="/auth/sign-in?redirectedFrom=%2Fsupport-agent" className="underline underline-offset-2">
+              Sign in
+            </Link>{" "}
+            if you want support chat history saved to your account.
+          </p>
+        ) : null}
 
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Product ideas instead of troubleshooting?{" "}

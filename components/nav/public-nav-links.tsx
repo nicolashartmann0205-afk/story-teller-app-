@@ -30,7 +30,11 @@ function signUpHref(pathname: string | null) {
 export function PublicNavLinks() {
   const pathname = usePathname() ?? "";
 
-  const isSupport = pathname === "/support" || pathname.startsWith("/support/");
+  const isSupport =
+    pathname === "/support-agent" ||
+    pathname.startsWith("/support-agent/") ||
+    pathname === "/support" ||
+    pathname.startsWith("/support/");
   const isBlogs =
     pathname === "/blogs" ||
     pathname.startsWith("/blogs/") ||
@@ -41,7 +45,7 @@ export function PublicNavLinks() {
 
   return (
     <>
-      <Link href="/support" className={navClass(isSupport)}>
+      <Link href="/support-agent" className={navClass(isSupport)}>
         Support
       </Link>
       {!isSignIn ? (
