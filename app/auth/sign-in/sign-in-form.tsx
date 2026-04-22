@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { FormEvent, useActionState, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type SignInState = {
@@ -30,10 +30,17 @@ export default function SignInForm({
     "otp"
   );
   const [hashError, setHashError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
+  const [clientSuccess, setClientSuccess] = useState<string | null>(null);
+  const [clientPending, setClientPending] = useState(false);
+  const [otpSentLocal, setOtpSentLocal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const isOtp = authMethod === "otp";
   const isMagic = authMethod === "magic";
   const isPassword = authMethod === "password";
-  const otpSent = isOtp && state?.authMethod === "otp" && Boolean(state?.otpSent);
+  const otpSent = isOtp && (otpSentLocal || (state?.authMethod === "otp" && Boolean(state?.otpSent)));
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (!window.location.hash) return;
@@ -51,7 +58,6 @@ export default function SignInForm({
   }, []);
 
   useEffect(() => {
-    const supabase = createClient();
     const destination = redirectedFrom || "/dashboard";
 
     const redirectIfSession = async () => {
@@ -76,10 +82,66 @@ export default function SignInForm({
     return () => {
       subscription.unsubscribe();
     };
-  }, [redirectedFrom]);
+  }, [redirectedFrom, supabase]);
+
+  useEffect(() => {
+    setClientError(null);
+    setClientSuccess(null);
+  }, [authMethod]);
+
+  async function handleOtpSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!email.trim()) {
+      setClientError("Email is required");
+      return;
+    }
+
+    setClientPending(true);
+    setClientError(null);
+    setClientSuccess(null);
+
+    try {
+      const normalizedCode = otp.trim().replace(/\s|-/g, "");
+
+      if (!normalizedCode) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.trim(),
+        });
+        if (error) {
+          setClientError(error.message);
+          return;
+        }
+        setOtpSentLocal(true);
+        setClientSuccess(
+          "We sent a 6-digit code to your email. Enter it below to complete sign-in."
+        );
+        return;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: normalizedCode,
+        type: "email",
+      });
+      if (error) {
+        setClientError(
+          "Invalid or expired code. Request a new email code and enter the latest 6-digit code."
+        );
+        return;
+      }
+
+      window.location.href = redirectedFrom || "/dashboard";
+    } finally {
+      setClientPending(false);
+    }
+  }
 
   return (
-    <form className="mt-8 space-y-6" action={formAction}>
+    <form
+      className="mt-8 space-y-6"
+      action={isOtp ? undefined : formAction}
+      onSubmit={isOtp ? handleOtpSubmit : undefined}
+    >
       <input type="hidden" name="authMethod" value={authMethod} />
       <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
       
@@ -94,10 +156,20 @@ export default function SignInForm({
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>
         </div>
       )}
+      {clientError && (
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+          <p className="text-sm text-red-800 dark:text-red-200">{clientError}</p>
+        </div>
+      )}
 
       {state?.success && (
         <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
           <p className="text-sm text-green-800 dark:text-green-200">{state.success}</p>
+        </div>
+      )}
+      {clientSuccess && (
+        <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
+          <p className="text-sm text-green-800 dark:text-green-200">{clientSuccess}</p>
         </div>
       )}
 
@@ -115,6 +187,8 @@ export default function SignInForm({
             type="email"
             autoComplete="email"
             required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
             placeholder="you@example.com"
           />
@@ -135,6 +209,8 @@ export default function SignInForm({
               inputMode="numeric"
               autoComplete="one-time-code"
               required={false}
+              value={otp}
+              onChange={(event) => setOtp(event.target.value)}
               className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
               placeholder="Enter code when you have it (optional)"
             />
@@ -171,10 +247,10 @@ export default function SignInForm({
       <div className="flex flex-col gap-4">
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || clientPending}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black dark:bg-zinc-50 dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending
+          {(isPending || clientPending)
             ? "Processing..."
             : isOtp
               ? otpSent
