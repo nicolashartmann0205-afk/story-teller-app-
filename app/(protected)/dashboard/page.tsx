@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import Link from "next/link";
@@ -8,6 +7,7 @@ import { eq, desc, sql } from "drizzle-orm";
 import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucide-react";
 import { getStyleGuides } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
+import { getRequestUser } from "@/lib/auth/request-user";
 
 export const metadata = selfReferencingCanonical("/dashboard");
 
@@ -66,8 +66,7 @@ type DashboardPageProps = {
 };
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { user, error } = await getRequestUser();
 
   if (error || !user) {
     redirect("/auth/sign-in");

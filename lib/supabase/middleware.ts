@@ -7,6 +7,11 @@ import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
 const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
 
+function setAuthDebugHeader(response: NextResponse, key: string, value: string | boolean) {
+  if (!AUTH_DEBUG) return;
+  response.headers.set(`x-auth-debug-${key}`, String(value));
+}
+
 // Check if a path is a public route
 function isPublicRoute(pathname: string): boolean {
   if (
@@ -41,17 +46,34 @@ function redirectWithSessionCookies(url: URL, supabaseResponse: NextResponse): N
   for (const cookie of supabaseResponse.cookies.getAll()) {
     redirectResponse.cookies.set(cookie);
   }
+  setAuthDebugHeader(redirectResponse, "redirect-to", url.pathname);
+  setAuthDebugHeader(
+    redirectResponse,
+    "redirect-carried-sb-cookie",
+    redirectResponse.cookies.getAll().some((cookie) => cookie.name.includes("sb-"))
+  );
   return redirectResponse;
 }
 
 export async function updateSession(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: requestHeaders,
+    },
   });
 
   const cookieOptions = getSupabaseCookieOptions({
     host: request.nextUrl.hostname,
   });
+  setAuthDebugHeader(supabaseResponse, "request-host", request.nextUrl.host);
+  setAuthDebugHeader(supabaseResponse, "request-path", request.nextUrl.pathname);
+  setAuthDebugHeader(supabaseResponse, "cookie-domain", cookieOptions?.domain || "host-only");
+  setAuthDebugHeader(
+    supabaseResponse,
+    "request-had-sb-cookie",
+    request.cookies.getAll().some((cookie) => cookie.name.includes("sb-"))
+  );
 
   const supabase = createServerClient(
     getSupabaseUrl(),
@@ -66,7 +88,9 @@ export async function updateSession(request: NextRequest) {
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
-            request,
+            request: {
+              headers: requestHeaders,
+            },
           });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -87,24 +111,20 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isPublic = isPublicRoute(pathname);
-  const hasSupabaseAuthCookie = request.cookies
-    .getAll()
-    .some((cookie) => cookie.name.includes("sb-") && cookie.name.includes("auth-token"));
-
-  if (AUTH_DEBUG) {
-    console.info("[auth:middleware] user check", {
-      host: request.nextUrl.host,
-      pathname,
-      isPublic,
-      hasUser: Boolean(user),
-      hasSupabaseAuthCookie,
-      cookieDomain: cookieOptions?.domain ?? null,
-    });
+  if (user) {
+    requestHeaders.set("x-auth-user-id", user.id);
+    requestHeaders.set("x-auth-user-email", user.email ?? "");
+  } else {
+    requestHeaders.delete("x-auth-user-id");
+    requestHeaders.delete("x-auth-user-email");
   }
+  setAuthDebugHeader(supabaseResponse, "is-public-route", isPublic);
+  setAuthDebugHeader(supabaseResponse, "user-present", Boolean(user));
 
   // Server Action POSTs use the `next-action` header. Middleware redirects (302 HTML)
   // break the client, which expects `text/x-component` or `x-action-redirect`.
   if (request.headers.get("next-action")) {
+    setAuthDebugHeader(supabaseResponse, "next-action", true);
     return supabaseResponse;
   }
 
@@ -115,12 +135,6 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/auth") &&
     !pathname.startsWith("/auth/callback")
   ) {
-    if (AUTH_DEBUG) {
-      console.info("[auth:middleware] redirect auth user away from auth page", {
-        from: pathname,
-        to: "/",
-      });
-    }
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return redirectWithSessionCookies(url, supabaseResponse);
@@ -128,16 +142,30 @@ export async function updateSession(request: NextRequest) {
 
   // If user is not authenticated and trying to access protected route, redirect to sign-in
   if (!user && !isPublic) {
-    if (AUTH_DEBUG) {
-      console.warn("[auth:middleware] redirect unauthenticated user", {
-        from: pathname,
-        to: "/auth/sign-in",
-      });
-    }
     const url = request.nextUrl.clone();
     url.pathname = "/auth/sign-in";
     url.searchParams.set("redirectedFrom", pathname);
     return redirectWithSessionCookies(url, supabaseResponse);
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+  const serialized = supabaseResponse.headers.get("x-middleware-set-cookie");
+  if (serialized) {
+    response.headers.set("x-middleware-set-cookie", serialized);
+  }
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    response.cookies.set(cookie);
+  }
+  if (AUTH_DEBUG) {
+    for (const [name, value] of supabaseResponse.headers.entries()) {
+      if (name.startsWith("x-auth-debug-")) {
+        response.headers.set(name, value);
+      }
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
@@ -153,6 +181,6 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely.
 
-  return supabaseResponse;
+  return response;
 }
 

@@ -50,8 +50,6 @@ Redeploy after changing `NEXT_PUBLIC_APP_URL`.
 
 - **`NEXT_PUBLIC_APP_URL`** should match the URL users use for OAuth when possible, because `getAuthCallbackUrl()` builds `…/auth/callback` from it. On Vercel, `VERCEL_URL` is a fallback but may not match the user-facing www/apex choice—set `NEXT_PUBLIC_APP_URL` explicitly in production if you see host mismatches.
 
-- **`AUTH_COOKIE_DOMAIN`** (recommended in production) — set this explicitly to your shared registrable domain (e.g. `.storyinthemaking.com`) so Supabase session cookies are valid on both apex + `www` regardless of `NEXT_PUBLIC_APP_URL` drift.
-
 - **`CANONICAL_ORIGIN`** (optional) — If you want **Next.js** to enforce a single host (apex ↔ `www` only), set this to the **same** origin as `NEXT_PUBLIC_APP_URL`, e.g. `https://www.storyinthemaking.com`. See [`lib/canonical-redirects.ts`](../lib/canonical-redirects.ts). **Do not** combine with a **conflicting** host redirect at Vercel (opposite apex↔`www`); prefer **one** layer. If Vercel already redirects correctly, leave `CANONICAL_ORIGIN` unset.
 
 - **`CANONICAL_ORIGIN` must not redirect `/auth/callback`:** Host-level redirects that also apply to **`/auth/callback`** can ping-pong with Vercel’s apex↔`www` rule and cause **`ERR_TOO_MANY_REDIRECTS`** on the OAuth return URL. The app’s canonical redirect rules **exclude** `/auth/callback` so the exchange runs on the inbound host without an extra Next.js 308 on that path.
@@ -59,8 +57,6 @@ Redeploy after changing `NEXT_PUBLIC_APP_URL`.
 - **Canonical `/` and `/?code=`:** The **`/`** host redirect in [`canonical-redirects`](../lib/canonical-redirects.ts) only runs when **`code`** and **`error`** query params are **absent**, so Supabase returning to **`/?code=…`** (or **`/?error=…`**) is not sent to the other host by Next.js before [`middleware`](../middleware.ts) can redirect to `/auth/callback`.
 
 - **`CANONICAL_ORIGIN_DISABLED`** — Set to `true` to turn off Next.js canonical redirects from `CANONICAL_ORIGIN` (same file as above). Use when debugging loops; redeploy after changing.
-
-- **`AUTH_DEBUG`** (temporary troubleshooting) — set to `1` to log auth callback + middleware diagnostics on the server (host, path, whether user/cookies exist, cookie domain, redirect decisions). Remove or set to `0` after resolving production issues.
 
 - **Request host:** Server actions for Google OAuth and email links use [`getAuthCallbackUrlForRequest()`](../lib/auth/callback-url.ts), which builds `…/auth/callback` from the incoming **Host** / **`x-forwarded-host`** when it matches the same registrable domain as `NEXT_PUBLIC_APP_URL`. That way `redirectTo` matches whether the user started on **www** or **apex** (both must still be listed in Supabase Redirect URLs).
 
@@ -87,15 +83,3 @@ You can still use a **single canonical host** on Vercel (one redirect between ap
 2. The response to `/auth/callback?code=…` should be **302** with **Set-Cookie** for the Supabase session.
 3. The next request to a protected route should **not** immediately redirect back to `/auth/sign-in`.
 4. DevTools → Application → Cookies: on production, Supabase auth cookies should show **Domain** = `.storyinthemaking.com` (or your `AUTH_COOKIE_DOMAIN`) so both apex and www share the session.
-
-## Production rollout checklist
-
-1. Merge auth/navigation/support changes to `main`.
-2. Redeploy production and verify the deployment uses the latest `main` commit.
-3. Set production env:
-   - `NEXT_PUBLIC_APP_URL=https://storyinthemaking.com` (or your canonical host)
-   - `AUTH_COOKIE_DOMAIN=.storyinthemaking.com`
-4. Confirm Supabase redirect URLs include both:
-   - `https://storyinthemaking.com/auth/callback`
-   - `https://www.storyinthemaking.com/auth/callback`
-5. Retest sign-in in an incognito window.

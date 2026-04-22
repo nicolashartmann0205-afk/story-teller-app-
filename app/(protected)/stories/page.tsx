@@ -1,21 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
-import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getRequestUser } from "@/lib/auth/request-user";
 
 export const metadata = selfReferencingCanonical("/stories");
 
 async function getStories() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, error: authError } = await getRequestUser();
 
     if (authError || !user) {
       return { stories: [], error: "Unauthorized" };
@@ -53,12 +49,7 @@ async function getStories() {
 async function deleteStoryAction(storyId: string) {
   "use server";
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const { user, error: authError } = await getRequestUser();
 
   if (authError || !user) {
     redirect("/auth/sign-in");
@@ -82,11 +73,7 @@ export default async function StoriesPage() {
   let userError: Error | null = null;
   
   try {
-    const supabase = await createClient();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user: authUser, error: authError } = await getRequestUser();
 
     if (authError) {
       userError = authError;

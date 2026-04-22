@@ -12,18 +12,6 @@ function normalizeLeadingDotDomain(raw: string): string {
   return `.${withoutDot}`;
 }
 
-function sanitizeHost(input: string): string {
-  return input.trim().toLowerCase().split(":")[0] ?? input;
-}
-
-function resolveDomainFromHost(hostname: string): string | undefined {
-  const host = sanitizeHost(hostname);
-  if (!host || !host.includes(".")) return undefined;
-  if (isLocalOrPreviewHost(host)) return undefined;
-  const base = host.startsWith("www.") ? host.slice(4) : host;
-  return normalizeLeadingDotDomain(base);
-}
-
 /**
  * Shared cookie domain for apex + www (e.g. `.storyinthemaking.com`).
  */
@@ -60,21 +48,20 @@ export type SupabaseCookieContext = {
 export function getSupabaseCookieOptions(
   context?: SupabaseCookieContext
 ): CookieOptions | undefined {
+  const domain = resolveSharedDomain();
+  if (!domain) {
+    return undefined;
+  }
+
   const host =
     context?.host ??
     (typeof window !== "undefined" ? window.location.hostname : undefined);
-  const hostDomain = host ? resolveDomainFromHost(host) : undefined;
 
   if (host && isLocalOrPreviewHost(host)) {
     return undefined;
   }
 
   if (process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "production") {
-    return undefined;
-  }
-
-  const domain = hostDomain ?? resolveSharedDomain();
-  if (!domain) {
     return undefined;
   }
 
