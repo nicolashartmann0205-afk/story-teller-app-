@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 type SignInAction = (previousState: { error?: string; success?: string } | null | void, formData: FormData) => Promise<{ error?: string; success?: string } | void | null>;
 type GoogleSignInAction = () => Promise<{ error?: string } | void>;
@@ -16,12 +16,34 @@ export default function SignInForm({
 }) {
   const [state, formAction, isPending] = useActionState(signInAction, null);
   const [useMagicLink, setUseMagicLink] = useState(true);
+  const [hashError, setHashError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const errorCode = params.get("error_code");
+    const errorDescription = params.get("error_description");
+
+    if (errorCode === "otp_expired") {
+      setHashError(
+        "Your magic link expired or was already used. Request a new magic link and use only the latest email."
+      );
+    } else if (errorDescription) {
+      setHashError(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
+    }
+  }, []);
 
   return (
     <form className="mt-8 space-y-6" action={formAction}>
       <input type="hidden" name="magicLink" value={useMagicLink.toString()} />
       <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
       
+      {hashError && (
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+          <p className="text-sm text-red-800 dark:text-red-200">{hashError}</p>
+        </div>
+      )}
+
       {state?.error && (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>

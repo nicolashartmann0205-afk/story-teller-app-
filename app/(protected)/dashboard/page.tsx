@@ -69,7 +69,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const { user, error } = await getRequestUser();
 
   if (error || !user) {
-    redirect("/auth/sign-in");
+    redirect("/auth/sign-in?reason=dashboard-auth");
   }
 
   const sp = await searchParams;

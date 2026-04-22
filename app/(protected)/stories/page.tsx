@@ -52,7 +52,7 @@ async function deleteStoryAction(storyId: string) {
   const { user, error: authError } = await getRequestUser();
 
   if (authError || !user) {
-    redirect("/auth/sign-in");
+    redirect("/auth/sign-in?reason=stories-delete-auth");
   }
 
   try {
@@ -88,7 +88,7 @@ export default async function StoriesPage() {
 
   // If not authenticated, redirect to sign-in
   if (!user || userError) {
-    redirect("/auth/sign-in");
+    redirect("/auth/sign-in?reason=stories-page-auth");
   }
 
   // Fetch stories with defensive error handling

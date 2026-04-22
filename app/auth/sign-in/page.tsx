@@ -6,6 +6,23 @@ import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignInForm from "./sign-in-form";
 
+function getAuthErrorMessage(
+  error?: string,
+  errorCode?: string,
+  errorDescription?: string
+): string | null {
+  if (errorCode === "otp_expired") {
+    return "Your magic link expired or was already used. Request a new magic link and use only the latest email.";
+  }
+  if (errorDescription) {
+    return decodeURIComponent(errorDescription.replace(/\+/g, " "));
+  }
+  if (error === "oauth" || error === "otp") {
+    return "Sign-in could not be completed. Please request a new magic link and try again.";
+  }
+  return null;
+}
+
 export async function generateMetadata() {
   const metadata = await buildDynamicPageMetadata("sign-in", {
     title: "Sign in - secure account access",
@@ -96,25 +113,33 @@ async function signInWithGoogleAction(nextPath: string) {
 }
 
 type SignInPageProps = {
-  searchParams: Promise<{ error?: string; redirectedFrom?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    error_code?: string;
+    error_description?: string;
+    redirectedFrom?: string;
+  }>;
 };
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const sp = await searchParams;
-  const oauthError = sp.error === "oauth";
+  const authErrorMessage = getAuthErrorMessage(
+    sp.error,
+    sp.error_code,
+    sp.error_description
+  );
   const redirectedFrom = sp.redirectedFrom;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-zinc-900 p-8 shadow-lg">
-        {oauthError && (
+        {authErrorMessage && (
           <div
             className="rounded-md bg-red-50 dark:bg-red-900/20 p-4"
             role="alert"
           >
             <p className="text-sm text-red-800 dark:text-red-200">
-              Sign-in could not be completed. Please try again, or use another
-              sign-in method.
+              {authErrorMessage}
             </p>
           </div>
         )}

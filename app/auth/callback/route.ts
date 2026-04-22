@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 const DEFAULT_NEXT = "/dashboard";
 const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
@@ -12,9 +13,22 @@ function setAuthDebugHeader(response: NextResponse, key: string, value: string |
   response.headers.set(`x-auth-debug-${key}`, String(value));
 }
 
+function isEmailOtpType(value: string): value is EmailOtpType {
+  return [
+    "signup",
+    "invite",
+    "magiclink",
+    "recovery",
+    "email_change",
+    "email",
+  ].includes(value);
+}
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  const tokenHash = url.searchParams.get("token_hash");
+  const otpType = url.searchParams.get("type");
   const safeNext = safeRelativeNextPath(url.searchParams.get("next"));
   const destination = new URL(safeNext, url.origin);
 
@@ -22,13 +36,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(DEFAULT_NEXT, url.origin));
   }
 
-  const redirectSignInOauthError = () =>
-    NextResponse.redirect(new URL("/auth/sign-in?error=oauth", url.origin));
+  const redirectSignInError = (
+    error: string,
+    errorCode?: string | null,
+    errorDescription?: string | null
+  ) => {
+    const signInUrl = new URL("/auth/sign-in", url.origin);
+    signInUrl.searchParams.set("error", error);
+    if (errorCode) signInUrl.searchParams.set("error_code", errorCode);
+    if (errorDescription) signInUrl.searchParams.set("error_description", errorDescription);
+    return NextResponse.redirect(signInUrl);
+  };
 
-  if (!code) {
-    const errorResponse = redirectSignInOauthError();
+  if (!code && !(tokenHash && otpType && isEmailOtpType(otpType))) {
+    const errorResponse = redirectSignInError("oauth");
     setAuthDebugHeader(errorResponse, "callback-host", url.host);
     setAuthDebugHeader(errorResponse, "callback-code-present", false);
+    setAuthDebugHeader(errorResponse, "callback-token-hash-present", Boolean(tokenHash));
+    setAuthDebugHeader(errorResponse, "callback-otp-type", otpType || "none");
     return errorResponse;
   }
 
@@ -64,14 +89,27 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (error) {
-    const errorResponse = redirectSignInOauthError();
-    setAuthDebugHeader(errorResponse, "callback-host", url.host);
-    setAuthDebugHeader(errorResponse, "exchange-error", true);
-    setAuthDebugHeader(errorResponse, "exchange-message", error.message);
-    return errorResponse;
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const errorResponse = redirectSignInError("oauth", "exchange_failed", error.message);
+      setAuthDebugHeader(errorResponse, "callback-host", url.host);
+      setAuthDebugHeader(errorResponse, "exchange-error", true);
+      setAuthDebugHeader(errorResponse, "exchange-message", error.message);
+      return errorResponse;
+    }
+  } else if (tokenHash && otpType && isEmailOtpType(otpType)) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: otpType,
+    });
+    if (error) {
+      const errorResponse = redirectSignInError("otp", "otp_expired", error.message);
+      setAuthDebugHeader(errorResponse, "callback-host", url.host);
+      setAuthDebugHeader(errorResponse, "verify-otp-error", true);
+      setAuthDebugHeader(errorResponse, "verify-otp-message", error.message);
+      return errorResponse;
+    }
   }
 
   const wroteSupabaseCookie = response.cookies
