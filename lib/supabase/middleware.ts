@@ -5,6 +5,7 @@ import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 // Public routes that are accessible to everyone (blog is public marketing content)
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/auth/callback"];
+const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
 
 // Check if a path is a public route
 function isPublicRoute(pathname: string): boolean {
@@ -86,6 +87,20 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isPublic = isPublicRoute(pathname);
+  const hasSupabaseAuthCookie = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.includes("sb-") && cookie.name.includes("auth-token"));
+
+  if (AUTH_DEBUG) {
+    console.info("[auth:middleware] user check", {
+      host: request.nextUrl.host,
+      pathname,
+      isPublic,
+      hasUser: Boolean(user),
+      hasSupabaseAuthCookie,
+      cookieDomain: cookieOptions?.domain ?? null,
+    });
+  }
 
   // Server Action POSTs use the `next-action` header. Middleware redirects (302 HTML)
   // break the client, which expects `text/x-component` or `x-action-redirect`.
@@ -100,6 +115,12 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/auth") &&
     !pathname.startsWith("/auth/callback")
   ) {
+    if (AUTH_DEBUG) {
+      console.info("[auth:middleware] redirect auth user away from auth page", {
+        from: pathname,
+        to: "/",
+      });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return redirectWithSessionCookies(url, supabaseResponse);
@@ -107,6 +128,12 @@ export async function updateSession(request: NextRequest) {
 
   // If user is not authenticated and trying to access protected route, redirect to sign-in
   if (!user && !isPublic) {
+    if (AUTH_DEBUG) {
+      console.warn("[auth:middleware] redirect unauthenticated user", {
+        from: pathname,
+        to: "/auth/sign-in",
+      });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/auth/sign-in";
     url.searchParams.set("redirectedFrom", pathname);
