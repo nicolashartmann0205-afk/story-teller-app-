@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
+import { createClient } from "@/lib/supabase/server";
 import { createActionClient } from "@/lib/supabase/server-action";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignInForm from "./sign-in-form";
@@ -184,6 +185,13 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     sp.error_description
   );
   const redirectedFrom = sp.redirectedFrom;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect(safeRelativeNextPath(redirectedFrom));
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
