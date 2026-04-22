@@ -14,16 +14,25 @@ type SignInAction = (
   previousState: SignInState | null | void,
   formData: FormData
 ) => Promise<SignInState | void | null>;
-type GoogleSignInAction = () => Promise<{ error?: string } | void>;
+
+function toFriendlyAuthError(message: string): string {
+  const normalized = message.trim();
+  const lower = normalized.toLowerCase();
+  if (lower.includes("email rate limit exceeded")) {
+    return "Too many email requests were sent. Wait about a minute, then request another code, or use Google/password sign-in now.";
+  }
+  if (lower.includes("pkce code verifier not found")) {
+    return "That email link cannot be completed in this browser session. Enter the 6-digit code on this page instead.";
+  }
+  return normalized;
+}
 
 export default function SignInForm({
   redirectedFrom,
   signInAction,
-  signInWithGoogleAction,
 }: {
   redirectedFrom?: string;
   signInAction: SignInAction;
-  signInWithGoogleAction: GoogleSignInAction;
 }) {
   const [state, formAction, isPending] = useActionState(signInAction, null);
   const [authMethod, setAuthMethod] = useState<"otp" | "magic" | "password">(
@@ -33,7 +42,9 @@ export default function SignInForm({
   const [clientError, setClientError] = useState<string | null>(null);
   const [clientSuccess, setClientSuccess] = useState<string | null>(null);
   const [clientPending, setClientPending] = useState(false);
+  const [googlePending, setGooglePending] = useState(false);
   const [otpSentLocal, setOtpSentLocal] = useState(false);
+  const [resendCooldownSeconds, setResendCooldownSeconds] = useState(0);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const isOtp = authMethod === "otp";
@@ -89,6 +100,14 @@ export default function SignInForm({
     setClientSuccess(null);
   }, [authMethod]);
 
+  useEffect(() => {
+    if (resendCooldownSeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setResendCooldownSeconds((previous) => (previous > 0 ? previous - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldownSeconds]);
+
   async function handleOtpSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!email.trim()) {
@@ -104,6 +123,12 @@ export default function SignInForm({
       const normalizedCode = otp.trim().replace(/\s|-/g, "");
 
       if (!normalizedCode) {
+        if (resendCooldownSeconds > 0) {
+          setClientError(
+            `Please wait ${resendCooldownSeconds}s before requesting another code.`
+          );
+          return;
+        }
         const callbackUrl = new URL("/auth/callback", window.location.origin);
         callbackUrl.searchParams.set("next", redirectedFrom || "/dashboard");
         const { error } = await supabase.auth.signInWithOtp({
@@ -113,10 +138,14 @@ export default function SignInForm({
           },
         });
         if (error) {
-          setClientError(error.message);
+          setClientError(toFriendlyAuthError(error.message));
+          if (error.message.toLowerCase().includes("email rate limit exceeded")) {
+            setResendCooldownSeconds(60);
+          }
           return;
         }
         setOtpSentLocal(true);
+        setResendCooldownSeconds(60);
         setClientSuccess(
           "We sent a 6-digit code to your email. Enter it below to complete sign-in."
         );
@@ -129,15 +158,34 @@ export default function SignInForm({
         type: "email",
       });
       if (error) {
-        setClientError(
-          "Invalid or expired code. Request a new email code and enter the latest 6-digit code."
-        );
+        setClientError(toFriendlyAuthError(error.message));
         return;
       }
 
       window.location.href = redirectedFrom || "/dashboard";
     } finally {
       setClientPending(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setClientError(null);
+    setClientSuccess(null);
+    setGooglePending(true);
+    try {
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      callbackUrl.searchParams.set("next", redirectedFrom || "/dashboard");
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: callbackUrl.toString(),
+        },
+      });
+      if (error) {
+        setClientError(toFriendlyAuthError(error.message));
+      }
+    } finally {
+      setGooglePending(false);
     }
   }
 
@@ -252,14 +300,16 @@ export default function SignInForm({
       <div className="flex flex-col gap-4">
         <button
           type="submit"
-          disabled={isPending || clientPending}
+          disabled={isPending || clientPending || googlePending}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black dark:bg-zinc-50 dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {(isPending || clientPending)
             ? "Processing..."
             : isOtp
               ? otpSent
-                ? "Send another code / verify code"
+                ? resendCooldownSeconds > 0
+                  ? `Verify code (resend in ${resendCooldownSeconds}s)`
+                  : "Send another code / verify code"
                 : "Send email code / verify code"
               : isMagic
                 ? "Send Magic Link"
@@ -277,7 +327,8 @@ export default function SignInForm({
 
         <button
           type="button"
-          onClick={() => signInWithGoogleAction()}
+          onClick={handleGoogleSignIn}
+          disabled={googlePending || clientPending || isPending}
           className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-zinc-300 dark:border-zinc-700 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -298,7 +349,7 @@ export default function SignInForm({
               fill="#EA4335"
             />
           </svg>
-          Sign in with Google
+          {googlePending ? "Redirecting to Google..." : "Sign in with Google"}
         </button>
 
         <button

@@ -31,6 +31,9 @@ function getAuthErrorMessage(
   ) {
     return "That email link cannot be completed in this browser session. Enter the 6-digit email code on this page instead, or request a new code.";
   }
+  if (normalizedDescription.toLowerCase().includes("email rate limit exceeded")) {
+    return "Too many email requests were sent. Wait about a minute, then request another code, or use Google/password sign-in.";
+  }
   if (normalizedDescription) {
     return normalizedDescription;
   }
@@ -163,27 +166,6 @@ async function signInAction(
   redirect(nextPath);
 }
 
-async function signInWithGoogleAction(nextPath: string) {
-  "use server";
-  const supabase = await createActionClient();
-  const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
-  callbackUrl.searchParams.set("next", safeRelativeNextPath(nextPath));
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: callbackUrl.toString(),
-    },
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  if (data.url) {
-    redirect(data.url);
-  }
-}
-
 type SignInPageProps = {
   searchParams: Promise<{
     error?: string;
@@ -237,7 +219,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         <SignInForm
           redirectedFrom={redirectedFrom}
           signInAction={signInAction}
-          signInWithGoogleAction={signInWithGoogleAction.bind(null, redirectedFrom ?? "")}
         />
       </div>
     </div>
