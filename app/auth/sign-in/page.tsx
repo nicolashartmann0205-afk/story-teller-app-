@@ -18,11 +18,21 @@ function getAuthErrorMessage(
   errorCode?: string,
   errorDescription?: string
 ): string | null {
+  const normalizedDescription = errorDescription
+    ? decodeURIComponent(errorDescription.replace(/\+/g, " "))
+    : "";
+
   if (errorCode === "otp_expired") {
     return "Your magic link expired or was already used. Request a new magic link and use only the latest email.";
   }
-  if (errorDescription) {
-    return decodeURIComponent(errorDescription.replace(/\+/g, " "));
+  if (
+    errorCode === "exchange_failed" &&
+    normalizedDescription.toLowerCase().includes("pkce code verifier not found")
+  ) {
+    return "That email link cannot be completed in this browser session. Enter the 6-digit email code on this page instead, or request a new code.";
+  }
+  if (normalizedDescription) {
+    return normalizedDescription;
   }
   if (error === "oauth" || error === "otp") {
     return "Sign-in could not be completed. Please request a new magic link and try again.";
@@ -52,7 +62,8 @@ async function signInAction(
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const otp = (formData.get("otp") as string | null)?.trim() || "";
+  const otpRaw = (formData.get("otp") as string | null)?.trim() || "";
+  const otp = otpRaw.replace(/\s|-/g, "");
   const authMethod = (formData.get("authMethod") as string) || "otp";
   const rawNext = formData.get("redirectedFrom") as string | null;
   const nextPath = safeRelativeNextPath(rawNext || undefined);
@@ -93,7 +104,8 @@ async function signInAction(
 
     if (error) {
       return {
-        error: error.message,
+        error:
+          "Invalid or expired code. Request a new email code and enter the latest 6-digit code.",
         authMethod: "otp" as const,
         otpSent: true,
       };

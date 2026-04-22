@@ -33,8 +33,7 @@ export default function SignInForm({
   const isOtp = authMethod === "otp";
   const isMagic = authMethod === "magic";
   const isPassword = authMethod === "password";
-  const otpSent =
-    isOtp && state?.authMethod === "otp" && Boolean(state?.otpSent);
+  const otpSent = isOtp && state?.authMethod === "otp" && Boolean(state?.otpSent);
 
   useEffect(() => {
     if (!window.location.hash) return;
@@ -121,7 +120,7 @@ export default function SignInForm({
           />
         </div>
 
-        {isOtp && otpSent && (
+        {isOtp && (
           <div>
             <label
               htmlFor="otp"
@@ -135,9 +134,9 @@ export default function SignInForm({
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              required={isOtp && otpSent}
+              required={false}
               className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
-              placeholder="123456"
+              placeholder="Enter code when you have it (optional)"
             />
           </div>
         )}
@@ -179,8 +178,8 @@ export default function SignInForm({
             ? "Processing..."
             : isOtp
               ? otpSent
-                ? "Verify code"
-                : "Send email code"
+                ? "Send another code / verify code"
+                : "Send email code / verify code"
               : isMagic
                 ? "Send Magic Link"
                 : "Sign in"}
