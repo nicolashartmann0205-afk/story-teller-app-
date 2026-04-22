@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
-import { createClient } from "@/lib/supabase/server";
+import { createActionClient } from "@/lib/supabase/server-action";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignInForm from "./sign-in-form";
 
@@ -61,7 +61,7 @@ async function signInAction(
     return { error: "Email is required" };
   }
 
-  const supabase = await createClient();
+  const supabase = await createActionClient();
 
   if (authMethod === "otp") {
     if (!otp) {
@@ -148,7 +148,7 @@ async function signInAction(
 
 async function signInWithGoogleAction(nextPath: string) {
   "use server";
-  const supabase = await createClient();
+  const supabase = await createActionClient();
   const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
   callbackUrl.searchParams.set("next", safeRelativeNextPath(nextPath));
   const { data, error } = await supabase.auth.signInWithOAuth({

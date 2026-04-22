@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type SignInState = {
   error?: string;
@@ -49,6 +50,34 @@ export default function SignInForm({
       setHashError(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
     }
   }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const destination = redirectedFrom || "/dashboard";
+
+    const redirectIfSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        window.location.href = destination;
+      }
+    };
+
+    void redirectIfSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        window.location.href = destination;
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [redirectedFrom]);
 
   return (
     <form className="mt-8 space-y-6" action={formAction}>
