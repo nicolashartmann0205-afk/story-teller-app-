@@ -42,6 +42,7 @@ export function FeedbackForm({
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           >
             <option value="">Select category</option>
+            <option value="negative-feedback">Negative feedback</option>
             <option value="product-feedback">Product feedback</option>
             <option value="bug-report">Bug report</option>
             <option value="technical-issue">Technical issue</option>
