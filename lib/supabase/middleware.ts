@@ -122,8 +122,23 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   const {
-    data: { user },
+    data: { user: userFromGetUser },
+    error: getUserError,
   } = await supabase.auth.getUser();
+
+  // Immediately after auth redirects, cookie/session propagation can race one request
+  // behind getUser(). Fall back to getSession() to avoid bouncing valid sign-ins.
+  let user = userFromGetUser;
+  let usedSessionFallback = false;
+  if (!user) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.user) {
+      user = session.user;
+      usedSessionFallback = true;
+    }
+  }
 
   const isPublic = isPublicRoute(pathname);
   if (user) {
@@ -135,6 +150,8 @@ export async function updateSession(request: NextRequest) {
   }
   setAuthDebugHeader(supabaseResponse, "is-public-route", isPublic);
   setAuthDebugHeader(supabaseResponse, "user-present", Boolean(user));
+  setAuthDebugHeader(supabaseResponse, "get-user-error", Boolean(getUserError));
+  setAuthDebugHeader(supabaseResponse, "used-session-fallback", usedSessionFallback);
 
   // Server Action POSTs use the `next-action` header. Middleware redirects (302 HTML)
   // break the client, which expects `text/x-component` or `x-action-redirect`.

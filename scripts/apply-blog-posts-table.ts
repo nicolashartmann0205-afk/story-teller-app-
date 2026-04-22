@@ -48,6 +48,66 @@ async function main() {
         END IF;
       END $$
     `;
+    await sql`
+      ALTER TABLE "public"."blog_posts" ENABLE ROW LEVEL SECURITY
+    `;
+    await sql`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename = 'blog_posts'
+            AND policyname = 'blog_posts_public_select'
+        ) THEN
+          CREATE POLICY "blog_posts_public_select"
+            ON "public"."blog_posts"
+            FOR SELECT
+            USING (true);
+        END IF;
+
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename = 'blog_posts'
+            AND policyname = 'blog_posts_insert_own'
+        ) THEN
+          CREATE POLICY "blog_posts_insert_own"
+            ON "public"."blog_posts"
+            FOR INSERT
+            WITH CHECK (auth.uid() IS NOT NULL AND author_id = auth.uid());
+        END IF;
+
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename = 'blog_posts'
+            AND policyname = 'blog_posts_update_own'
+        ) THEN
+          CREATE POLICY "blog_posts_update_own"
+            ON "public"."blog_posts"
+            FOR UPDATE
+            USING (author_id = auth.uid())
+            WITH CHECK (author_id = auth.uid());
+        END IF;
+
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_policies
+          WHERE schemaname = 'public'
+            AND tablename = 'blog_posts'
+            AND policyname = 'blog_posts_delete_own'
+        ) THEN
+          CREATE POLICY "blog_posts_delete_own"
+            ON "public"."blog_posts"
+            FOR DELETE
+            USING (author_id = auth.uid());
+        END IF;
+      END $$
+    `;
     console.log("blog_posts table ensured.");
   } finally {
     await sql.end({ timeout: 5 });
