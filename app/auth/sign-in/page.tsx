@@ -6,6 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignInForm from "./sign-in-form";
 
+type SignInState = {
+  error?: string;
+  success?: string;
+  otpSent?: boolean;
+  authMethod?: "otp" | "magic" | "password";
+};
+
 function getAuthErrorMessage(
   error?: string,
   errorCode?: string,
@@ -37,12 +44,16 @@ export async function generateMetadata() {
   };
 }
 
-async function signInAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
+async function signInAction(
+  previousState: SignInState | null | void,
+  formData: FormData
+) {
   "use server";
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const isMagicLink = formData.get("magicLink") === "true";
+  const otp = (formData.get("otp") as string | null)?.trim() || "";
+  const authMethod = (formData.get("authMethod") as string) || "otp";
   const rawNext = formData.get("redirectedFrom") as string | null;
   const nextPath = safeRelativeNextPath(rawNext || undefined);
 
@@ -52,7 +63,46 @@ async function signInAction(previousState: { error?: string; success?: string } 
 
   const supabase = await createClient();
 
-  if (isMagicLink) {
+  if (authMethod === "otp") {
+    if (!otp) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+      });
+
+      if (error) {
+        return {
+          error: error.message,
+          authMethod: "otp" as const,
+          otpSent: false,
+        };
+      }
+
+      return {
+        success:
+          "We sent a 6-digit code to your email. Enter it below to complete sign-in.",
+        authMethod: "otp" as const,
+        otpSent: true,
+      };
+    }
+
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
+
+    if (error) {
+      return {
+        error: error.message,
+        authMethod: "otp" as const,
+        otpSent: true,
+      };
+    }
+
+    redirect(nextPath);
+  }
+
+  if (authMethod === "magic") {
     const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
     callbackUrl.searchParams.set("next", nextPath);
     const { error } = await supabase.auth.signInWithOtp({
@@ -63,10 +113,14 @@ async function signInAction(previousState: { error?: string; success?: string } 
     });
 
     if (error) {
-      return { error: error.message };
+      return { error: error.message, authMethod: "magic" as const };
     }
 
-    return { success: "Check your email for the magic link!" };
+    return {
+      success:
+        "Check your email for the magic link. Use only the latest email link.",
+      authMethod: "magic" as const,
+    };
   }
 
   if (!password) {
@@ -83,9 +137,10 @@ async function signInAction(previousState: { error?: string; success?: string } 
       return {
         error:
           "Google sign-in is currently not enabled. Please enable Google provider in Supabase Authentication settings and try again.",
+        authMethod: "password" as const,
       };
     }
-    return { error: error.message };
+    return { error: error.message, authMethod: "password" as const };
   }
 
   redirect(nextPath);

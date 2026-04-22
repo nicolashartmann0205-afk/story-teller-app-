@@ -2,7 +2,17 @@
 
 import { useActionState, useEffect, useState } from "react";
 
-type SignInAction = (previousState: { error?: string; success?: string } | null | void, formData: FormData) => Promise<{ error?: string; success?: string } | void | null>;
+type SignInState = {
+  error?: string;
+  success?: string;
+  otpSent?: boolean;
+  authMethod?: "otp" | "magic" | "password";
+};
+
+type SignInAction = (
+  previousState: SignInState | null | void,
+  formData: FormData
+) => Promise<SignInState | void | null>;
 type GoogleSignInAction = () => Promise<{ error?: string } | void>;
 
 export default function SignInForm({
@@ -15,8 +25,15 @@ export default function SignInForm({
   signInWithGoogleAction: GoogleSignInAction;
 }) {
   const [state, formAction, isPending] = useActionState(signInAction, null);
-  const [useMagicLink, setUseMagicLink] = useState(true);
+  const [authMethod, setAuthMethod] = useState<"otp" | "magic" | "password">(
+    "otp"
+  );
   const [hashError, setHashError] = useState<string | null>(null);
+  const isOtp = authMethod === "otp";
+  const isMagic = authMethod === "magic";
+  const isPassword = authMethod === "password";
+  const otpSent =
+    isOtp && state?.authMethod === "otp" && Boolean(state?.otpSent);
 
   useEffect(() => {
     if (!window.location.hash) return;
@@ -35,7 +52,7 @@ export default function SignInForm({
 
   return (
     <form className="mt-8 space-y-6" action={formAction}>
-      <input type="hidden" name="magicLink" value={useMagicLink.toString()} />
+      <input type="hidden" name="authMethod" value={authMethod} />
       <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
       
       {hashError && (
@@ -75,7 +92,28 @@ export default function SignInForm({
           />
         </div>
 
-        {!useMagicLink && (
+        {isOtp && otpSent && (
+          <div>
+            <label
+              htmlFor="otp"
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              6-digit code
+            </label>
+            <input
+              id="otp"
+              name="otp"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              required={isOtp && otpSent}
+              className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
+              placeholder="123456"
+            />
+          </div>
+        )}
+
+        {isPassword && (
           <div>
             <label
               htmlFor="password"
@@ -88,12 +126,18 @@ export default function SignInForm({
               name="password"
               type="password"
               autoComplete="current-password"
-              required={!useMagicLink}
+              required={isPassword}
               className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
               placeholder="••••••••"
             />
           </div>
         )}
+
+        {isOtp ? (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Use email code to avoid magic-link expiry from email scanners.
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -102,7 +146,15 @@ export default function SignInForm({
           disabled={isPending}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black dark:bg-zinc-50 dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? "Processing..." : (useMagicLink ? "Send Magic Link" : "Sign in")}
+          {isPending
+            ? "Processing..."
+            : isOtp
+              ? otpSent
+                ? "Verify code"
+                : "Send email code"
+              : isMagic
+                ? "Send Magic Link"
+                : "Sign in"}
         </button>
 
         <div className="relative">
@@ -142,10 +194,18 @@ export default function SignInForm({
 
         <button
           type="button"
-          onClick={() => setUseMagicLink(!useMagicLink)}
+          onClick={() => setAuthMethod(isPassword ? "otp" : "password")}
           className="text-sm text-zinc-600 dark:text-zinc-400 hover:underline"
         >
-          {useMagicLink ? "Sign in with password instead" : "Sign in with magic link instead"}
+          {isPassword ? "Use email code instead" : "Sign in with password instead"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAuthMethod(isMagic ? "otp" : "magic")}
+          className="text-sm text-zinc-600 dark:text-zinc-400 hover:underline"
+        >
+          {isMagic ? "Use email code instead" : "Use magic link instead"}
         </button>
       </div>
     </form>
