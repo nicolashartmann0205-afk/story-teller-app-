@@ -6,6 +6,11 @@ import { stories, scenes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { generateFullStoryDraft, improveText, generateFallbackFullDraft } from "@/lib/ai/story-generator";
 import { providerRouter } from "@/lib/ai/image-providers/router";
+import {
+  consumeCredit,
+  INSUFFICIENT_CREDITS_CODE,
+  INSUFFICIENT_CREDITS_MESSAGE,
+} from "@/lib/credits/service";
 
 export async function getReviewData(storyId: string) {
   const supabase = await createClient();
@@ -184,6 +189,18 @@ export async function generateDraftAction(storyId: string, options: any) {
     }
 
     const { story, scenes } = await getReviewData(storyId);
+
+    if (!options?.useFallback) {
+        const creditResult = await consumeCredit({
+            userId: user.id,
+            reason: "story_draft_generate",
+            requestId: typeof options?.requestId === "string" ? options.requestId : undefined,
+            metadata: { storyId }
+        });
+        if (!creditResult.ok && creditResult.code === INSUFFICIENT_CREDITS_CODE) {
+            throw new Error(INSUFFICIENT_CREDITS_MESSAGE);
+        }
+    }
     
     const storyData = {
         title: story.title,

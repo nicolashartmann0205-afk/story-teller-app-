@@ -215,6 +215,32 @@ export const structureAnalytics = pgTable("structure_analytics", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+/** Per-user AI generation credit balance and monthly quota tracking. */
+export const userCredits = pgTable("user_credits", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  balance: integer("balance").notNull().default(20),
+  monthlyFreeQuota: integer("monthly_free_quota").notNull().default(20),
+  monthlyUsed: integer("monthly_used").notNull().default(0),
+  periodStart: timestamp("period_start", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Immutable audit ledger for credit mutations. */
+export const creditTransactions = pgTable("credit_transactions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+  type: text("type").$type<"debit" | "refill" | "admin_grant">().notNull(),
+  amount: integer("amount").notNull(),
+  reason: text("reason").notNull(),
+  requestId: text("request_id"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 /** Public feedback submissions (admin-readable in app). */
 export const feedbackSubmissions = pgTable("feedback_submissions", {
   id: uuid("id").defaultRandom().primaryKey(),

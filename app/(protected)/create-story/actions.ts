@@ -8,6 +8,11 @@ import { generateStory, generateHooks } from "@/lib/ai/story-generator";
 import { storyCategories, StoryCategory, StoryType } from "@/lib/data/storyTypes";
 import { eq, and } from "drizzle-orm";
 import { styleGuides } from "@/lib/db/schema";
+import {
+  consumeCredit,
+  INSUFFICIENT_CREDITS_CODE,
+  INSUFFICIENT_CREDITS_MESSAGE,
+} from "@/lib/credits/service";
 
 export async function generatePreviewHooksAction(
   title: string,
@@ -201,6 +206,16 @@ export async function createStoryAction(
     }
 
     // 3. Generate Story
+    const creditResult = await consumeCredit({
+      userId: user.id,
+      reason: "story_generate",
+      requestId: (formData.get("generationRequestId") as string | null) ?? undefined,
+      metadata: { title: title.trim() },
+    });
+    if (!creditResult.ok && creditResult.code === INSUFFICIENT_CREDITS_CODE) {
+      return { error: INSUFFICIENT_CREDITS_MESSAGE };
+    }
+
     const generatedStory = await generateStory(title, promptContext, language);
 
     // 4. Save to DB

@@ -3,6 +3,7 @@ import { SignOutButton } from "@/components/auth/sign-out-button";
 import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
 import { PublicAuthLinks, PublicPrimaryNavLinks } from "@/components/nav/public-nav-links";
 import { isBlogAdminUser } from "@/lib/blog/admin";
+import { getUserCreditBalance } from "@/lib/credits/service";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -13,6 +14,7 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const creditBalance = user ? await getUserCreditBalance(user.id) : null;
   const canSeeBlogAdmin = isBlogAdminUser(user?.id, user?.email);
   const canSeeSeoAdmin = (user?.email || "").trim().toLowerCase() === "nicolas@hartmanns.net";
 
@@ -38,7 +40,14 @@ export async function SiteHeader() {
             </>
           )}
         </div>
-        {user ? <SignOutButton /> : null}
+        {user ? (
+          <div className="flex items-center gap-3">
+            <span className="rounded-md border border-zinc-300 dark:border-zinc-700 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+              Credits: {creditBalance ?? 0}
+            </span>
+            <SignOutButton />
+          </div>
+        ) : null}
       </div>
     </header>
   );

@@ -5,6 +5,12 @@ import { scenes, stories } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateSceneDraft, analyzeShowDontTell, suggestSensoryDetails } from "@/lib/ai/story-generator";
+import { createClient } from "@/lib/supabase/server";
+import {
+  consumeCredit,
+  INSUFFICIENT_CREDITS_CODE,
+  INSUFFICIENT_CREDITS_MESSAGE,
+} from "@/lib/credits/service";
 
 type CreateSceneSeed = {
   actionWhere?: string;
@@ -87,10 +93,30 @@ export async function deleteScene(sceneId: string, storyId: string) {
 
 export async function generateSceneDraftAction(sceneData: any, storyId: string) {
     try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Unauthorized");
+
       // Fetch story context
-      const [story] = await db.select().from(stories).where(eq(stories.id, storyId));
+      const [story] = await db
+        .select()
+        .from(stories)
+        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
       
       if (!story) throw new Error("Story not found");
+
+      const creditResult = await consumeCredit({
+        userId: user.id,
+        reason: "scene_generate",
+        requestId:
+          typeof sceneData?.requestId === "string" ? sceneData.requestId : undefined,
+        metadata: { storyId },
+      });
+      if (!creditResult.ok && creditResult.code === INSUFFICIENT_CREDITS_CODE) {
+        throw new Error(INSUFFICIENT_CREDITS_MESSAGE);
+      }
 
       const storyContext = {
           storyType: (story.storyType as any)?.name || "General Fiction",

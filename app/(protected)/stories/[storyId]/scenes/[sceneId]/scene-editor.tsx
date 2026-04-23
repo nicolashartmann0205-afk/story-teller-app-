@@ -141,7 +141,8 @@ export default function SceneEditor({
       const draft = await generateSceneDraftAction({
         movieTimeAction: getAction(),
         movieTimeEmotion: getEmotion(),
-        movieTimeMeaning: getMeaning()
+        movieTimeMeaning: getMeaning(),
+        requestId: crypto.randomUUID(),
       }, storyId);
       
       handleUpdate({ sceneContent: draft, completenessStatus: 'drafted' });

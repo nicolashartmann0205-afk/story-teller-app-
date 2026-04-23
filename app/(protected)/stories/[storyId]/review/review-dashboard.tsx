@@ -19,8 +19,9 @@ export function ReviewDashboard() {
         }
         
         setGenerationError(null);
+        const requestId = useFallback ? undefined : crypto.randomUUID();
         try {
-            await generateDraft({ tone: "Engaging", language: selectedLanguage, useFallback });
+            await generateDraft({ tone: "Engaging", language: selectedLanguage, useFallback, requestId });
         } catch (error) {
             console.error("Draft generation failed:", error);
             const errorString = error instanceof Error ? error.message : String(error);
