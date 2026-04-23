@@ -69,6 +69,10 @@ function redirectWithSessionCookies(url: URL, supabaseResponse: NextResponse): N
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const isAuthRoute = pathname.startsWith(AUTH_ROUTE_PREFIX);
+  const requestHadSbCookie = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.includes("sb-"));
   if (pathname.startsWith(AUTH_ROUTES.CALLBACK) || pathname.startsWith(AUTH_ROUTES.GOOGLE)) {
     const passthrough = NextResponse.next({
       request: {
@@ -92,11 +96,7 @@ export async function updateSession(request: NextRequest) {
   setAuthDebugHeader(supabaseResponse, "request-host", request.nextUrl.host);
   setAuthDebugHeader(supabaseResponse, "request-path", request.nextUrl.pathname);
   setAuthDebugHeader(supabaseResponse, "cookie-domain", cookieOptions?.domain || "host-only");
-  setAuthDebugHeader(
-    supabaseResponse,
-    "request-had-sb-cookie",
-    request.cookies.getAll().some((cookie) => cookie.name.includes("sb-"))
-  );
+  setAuthDebugHeader(supabaseResponse, "request-had-sb-cookie", requestHadSbCookie);
 
   const supabase = createServerClient(
     getSupabaseUrl(),
@@ -156,9 +156,15 @@ export async function updateSession(request: NextRequest) {
     requestHeaders.delete("x-auth-user-email");
   }
   setAuthDebugHeader(supabaseResponse, "is-public-route", isPublic);
+  setAuthDebugHeader(supabaseResponse, "is-auth-route", isAuthRoute);
   setAuthDebugHeader(supabaseResponse, "user-present", Boolean(user));
   setAuthDebugHeader(supabaseResponse, "get-user-error", Boolean(getUserError));
   setAuthDebugHeader(supabaseResponse, "used-session-fallback", usedSessionFallback);
+  setAuthDebugHeader(
+    supabaseResponse,
+    "auth-route-cookie-user-mismatch",
+    isAuthRoute && requestHadSbCookie && !user
+  );
 
   // Server Action POSTs use the `next-action` header. Middleware redirects (302 HTML)
   // break the client, which expects `text/x-component` or `x-action-redirect`.

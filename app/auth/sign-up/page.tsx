@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
+import { getRequestUser } from "@/lib/auth/request-user";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
@@ -68,10 +69,17 @@ type SignUpPageProps = {
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const sp = await searchParams;
   const redirectedFrom = sp.redirectedFrom;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, source } = await getRequestUser();
+  const authDebugEnabled = process.env.AUTH_DEBUG === "1";
+
+  if (authDebugEnabled) {
+    console.info("[auth-debug] sign-up-page-user-check", {
+      source,
+      hasUser: Boolean(user),
+      redirectedFrom: redirectedFrom ?? null,
+    });
+  }
+
   if (user) {
     redirect(safeRelativeNextPath(redirectedFrom));
   }
@@ -79,6 +87,15 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-zinc-900 p-8 shadow-lg">
+        {authDebugEnabled ? (
+          <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+            <p className="font-semibold">AUTH DEBUG</p>
+            <p>page: sign-up</p>
+            <p>source: {source}</p>
+            <p>hasUser: {String(Boolean(user))}</p>
+            <p>redirectedFrom: {redirectedFrom ?? "null"}</p>
+          </div>
+        ) : null}
         <div>
           <h2 className="text-3xl font-bold text-center text-black dark:text-zinc-50">
             Create an account
