@@ -20,14 +20,14 @@ export async function SiteHeader() {
 
   return (
     <header
-      className="sticky top-0 z-30 border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80"
+      className="sticky top-0 z-30 border-b border-brand-border bg-brand-surface/90 backdrop-blur-sm dark:border-brand-border dark:bg-brand-surface/85"
       aria-label="Main"
     >
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <Link
             href="/"
-            className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 hover:underline"
+            className="text-sm font-semibold text-brand-teal hover:underline"
           >
             Story Teller
           </Link>
@@ -42,7 +42,7 @@ export async function SiteHeader() {
         </div>
         {user ? (
           <div className="flex items-center gap-3">
-            <span className="rounded-md border border-zinc-300 dark:border-zinc-700 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+            <span className="rounded-md border border-brand-border bg-brand-surface px-2.5 py-1 text-xs font-medium text-brand-teal">
               Credits: {creditBalance ?? 0}
             </span>
             <SignOutButton />

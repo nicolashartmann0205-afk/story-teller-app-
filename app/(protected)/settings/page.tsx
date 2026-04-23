@@ -21,7 +21,7 @@ import {
 } from "@/lib/credits/service";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { revalidatePath } from "next/cache";
-import AdminGrantCreditsForm from "./admin-grant-credits-form";
+import AdminGrantCreditsForm from "@/app/(protected)/settings/admin-grant-credits-form";
 
 export const metadata = selfReferencingCanonical("/settings");
 

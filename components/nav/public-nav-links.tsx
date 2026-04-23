@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 
 const inactive =
-  "text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors";
+  "text-sm text-brand-teal/80 hover:text-brand-terracotta-orange transition-colors";
 const active =
-  "text-sm font-semibold text-zinc-900 dark:text-zinc-50 hover:underline transition-colors";
+  "text-sm font-semibold text-brand-terracotta-orange hover:underline transition-colors";
 
 function navClass(isActive: boolean) {
   return isActive ? active : inactive;
@@ -59,8 +59,8 @@ export function PublicAuthLinks() {
         href={signUpHref(pathname)}
         className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
           isSignUp
-            ? "bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black"
-            : "bg-black text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-black dark:hover:bg-zinc-200"
+            ? "bg-brand-terracotta-orange text-white"
+            : "bg-brand-teal text-white hover:bg-brand-seafoam-green"
         }`}
       >
         Sign up

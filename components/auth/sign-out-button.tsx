@@ -12,7 +12,7 @@ export function SignOutButton({ className, label = "Log out" }: SignOutButtonPro
         type="submit"
         className={
           className ??
-          "rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          "rounded-md border border-brand-border bg-brand-surface px-3 py-1.5 text-sm font-medium text-brand-teal hover:bg-brand-sunshine-yellow/25"
         }
       >
         {label}
