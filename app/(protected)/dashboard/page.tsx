@@ -116,7 +116,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <h1 className="text-3xl font-bold text-brand-ink dark:text-brand-yellow">
                 {greeting}, {user.user_metadata?.display_name || user.email?.split('@')[0] || "Storyteller"}
               </h1>
-              <p className="mt-2 text-brand-ink/70 dark:text-brand-seafoam">
+              <p className="mt-2 text-brand-ink/85 dark:text-brand-seafoam">
                 Ready to continue your creative journey?
               </p>
             </div>
@@ -144,7 +144,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <BookOpen className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-ink/60 dark:text-brand-seafoam">Total Stories</p>
+              <p className="text-sm font-medium text-brand-ink/80 dark:text-brand-seafoam">Total Stories</p>
               <h3 className="text-2xl font-bold text-brand-ink dark:text-brand-yellow">{stats.totalStories}</h3>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <PenTool className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-ink/60 dark:text-brand-seafoam">Total Words</p>
+              <p className="text-sm font-medium text-brand-ink/80 dark:text-brand-seafoam">Total Words</p>
               <h3 className="text-2xl font-bold text-brand-ink dark:text-brand-yellow">{stats.totalWords.toLocaleString()}</h3>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <TrendingUp className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-ink/60 dark:text-brand-seafoam">Writing Streak</p>
+              <p className="text-sm font-medium text-brand-ink/80 dark:text-brand-seafoam">Writing Streak</p>
               <h3 className="text-2xl font-bold text-brand-ink dark:text-brand-yellow">{stats.streak} Days</h3>
             </div>
           </div>
@@ -176,7 +176,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <h2 className="text-xl font-bold text-brand-ink dark:text-brand-yellow">Recent Activity</h2>
             <Link 
               href="/stories" 
-              className="text-sm font-medium text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow flex items-center gap-1"
+              className="text-sm font-medium text-brand-ink/85 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow flex items-center gap-1"
             >
               View all stories
               <ArrowRight className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       <div className="inline-flex items-center rounded-full border border-brand-seafoam/40 px-2.5 py-0.5 text-xs font-semibold text-brand-ink dark:text-brand-seafoam">
                         {story.mode === 'quick' ? 'Quick Mode' : 'Comprehensive'}
                       </div>
-                      <span className="text-xs text-brand-ink/60 dark:text-brand-seafoam flex items-center gap-1">
+                      <span className="text-xs text-brand-ink/80 dark:text-brand-seafoam flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(story.updatedAt).toLocaleDateString()}
                       </span>
@@ -205,7 +205,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       {story.title || "Untitled Story"}
                     </h3>
                     
-                    <p className="text-sm text-brand-ink/70 dark:text-brand-seafoam line-clamp-3 mb-4">
+                    <p className="text-sm text-brand-ink/85 dark:text-brand-seafoam line-clamp-3 mb-4">
                       {story.description || "No description provided."}
                     </p>
                   </div>
@@ -227,7 +227,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <BookOpen className="h-6 w-6 text-brand-teal dark:text-brand-seafoam" />
               </div>
               <h3 className="mt-2 text-sm font-semibold text-brand-ink dark:text-brand-yellow">No stories yet</h3>
-              <p className="mt-1 text-sm text-brand-ink/70 dark:text-brand-seafoam">
+              <p className="mt-1 text-sm text-brand-ink/85 dark:text-brand-seafoam">
                 Get started by creating your first story today.
               </p>
               <div className="mt-6">

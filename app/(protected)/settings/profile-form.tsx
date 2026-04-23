@@ -37,11 +37,11 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
             name="email"
             id="email"
             disabled
-            className="block w-full rounded-md border border-brand-seafoam/40 bg-brand-cream/70 dark:bg-brand-ink/70 px-3 py-2 text-brand-ink/60 dark:text-brand-seafoam cursor-not-allowed"
+            className="block w-full rounded-md border border-brand-seafoam/40 bg-brand-cream/70 dark:bg-brand-ink/70 px-3 py-2 text-brand-ink/80 dark:text-brand-seafoam cursor-not-allowed"
             defaultValue={user.email}
           />
         </div>
-        <p className="mt-1 text-xs text-brand-ink/60 dark:text-brand-seafoam">Email cannot be changed here.</p>
+        <p className="mt-1 text-xs text-brand-ink/80 dark:text-brand-seafoam">Email cannot be changed here.</p>
       </div>
 
       <div>

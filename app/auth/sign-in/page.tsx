@@ -230,7 +230,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <h2 className="text-3xl font-bold text-center text-brand-ink dark:text-brand-yellow">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-brand-ink/70 dark:text-brand-seafoam">
+          <p className="mt-2 text-center text-sm text-brand-ink/85 dark:text-brand-seafoam">
             Or{" "}
             <Link
               href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, redirectedFrom)}

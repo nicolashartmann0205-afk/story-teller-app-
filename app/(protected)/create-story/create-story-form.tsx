@@ -106,29 +106,29 @@ export default function CreateStoryForm({
         </div>
       )}
 
-      <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+      <div className="mb-6 p-4 bg-brand-cream/70 dark:bg-brand-ink/60 rounded-xl border border-brand-seafoam/30">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Selected Type</p>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{selectedType.name}</p>
+            <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam uppercase tracking-wider font-medium">Selected Type</p>
+            <p className="text-sm font-semibold text-brand-ink dark:text-brand-yellow">{selectedType.name}</p>
           </div>
           <button
             type="button"
             onClick={onBack}
-            className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 underline"
+            className="text-xs text-brand-ink/80 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow underline"
           >
             Change
           </button>
         </div>
         {moralData && moralData.primary && (
-          <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-             <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Moral Conflict</p>
+          <div className="mt-3 pt-3 border-t border-brand-seafoam/30">
+             <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam uppercase tracking-wider font-medium">Moral Conflict</p>
              <div className="flex items-center gap-2 mt-1">
-               <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+               <span className="text-sm font-semibold text-brand-ink dark:text-brand-yellow capitalize">
                  {moralData.primary.replace('_', ' vs ')}
                </span>
                {moralData.complexity && (
-                 <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 capitalize">
+                 <span className="text-xs px-2 py-0.5 rounded-full bg-brand-yellow/30 dark:bg-brand-orange/20 text-brand-orange dark:text-brand-yellow capitalize">
                    {moralData.complexity.replace('_', ' ')}
                  </span>
                )}
@@ -136,14 +136,14 @@ export default function CreateStoryForm({
           </div>
         )}
         {archetypeData && archetypeData.primary && (
-          <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-             <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Character Archetype</p>
+          <div className="mt-3 pt-3 border-t border-brand-seafoam/30">
+             <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam uppercase tracking-wider font-medium">Character Archetype</p>
              <div className="flex items-center gap-2 mt-1">
-               <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+               <span className="text-sm font-semibold text-brand-ink dark:text-brand-yellow capitalize">
                  {archetypeData.primary}
                </span>
                {archetypeData.secondary && (
-                 <span className="text-xs text-zinc-500">
+                 <span className="text-xs text-brand-ink/80 dark:text-brand-seafoam">
                    + {archetypeData.secondary}
                  </span>
                )}
@@ -165,7 +165,7 @@ export default function CreateStoryForm({
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2"
           >
             Title <span className="text-red-500">*</span>
           </label>
@@ -176,19 +176,19 @@ export default function CreateStoryForm({
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
+            className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/55 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
             placeholder="Enter story title"
           />
         </div>
 
         <div>
-           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+           <label className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2">
              Language
            </label>
            <select
              value={language}
              onChange={(e) => setLanguage(e.target.value)}
-             className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
+             className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
            >
              <option value="en">English</option>
              <option value="de">German (Deutsch)</option>
@@ -199,7 +199,7 @@ export default function CreateStoryForm({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2"
           >
             Description / Context
           </label>
@@ -209,21 +209,21 @@ export default function CreateStoryForm({
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500"
+            className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/55 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
             placeholder="What is your story about?"
           />
         </div>
 
         {/* Style & Context Section */}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Style & Context (Optional)</h3>
+        <div className="bg-white dark:bg-brand-ink/80 rounded-xl border border-brand-seafoam/30 overflow-hidden">
+          <div className="p-4 border-b border-brand-seafoam/30 bg-brand-cream/60 dark:bg-brand-ink/70 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h3 className="text-sm font-semibold text-brand-ink dark:text-brand-yellow">Style & Context (Optional)</h3>
             <div className="flex items-center gap-2">
-                <label className="text-xs font-medium text-zinc-500 whitespace-nowrap">Apply Style Guide:</label>
+                <label className="text-xs font-medium text-brand-ink/80 dark:text-brand-seafoam whitespace-nowrap">Apply Style Guide:</label>
                 <select
                     value={selectedStyleGuideId}
                     onChange={(e) => setSelectedStyleGuideId(e.target.value)}
-                    className="text-sm rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-1.5 px-2 max-w-[200px]"
+                    className="text-sm rounded-md border border-brand-seafoam/50 dark:border-brand-seafoam/30 bg-white dark:bg-brand-ink py-1.5 px-2 max-w-[200px] text-brand-ink dark:text-brand-seafoam"
                 >
                     <option value="">None (Custom)</option>
                     {styleGuides.map(sg => (
@@ -234,44 +234,44 @@ export default function CreateStoryForm({
           </div>
           <div className="p-4 space-y-4">
             <div>
-              <label htmlFor="backgroundInfo" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label htmlFor="backgroundInfo" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2">
                 Background Info / World Building
               </label>
               <textarea
                 id="backgroundInfo"
                 name="backgroundInfo"
                 rows={3}
-                className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:focus:ring-zinc-500 text-sm"
+                className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow text-sm"
                 placeholder="Details about the setting, time period, or important backstory..."
               />
             </div>
 
             {selectedStyleGuideId ? (
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-800 space-y-3">
+                <div className="p-4 bg-brand-seafoam/15 dark:bg-brand-seafoam/10 rounded-lg border border-brand-seafoam/30 space-y-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-purple-900 dark:text-purple-100">Using: {activeStyleGuide?.name}</span>
+                            <span className="text-sm font-semibold text-brand-ink dark:text-brand-yellow">Using: {activeStyleGuide?.name}</span>
                         </div>
-                        <Link href={`/style-guide/${selectedStyleGuideId}`} target="_blank" className="text-xs text-purple-600 dark:text-purple-400 hover:underline">
+                        <Link href={`/style-guide/${selectedStyleGuideId}`} target="_blank" className="text-xs text-brand-teal dark:text-brand-yellow hover:underline">
                             View/Edit Guide
                         </Link>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-zinc-600 dark:text-zinc-300">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-brand-ink/85 dark:text-brand-seafoam">
                         <div>
-                            <span className="text-zinc-500">Tone:</span> <span className="capitalize">{activeStyleGuide?.toneId || "Neutral"}</span>
+                            <span className="text-brand-ink/80 dark:text-brand-seafoam">Tone:</span> <span className="capitalize">{activeStyleGuide?.toneId || "Neutral"}</span>
                         </div>
                         <div>
-                            <span className="text-zinc-500">Style:</span> <span className="capitalize">{activeStyleGuide?.writingStyleId || "Standard"}</span>
+                            <span className="text-brand-ink/80 dark:text-brand-seafoam">Style:</span> <span className="capitalize">{activeStyleGuide?.writingStyleId || "Standard"}</span>
                         </div>
                         <div>
-                             <span className="text-zinc-500">Perspective:</span> <span className="capitalize">{activeStyleGuide?.perspectiveId?.replace('_', ' ') || "Third Limited"}</span>
+                             <span className="text-brand-ink/80 dark:text-brand-seafoam">Perspective:</span> <span className="capitalize">{activeStyleGuide?.perspectiveId?.replace('_', ' ') || "Third Limited"}</span>
                         </div>
                         <div>
-                             <span className="text-zinc-500">Complexity:</span> <span>{activeStyleGuide?.complexityLevel || "High School"}</span>
+                             <span className="text-brand-ink/80 dark:text-brand-seafoam">Complexity:</span> <span>{activeStyleGuide?.complexityLevel || "High School"}</span>
                         </div>
                     </div>
                     {activeStyleGuide?.toneDescription && (
-                        <div className="text-xs text-zinc-500 italic mt-2 border-t border-purple-100 dark:border-purple-800 pt-2">
+                        <div className="text-xs text-brand-ink/80 dark:text-brand-seafoam italic mt-2 border-t border-brand-seafoam/30 pt-2">
                             "{activeStyleGuide.toneDescription}"
                         </div>
                     )}
@@ -346,18 +346,18 @@ export default function CreateStoryForm({
         </div>
 
         {/* Hook Generator Toggle */}
-        <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6">
+        <div className="border-t border-brand-seafoam/30 pt-6">
           <button
             type="button"
             onClick={() => setShowHookGenerator(!showHookGenerator)}
-            className="flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+            className="flex items-center gap-2 text-sm font-medium text-brand-teal dark:text-brand-yellow hover:underline"
           >
             {showHookGenerator ? "Hide Hook Generator" : "✨ Need a catchy opening hook?"}
           </button>
 
           {showHookGenerator && (
-            <div className="mt-6 p-6 bg-zinc-50 dark:bg-zinc-900/30 rounded-xl border border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            <div className="mt-6 p-6 bg-brand-cream/60 dark:bg-brand-ink/60 rounded-xl border border-brand-seafoam/30">
+              <h3 className="text-lg font-semibold text-brand-ink dark:text-brand-yellow mb-4">
                 Generate a Great Hook
               </h3>
               
@@ -369,8 +369,8 @@ export default function CreateStoryForm({
                     onClick={() => toggleHookType(type.id)}
                     className={`p-3 rounded-lg border text-left text-sm transition-all ${
                       selectedHookTypes.includes(type.id)
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-1 ring-purple-500"
-                        : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
+                        ? "border-brand-teal bg-brand-seafoam/20 dark:bg-brand-seafoam/10 ring-1 ring-brand-teal"
+                        : "border-brand-seafoam/40 dark:border-brand-seafoam/30 hover:border-brand-teal dark:hover:border-brand-yellow"
                     }`}
                   >
                     <span className="mr-2">{type.icon}</span>
@@ -384,7 +384,7 @@ export default function CreateStoryForm({
                   type="button"
                   onClick={handleGenerateHooks}
                   disabled={isGeneratingHooks || selectedHookTypes.length === 0}
-                  className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black rounded-md text-sm font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-brand-ink dark:bg-brand-yellow text-white dark:text-brand-ink rounded-md text-sm font-medium hover:bg-brand-teal dark:hover:bg-brand-seafoam disabled:opacity-50"
                 >
                   {isGeneratingHooks ? "Generating..." : "Generate Options"}
                 </button>
@@ -397,7 +397,7 @@ export default function CreateStoryForm({
                     const typeInfo = hookTypes.find(t => t.id === typeId);
                     return (
                       <div key={typeId}>
-                        <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-3">
+                        <h4 className="text-sm font-medium text-brand-ink/80 dark:text-brand-seafoam uppercase tracking-wider mb-3">
                           {typeInfo?.name} Hooks
                         </h4>
                         <div className="space-y-3">
@@ -409,12 +409,12 @@ export default function CreateStoryForm({
                                 onClick={() => handleSelectHook(typeId, hook, idx)}
                                 className={`p-4 rounded-lg border cursor-pointer transition-all ${
                                   isSelected
-                                    ? "border-purple-500 bg-white dark:bg-zinc-800 shadow-md ring-1 ring-purple-500"
-                                    : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-purple-300"
+                                    ? "border-brand-teal bg-white dark:bg-brand-ink shadow-md ring-1 ring-brand-teal"
+                                    : "border-brand-seafoam/40 dark:border-brand-seafoam/30 bg-white dark:bg-brand-ink/70 hover:border-brand-teal"
                                 }`}
                               >
-                                <p className="text-zinc-900 dark:text-zinc-100 mb-2">"{hook.text}"</p>
-                                <p className="text-xs text-zinc-500 italic">Why: {hook.whyItWorks}</p>
+                                <p className="text-brand-ink dark:text-brand-yellow mb-2">"{hook.text}"</p>
+                                <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam italic">Why: {hook.whyItWorks}</p>
                               </div>
                             );
                           })}
@@ -433,13 +433,13 @@ export default function CreateStoryForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-black dark:bg-zinc-50 px-6 py-2.5 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="rounded-md bg-brand-ink dark:bg-brand-yellow px-6 py-2.5 text-sm font-medium text-white dark:text-brand-ink hover:bg-brand-teal dark:hover:bg-brand-seafoam focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           {isPending ? "Creating Story..." : "Create Story"}
         </button>
         <Link
           href="/"
-          className="rounded-md border border-zinc-300 dark:border-zinc-700 px-6 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-md border border-brand-seafoam/50 px-6 py-2.5 text-sm font-medium text-brand-ink dark:text-brand-seafoam hover:bg-brand-cream dark:hover:bg-brand-seafoam/15"
         >
           Cancel
         </Link>

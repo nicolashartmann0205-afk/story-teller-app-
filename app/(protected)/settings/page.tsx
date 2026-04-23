@@ -129,7 +129,7 @@ export default async function ProfilePage() {
         <div className="mb-6">
            <Link
              href="/dashboard"
-             className="text-sm text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow"
+             className="text-sm text-brand-ink/85 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow"
            >
              ← Back to Dashboard
            </Link>
@@ -139,7 +139,7 @@ export default async function ProfilePage() {
             <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">
               Profile Settings
             </h3>
-            <p className="mt-1 text-sm text-brand-ink/60 dark:text-brand-seafoam">
+            <p className="mt-1 text-sm text-brand-ink/80 dark:text-brand-seafoam">
               Manage your public profile and account settings.
             </p>
           </div>
@@ -156,20 +156,20 @@ export default async function ProfilePage() {
         <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
           <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
             <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">AI credits</h3>
-            <p className="mt-1 text-sm text-brand-ink/60 dark:text-brand-seafoam">
+            <p className="mt-1 text-sm text-brand-ink/80 dark:text-brand-seafoam">
               Your generation balance and latest credit activity.
             </p>
           </div>
           <div className="px-4 py-5 sm:p-6 space-y-4">
             <div className="rounded-md border border-brand-seafoam/40 px-4 py-3 bg-brand-cream/50 dark:bg-brand-ink/70">
-              <p className="text-xs uppercase tracking-wide text-brand-ink/60 dark:text-brand-seafoam">Current balance</p>
+              <p className="text-xs uppercase tracking-wide text-brand-ink/80 dark:text-brand-seafoam">Current balance</p>
               <p className="mt-1 text-2xl font-semibold text-brand-ink dark:text-brand-yellow">{creditBalance}</p>
             </div>
 
             <div>
               <h4 className="text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2">Recent transactions</h4>
               {recentCreditTransactions.length === 0 ? (
-                <p className="text-sm text-brand-ink/60 dark:text-brand-seafoam">No credit transactions yet.</p>
+                <p className="text-sm text-brand-ink/80 dark:text-brand-seafoam">No credit transactions yet.</p>
               ) : (
                 <div className="divide-y divide-brand-seafoam/30 rounded-md border border-brand-seafoam/30">
                   {recentCreditTransactions.map((tx) => (
@@ -178,7 +178,7 @@ export default async function ProfilePage() {
                         <p className="font-medium text-brand-ink dark:text-brand-seafoam">
                           {tx.reason.replaceAll("_", " ")}
                         </p>
-                        <p className="text-xs text-brand-ink/60 dark:text-brand-seafoam">
+                        <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam">
                           {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : "Unknown date"}
                         </p>
                       </div>
@@ -203,7 +203,7 @@ export default async function ProfilePage() {
               <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">
                 Admin: Grant credits
               </h3>
-              <p className="mt-1 text-sm text-brand-ink/60 dark:text-brand-seafoam">
+              <p className="mt-1 text-sm text-brand-ink/80 dark:text-brand-seafoam">
                 Temporary support tool to manually top up user credits.
               </p>
             </div>
@@ -216,7 +216,7 @@ export default async function ProfilePage() {
         <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
           <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
             <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">SEO reference</h3>
-            <p className="mt-1 text-sm text-brand-ink/60 dark:text-brand-seafoam">
+            <p className="mt-1 text-sm text-brand-ink/80 dark:text-brand-seafoam">
               Read-only values your site uses for title, meta description, and canonical URLs. Changes require editing
               code or deployment configuration.
             </p>

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 
 const inactive =
-  "text-sm text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow transition-colors";
+  "text-sm text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-teal focus-visible:ring-offset-0 focus-visible:ring-offset-brand-cream dark:focus-visible:ring-brand-yellow dark:focus-visible:ring-offset-brand-ink";
 const active =
-  "text-sm font-semibold text-brand-ink dark:text-brand-yellow hover:underline transition-colors";
+  "text-sm font-semibold text-brand-ink dark:text-brand-yellow hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-teal focus-visible:ring-offset-0 focus-visible:ring-offset-brand-cream dark:focus-visible:ring-brand-yellow dark:focus-visible:ring-offset-brand-ink";
 
 function navClass(isActive: boolean) {
   return isActive ? active : inactive;
@@ -57,10 +57,10 @@ export function PublicAuthLinks() {
       </Link>
       <Link
         href={signUpHref(pathname)}
-        className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+        className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-teal focus-visible:ring-offset-0 focus-visible:ring-offset-brand-cream dark:focus-visible:ring-brand-yellow dark:focus-visible:ring-offset-brand-ink ${
           isSignUp
-            ? "bg-brand-teal text-white dark:bg-brand-yellow dark:text-brand-ink"
-            : "bg-brand-ink text-white hover:bg-brand-teal dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
+            ? "bg-brand-teal text-brand-cream dark:bg-brand-yellow dark:text-brand-ink"
+            : "bg-brand-ink text-brand-cream hover:bg-brand-teal dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
         }`}
       >
         Sign up

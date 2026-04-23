@@ -12,16 +12,28 @@ export async function generateMetadata() {
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-black">
+    <main className="min-h-screen bg-brand-cream dark:bg-brand-ink">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
-        <h1 className="text-3xl font-semibold text-black dark:text-zinc-50">Privacy Policy</h1>
-        <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <h1 className="text-3xl font-semibold text-brand-ink dark:text-brand-yellow">Privacy Policy</h1>
+        <p className="text-brand-ink/85 dark:text-brand-seafoam leading-relaxed">
           We collect only the information required to run your account and improve the product. We do not sell personal data.
         </p>
-        <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          If you need data access or deletion, email <a className="underline" href="mailto:privacy@storyinthemaking.com">privacy@storyinthemaking.com</a>.
+        <p className="text-brand-ink/85 dark:text-brand-seafoam leading-relaxed">
+          If you need data access or deletion, email{" "}
+          <a
+            className="underline text-brand-teal dark:text-brand-yellow hover:text-brand-ink dark:hover:text-brand-seafoam focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-teal focus-visible:ring-offset-0 focus-visible:ring-offset-brand-cream dark:focus-visible:ring-brand-yellow dark:focus-visible:ring-offset-brand-ink"
+            href="mailto:privacy@storyinthemaking.com"
+          >
+            privacy@storyinthemaking.com
+          </a>
+          .
         </p>
-        <Link href="/" className="text-sm underline underline-offset-2 text-zinc-700 dark:text-zinc-300">← Back to home</Link>
+        <Link
+          href="/"
+          className="text-sm underline underline-offset-2 text-brand-teal dark:text-brand-yellow hover:text-brand-ink dark:hover:text-brand-seafoam focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-teal focus-visible:ring-offset-0 focus-visible:ring-offset-brand-cream dark:focus-visible:ring-brand-yellow dark:focus-visible:ring-offset-brand-ink"
+        >
+          ← Back to home
+        </Link>
       </div>
     </main>
   );

@@ -40,3 +40,201 @@ body {
 a {
   transition: color 0.2s ease;
 }
+
+/* Global utility remap so legacy zinc/black/white classes follow brand palette. */
+.bg-black {
+  background-color: var(--brand-ink) !important;
+}
+
+.text-black {
+  color: var(--brand-ink) !important;
+}
+
+.border-black {
+  border-color: var(--brand-ink) !important;
+}
+
+.bg-white {
+  background-color: var(--brand-cream) !important;
+}
+
+.text-white {
+  color: #f7f4ea !important;
+}
+
+.border-white {
+  border-color: #f7f4ea !important;
+}
+
+.bg-zinc-50 {
+  background-color: #f7f4ea !important;
+}
+.bg-zinc-100 {
+  background-color: #eef5f2 !important;
+}
+.bg-zinc-200 {
+  background-color: #dbe9e4 !important;
+}
+.bg-zinc-300 {
+  background-color: #c2d8d1 !important;
+}
+.bg-zinc-700 {
+  background-color: #28515a !important;
+}
+.bg-zinc-800 {
+  background-color: #1f454d !important;
+}
+.bg-zinc-900 {
+  background-color: var(--brand-ink) !important;
+}
+.bg-zinc-950 {
+  background-color: #0f2429 !important;
+}
+
+.text-zinc-50 {
+  color: #f7f4ea !important;
+}
+.text-zinc-100 {
+  color: #ecf5f2 !important;
+}
+.text-zinc-200 {
+  color: #d4e9e3 !important;
+}
+.text-zinc-300 {
+  color: #bad7cf !important;
+}
+.text-zinc-400 {
+  color: #8eb8ad !important;
+}
+.text-zinc-500 {
+  color: #3f6a71 !important;
+}
+.text-zinc-600 {
+  color: #325961 !important;
+}
+.text-zinc-700 {
+  color: #264950 !important;
+}
+.text-zinc-800 {
+  color: #1b3b42 !important;
+}
+.text-zinc-900 {
+  color: var(--brand-ink) !important;
+}
+
+.border-zinc-100 {
+  border-color: #e5efeb !important;
+}
+.border-zinc-200 {
+  border-color: #cfe1db !important;
+}
+.border-zinc-300 {
+  border-color: #b3cec5 !important;
+}
+.border-zinc-700 {
+  border-color: #2c5962 !important;
+}
+.border-zinc-800 {
+  border-color: #234952 !important;
+}
+.border-zinc-900 {
+  border-color: var(--brand-ink) !important;
+}
+
+[class~="hover:bg-zinc-50"]:hover {
+  background-color: #eef5f2 !important;
+}
+[class~="hover:bg-zinc-200"]:hover {
+  background-color: #dbe9e4 !important;
+}
+[class~="hover:bg-zinc-700"]:hover {
+  background-color: #245159 !important;
+}
+[class~="hover:bg-zinc-800"]:hover {
+  background-color: var(--brand-teal) !important;
+}
+[class~="hover:text-zinc-50"]:hover {
+  color: #f7f4ea !important;
+}
+[class~="hover:text-zinc-900"]:hover {
+  color: var(--brand-teal) !important;
+}
+[class~="hover:border-zinc-700"]:hover {
+  border-color: var(--brand-teal) !important;
+}
+
+.dark [class~="dark:bg-black"] {
+  background-color: var(--brand-ink) !important;
+}
+.dark [class~="dark:bg-zinc-50"] {
+  background-color: #f7f4ea !important;
+}
+.dark [class~="dark:bg-zinc-100"] {
+  background-color: #ecf5f2 !important;
+}
+.dark [class~="dark:bg-zinc-200"] {
+  background-color: #d6e8e2 !important;
+}
+.dark [class~="dark:bg-zinc-700"] {
+  background-color: #29535b !important;
+}
+.dark [class~="dark:bg-zinc-800"] {
+  background-color: #1f454d !important;
+}
+.dark [class~="dark:bg-zinc-900"] {
+  background-color: var(--brand-ink) !important;
+}
+.dark [class~="dark:bg-zinc-950"] {
+  background-color: #0f2429 !important;
+}
+
+.dark [class~="dark:text-white"] {
+  color: #f7f4ea !important;
+}
+.dark [class~="dark:text-black"] {
+  color: var(--brand-ink) !important;
+}
+.dark [class~="dark:text-zinc-50"] {
+  color: #f2f8f5 !important;
+}
+.dark [class~="dark:text-zinc-100"] {
+  color: #e5f2ee !important;
+}
+.dark [class~="dark:text-zinc-200"] {
+  color: #cfe4dd !important;
+}
+.dark [class~="dark:text-zinc-300"] {
+  color: #b8d5cc !important;
+}
+.dark [class~="dark:text-zinc-400"] {
+  color: #99bfb4 !important;
+}
+.dark [class~="dark:text-zinc-500"] {
+  color: #7da79d !important;
+}
+
+.dark [class~="dark:border-zinc-700"] {
+  border-color: #2f5a63 !important;
+}
+.dark [class~="dark:border-zinc-800"] {
+  border-color: #28505a !important;
+}
+.dark [class~="dark:border-zinc-900"] {
+  border-color: #214650 !important;
+}
+
+.dark [class~="dark:hover:bg-zinc-200"]:hover {
+  background-color: var(--brand-yellow) !important;
+}
+.dark [class~="dark:hover:bg-zinc-700"]:hover {
+  background-color: var(--brand-teal) !important;
+}
+.dark [class~="dark:hover:bg-zinc-800"]:hover {
+  background-color: #25525b !important;
+}
+.dark [class~="dark:hover:text-zinc-50"]:hover {
+  color: var(--brand-yellow) !important;
+}
+.dark [class~="dark:hover:text-zinc-300"]:hover {
+  color: var(--brand-yellow) !important;
+}

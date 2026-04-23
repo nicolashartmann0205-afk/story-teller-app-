@@ -221,7 +221,7 @@ export default function SignInForm({
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
+            className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/55 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
             placeholder="you@example.com"
           />
         </div>
@@ -243,7 +243,7 @@ export default function SignInForm({
               required={false}
               value={otp}
               onChange={(event) => setOtp(event.target.value)}
-              className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
+              className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/55 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
               placeholder="Enter code when you have it (optional)"
             />
           </div>
@@ -263,14 +263,14 @@ export default function SignInForm({
               type="password"
               autoComplete="current-password"
               required={isPassword}
-              className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
+              className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/55 dark:placeholder-brand-seafoam/50 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal dark:focus:ring-brand-yellow"
               placeholder="••••••••"
             />
           </div>
         )}
 
         {isOtp ? (
-          <p className="text-xs text-brand-ink/60 dark:text-brand-seafoam">
+          <p className="text-xs text-brand-ink/80 dark:text-brand-seafoam">
             Use email code to avoid magic-link expiry from email scanners.
           </p>
         ) : null}
@@ -300,7 +300,7 @@ export default function SignInForm({
             <div className="w-full border-t border-brand-seafoam/40 dark:border-brand-seafoam/30" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white dark:bg-brand-ink px-2 text-brand-ink/60 dark:text-brand-seafoam">Or continue with</span>
+            <span className="bg-white dark:bg-brand-ink px-2 text-brand-ink/80 dark:text-brand-seafoam">Or continue with</span>
           </div>
         </div>
 
@@ -332,7 +332,7 @@ export default function SignInForm({
         <button
           type="button"
           onClick={() => setAuthMethod(isPassword ? "otp" : "password")}
-          className="text-sm text-brand-ink/70 dark:text-brand-seafoam hover:underline"
+          className="text-sm text-brand-ink/85 dark:text-brand-seafoam hover:underline"
         >
           {isPassword ? "Use email code instead" : "Sign in with password instead"}
         </button>
@@ -340,7 +340,7 @@ export default function SignInForm({
         <button
           type="button"
           onClick={() => setAuthMethod(isMagic ? "otp" : "magic")}
-          className="text-sm text-brand-ink/70 dark:text-brand-seafoam hover:underline"
+          className="text-sm text-brand-ink/85 dark:text-brand-seafoam hover:underline"
         >
           {isMagic ? "Use email code instead" : "Use magic link instead"}
         </button>

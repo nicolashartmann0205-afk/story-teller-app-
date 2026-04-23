@@ -120,7 +120,7 @@ export default async function StoriesPage() {
             <h1 className="text-3xl font-bold text-brand-ink dark:text-brand-yellow">
               My Stories
             </h1>
-            <p className="mt-2 text-sm text-brand-ink/70 dark:text-brand-seafoam">
+            <p className="mt-2 text-sm text-brand-ink/85 dark:text-brand-seafoam">
               Welcome back, {user?.email || "User"}
             </p>
           </div>
@@ -149,7 +149,7 @@ export default async function StoriesPage() {
         {/* Empty state - no stories and no error (successful empty response) */}
         {!storiesError && storiesList.length === 0 && (
           <div className="rounded-lg border border-brand-seafoam/30 bg-white dark:bg-brand-ink/80 p-12 text-center">
-            <div className="text-lg text-brand-ink/70 dark:text-brand-seafoam">
+            <div className="text-lg text-brand-ink/85 dark:text-brand-seafoam">
               You haven't created any stories yet. Start writing!
             </div>
             <Link
@@ -177,11 +177,11 @@ export default async function StoriesPage() {
                         {story.title}
                       </h3>
                       {story.description && (
-                        <p className="mt-2 line-clamp-3 text-sm text-brand-ink/70 dark:text-brand-seafoam">
+                        <p className="mt-2 line-clamp-3 text-sm text-brand-ink/85 dark:text-brand-seafoam">
                           {story.description}
                         </p>
                       )}
-                      <p className="mt-4 text-xs text-brand-ink/60 dark:text-brand-seafoam">
+                      <p className="mt-4 text-xs text-brand-ink/80 dark:text-brand-seafoam">
                         {story.createdAt 
                           ? new Date(story.createdAt).toLocaleDateString() 
                           : "Unknown date"}

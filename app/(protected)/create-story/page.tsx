@@ -14,7 +14,7 @@ export default async function CreateStoryPage() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="text-sm text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow"
+            className="text-sm text-brand-ink/85 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow"
           >
             ← Back to Dashboard
           </Link>

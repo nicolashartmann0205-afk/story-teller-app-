@@ -95,7 +95,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article
-      className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8"
+      className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 text-brand-ink dark:text-brand-seafoam"
       contentEditable={false}
       spellCheck={false}
       data-gramm="false"
@@ -107,37 +107,37 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       ) : null}
-      <header className="space-y-4 border-b border-zinc-200 pb-10 dark:border-zinc-800">
-        <p className="text-sm text-zinc-500 dark:text-zinc-500">{formatDate(post.publishedAt)}</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">{post.title}</h1>
-        <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">{post.description}</p>
+      <header className="space-y-4 border-b border-brand-seafoam/35 pb-10">
+        <p className="text-sm text-brand-ink/80 dark:text-brand-seafoam">{formatDate(post.publishedAt)}</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-brand-ink dark:text-brand-yellow">{post.title}</h1>
+        <p className="text-lg leading-relaxed text-brand-ink/85 dark:text-brand-seafoam">{post.description}</p>
       </header>
       <div className="pt-10">
         <PostBody content={post.content} />
       </div>
-      <footer className="mt-16 border-t border-zinc-200 pt-10 dark:border-zinc-800">
+      <footer className="mt-16 border-t border-brand-seafoam/35 pt-10">
         <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link
             href="/blogs"
-            className="font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+            className="font-medium text-brand-teal underline underline-offset-2 hover:text-brand-ink dark:text-brand-yellow dark:hover:text-brand-seafoam"
           >
             ← All posts
           </Link>
           <Link
             href="/"
-            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="text-brand-ink/85 hover:text-brand-teal dark:text-brand-seafoam dark:hover:text-brand-yellow"
           >
             Home
           </Link>
           <Link
             href={withRedirectedFrom(AUTH_ROUTES.SIGN_IN, `/blog/${slug}`)}
-            className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="text-brand-ink/85 underline underline-offset-2 hover:text-brand-teal dark:text-brand-seafoam dark:hover:text-brand-yellow"
           >
             Sign in
           </Link>
           <Link
             href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, `/blog/${slug}`)}
-            className="text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="text-brand-ink/85 underline underline-offset-2 hover:text-brand-teal dark:text-brand-seafoam dark:hover:text-brand-yellow"
           >
             Sign up
           </Link>

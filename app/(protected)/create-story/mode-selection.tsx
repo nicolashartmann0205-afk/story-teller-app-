@@ -52,7 +52,7 @@ export function ModeSelection({ onSelect, onHelp }: ModeSelectionProps) {
       <div className="mt-12 text-center">
         <button
           onClick={onHelp}
-          className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 underline"
+          className="text-sm text-brand-ink/85 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow underline"
         >
           Not sure which mode to choose? Help me decide.
         </button>
@@ -90,38 +90,38 @@ function ModeCard({
       onClick={onClick}
       className={`relative cursor-pointer rounded-2xl border-2 p-8 transition-all h-full flex flex-col ${
         isBlue
-          ? "border-blue-100 hover:border-blue-500 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-900 dark:hover:border-blue-400"
-          : "border-purple-100 hover:border-purple-500 bg-purple-50/30 dark:bg-purple-900/10 dark:border-purple-900 dark:hover:border-purple-400"
+          ? "border-brand-seafoam/40 hover:border-brand-teal bg-brand-cream/70 dark:bg-brand-seafoam/10 dark:border-brand-seafoam/30 dark:hover:border-brand-yellow"
+          : "border-brand-yellow/30 hover:border-brand-orange bg-brand-yellow/10 dark:bg-brand-orange/10 dark:border-brand-orange/30 dark:hover:border-brand-yellow"
       }`}
     >
       <div className="mb-6">
         {badge && (
-          <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 border border-green-200 dark:border-green-800">
+          <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-teal/20 text-brand-teal dark:bg-brand-yellow/20 dark:text-brand-yellow border border-brand-seafoam/40">
             {badge}
           </div>
         )}
         <div className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 ${
           isBlue 
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" 
-            : "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300"
+            ? "bg-brand-seafoam/30 text-brand-teal dark:bg-brand-seafoam/20 dark:text-brand-seafoam" 
+            : "bg-brand-yellow/30 text-brand-orange dark:bg-brand-orange/20 dark:text-brand-yellow"
         }`}>
           {timeEstimate}
         </div>
-        <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+        <h3 className="text-2xl font-bold text-brand-ink dark:text-brand-yellow mb-2">
           {title}
         </h3>
-        <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <p className="text-brand-ink/85 dark:text-brand-seafoam leading-relaxed">
           {description}
         </p>
       </div>
 
       <div className="mt-auto space-y-3">
-        <p className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">Includes:</p>
+        <p className="font-semibold text-sm text-brand-ink dark:text-brand-seafoam">Includes:</p>
         <ul className="space-y-2">
           {features.map((feature, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <li key={idx} className="flex items-start gap-2 text-sm text-brand-ink/85 dark:text-brand-seafoam">
               <svg
-                className={`w-5 h-5 shrink-0 ${isBlue ? "text-blue-500" : "text-purple-500"}`}
+                className={`w-5 h-5 shrink-0 ${isBlue ? "text-brand-teal" : "text-brand-orange"}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -136,8 +136,8 @@ function ModeCard({
       
       <div className={`mt-8 w-full py-3 rounded-lg text-center font-semibold transition-colors ${
         isBlue
-          ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
-          : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-400"
+          ? "bg-brand-ink text-white hover:bg-brand-teal dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
+          : "bg-brand-orange text-white hover:bg-brand-ink dark:bg-brand-yellow dark:text-brand-ink dark:hover:bg-brand-seafoam"
       }`}>
         Select {title}
       </div>
