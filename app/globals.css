@@ -20,6 +20,70 @@
   --color-brand-yellow: var(--brand-yellow);
   --color-brand-seafoam: var(--brand-seafoam);
   --color-brand-cream: var(--brand-cream);
+  /* Hard map default neutral palette to requested 4 colors, including /opacity variants (e.g. bg-white/80). */
+  --color-white: var(--brand-seafoam);
+  --color-black: var(--brand-teal);
+
+  --color-zinc-50: var(--brand-seafoam);
+  --color-zinc-100: var(--brand-yellow);
+  --color-zinc-200: var(--brand-seafoam);
+  --color-zinc-300: var(--brand-yellow);
+  --color-zinc-400: var(--brand-orange);
+  --color-zinc-500: var(--brand-teal);
+  --color-zinc-600: var(--brand-teal);
+  --color-zinc-700: var(--brand-orange);
+  --color-zinc-800: var(--brand-teal);
+  --color-zinc-900: var(--brand-orange);
+  --color-zinc-950: var(--brand-teal);
+
+  --color-gray-50: var(--brand-seafoam);
+  --color-gray-100: var(--brand-yellow);
+  --color-gray-200: var(--brand-seafoam);
+  --color-gray-300: var(--brand-yellow);
+  --color-gray-400: var(--brand-orange);
+  --color-gray-500: var(--brand-teal);
+  --color-gray-600: var(--brand-teal);
+  --color-gray-700: var(--brand-orange);
+  --color-gray-800: var(--brand-teal);
+  --color-gray-900: var(--brand-orange);
+  --color-gray-950: var(--brand-teal);
+
+  --color-neutral-50: var(--brand-seafoam);
+  --color-neutral-100: var(--brand-yellow);
+  --color-neutral-200: var(--brand-seafoam);
+  --color-neutral-300: var(--brand-yellow);
+  --color-neutral-400: var(--brand-orange);
+  --color-neutral-500: var(--brand-teal);
+  --color-neutral-600: var(--brand-teal);
+  --color-neutral-700: var(--brand-orange);
+  --color-neutral-800: var(--brand-teal);
+  --color-neutral-900: var(--brand-orange);
+  --color-neutral-950: var(--brand-teal);
+
+  --color-slate-50: var(--brand-seafoam);
+  --color-slate-100: var(--brand-yellow);
+  --color-slate-200: var(--brand-seafoam);
+  --color-slate-300: var(--brand-yellow);
+  --color-slate-400: var(--brand-orange);
+  --color-slate-500: var(--brand-teal);
+  --color-slate-600: var(--brand-teal);
+  --color-slate-700: var(--brand-orange);
+  --color-slate-800: var(--brand-teal);
+  --color-slate-900: var(--brand-orange);
+  --color-slate-950: var(--brand-teal);
+
+  --color-stone-50: var(--brand-seafoam);
+  --color-stone-100: var(--brand-yellow);
+  --color-stone-200: var(--brand-seafoam);
+  --color-stone-300: var(--brand-yellow);
+  --color-stone-400: var(--brand-orange);
+  --color-stone-500: var(--brand-teal);
+  --color-stone-600: var(--brand-teal);
+  --color-stone-700: var(--brand-orange);
+  --color-stone-800: var(--brand-teal);
+  --color-stone-900: var(--brand-orange);
+  --color-stone-950: var(--brand-teal);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
