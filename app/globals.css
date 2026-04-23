@@ -6,9 +6,9 @@
   --brand-ink: #e4843f;
   --brand-teal: #2f9ea4;
   --brand-orange: #e4843f;
-  --brand-yellow: #f2c24f;
+  --brand-yellow: #c58f9d;
   --brand-seafoam: #7db8ad;
-  --brand-cream: #f2c24f;
+  --brand-cream: #c58f9d;
 }
 
 @theme inline {
@@ -91,7 +91,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #2f9ea4;
-    --foreground: #f2c24f;
+    --foreground: #c58f9d;
   }
 }
 
