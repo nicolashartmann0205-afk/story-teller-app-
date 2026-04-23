@@ -3,12 +3,12 @@
 :root {
   --background: #7db8ad;
   --foreground: #2f9ea4;
-  --brand-ink: #2f9ea4;
+  --brand-ink: #e4843f;
   --brand-teal: #2f9ea4;
   --brand-orange: #e4843f;
   --brand-yellow: #f2c24f;
   --brand-seafoam: #7db8ad;
-  --brand-cream: #7db8ad;
+  --brand-cream: #f2c24f;
 }
 
 @theme inline {
@@ -21,8 +21,8 @@
   --color-brand-seafoam: var(--brand-seafoam);
   --color-brand-cream: var(--brand-cream);
   /* Hard map default neutral palette to requested 4 colors, including /opacity variants (e.g. bg-white/80). */
-  --color-white: var(--brand-seafoam);
-  --color-black: var(--brand-teal);
+  --color-white: var(--brand-yellow);
+  --color-black: var(--brand-orange);
 
   --color-zinc-50: var(--brand-seafoam);
   --color-zinc-100: var(--brand-yellow);
