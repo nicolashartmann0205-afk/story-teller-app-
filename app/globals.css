@@ -1,39 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f6ee;
-  --foreground: #0f2e36;
-  --brand-teal: #2f8f97;
-  --brand-sunshine-yellow: #f2c14e;
-  --brand-terracotta-orange: #e07a3f;
-  --brand-seafoam-green: #63b7a8;
-  --brand-surface: #fffdf6;
-  --brand-border: #d9d7cf;
+  --background: #f7f4ea;
+  --foreground: #12343b;
+  --brand-ink: #12343b;
+  --brand-teal: #2f9ea4;
+  --brand-orange: #e4843f;
+  --brand-yellow: #f2c24f;
+  --brand-seafoam: #7db8ad;
+  --brand-cream: #f7f4ea;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-ink: var(--brand-ink);
   --color-brand-teal: var(--brand-teal);
-  --color-brand-sunshine-yellow: var(--brand-sunshine-yellow);
-  --color-brand-terracotta-orange: var(--brand-terracotta-orange);
-  --color-brand-seafoam-green: var(--brand-seafoam-green);
-  --color-brand-surface: var(--brand-surface);
-  --color-brand-border: var(--brand-border);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-seafoam: var(--brand-seafoam);
+  --color-brand-cream: var(--brand-cream);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d1f25;
-    --foreground: #e9f3ef;
-    --brand-teal: #63b7a8;
-    --brand-sunshine-yellow: #f2c14e;
-    --brand-terracotta-orange: #f09a64;
-    --brand-seafoam-green: #79cabb;
-    --brand-surface: #132e36;
-    --brand-border: #31545c;
+    --background: #0f1d21;
+    --foreground: #ecf5f2;
   }
 }
 
@@ -44,90 +38,5 @@ body {
 }
 
 a {
-  color: var(--brand-teal);
-}
-
-a:hover {
-  color: var(--brand-terracotta-orange);
-}
-
-/* ------------------------------------------------------------------
-   Brand skin layer: remap common zinc utility colors to brand tokens.
-   This gives broad visual coverage across existing protected pages
-   without rewriting every component class by class.
-------------------------------------------------------------------- */
-.bg-white {
-  background-color: var(--brand-surface) !important;
-}
-
-.bg-zinc-50 {
-  background-color: color-mix(in oklab, var(--background) 90%, white) !important;
-}
-
-.bg-zinc-100 {
-  background-color: color-mix(in oklab, var(--brand-surface) 88%, var(--brand-sunshine-yellow) 12%) !important;
-}
-
-.text-zinc-900,
-.text-zinc-800 {
-  color: var(--foreground) !important;
-}
-
-.text-zinc-700 {
-  color: color-mix(in oklab, var(--foreground) 82%, var(--brand-teal) 18%) !important;
-}
-
-.text-zinc-600,
-.text-zinc-500 {
-  color: color-mix(in oklab, var(--foreground) 65%, var(--brand-teal) 35%) !important;
-}
-
-.border-zinc-200,
-.border-zinc-300 {
-  border-color: var(--brand-border) !important;
-}
-
-.bg-black {
-  background-color: var(--brand-teal) !important;
-}
-
-.hover\:bg-zinc-50:hover {
-  background-color: color-mix(in oklab, var(--brand-sunshine-yellow) 18%, var(--brand-surface) 82%) !important;
-}
-
-.hover\:bg-zinc-800:hover {
-  background-color: var(--brand-seafoam-green) !important;
-}
-
-.hover\:text-zinc-900:hover,
-.hover\:text-zinc-950:hover {
-  color: var(--brand-terracotta-orange) !important;
-}
-
-.dark .dark\:bg-zinc-950,
-.dark .dark\:bg-zinc-900,
-.dark .dark\:bg-zinc-900\/50,
-.dark .dark\:bg-zinc-900\/20 {
-  background-color: var(--brand-surface) !important;
-}
-
-.dark .dark\:text-zinc-50,
-.dark .dark\:text-zinc-100 {
-  color: var(--foreground) !important;
-}
-
-.dark .dark\:text-zinc-300,
-.dark .dark\:text-zinc-400,
-.dark .dark\:text-zinc-500 {
-  color: color-mix(in oklab, var(--foreground) 72%, var(--brand-seafoam-green) 28%) !important;
-}
-
-.dark .dark\:border-zinc-800,
-.dark .dark\:border-zinc-700 {
-  border-color: var(--brand-border) !important;
-}
-
-.dark .dark\:hover\:bg-zinc-800:hover,
-.dark .dark\:hover\:bg-zinc-900:hover {
-  background-color: color-mix(in oklab, var(--brand-surface) 80%, var(--brand-seafoam-green) 20%) !important;
+  transition: color 0.2s ease;
 }

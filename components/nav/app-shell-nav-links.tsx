@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { BLOG_ADMIN_BASE_PATH } from "@/lib/blog/admin";
 
 const inactive =
-  "text-sm text-brand-teal/80 hover:text-brand-terracotta-orange transition-colors";
+  "text-sm text-brand-ink/70 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow transition-colors";
 const active =
-  "text-sm font-semibold text-brand-terracotta-orange hover:underline transition-colors";
+  "text-sm font-semibold text-brand-ink dark:text-brand-yellow hover:underline transition-colors";
 const SEO_ADMIN_PATH = "/seo-admin";
 const FEEDBACK_ADMIN_PATH = "/admin/feedback";
 

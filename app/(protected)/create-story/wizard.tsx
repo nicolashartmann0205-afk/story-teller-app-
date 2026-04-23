@@ -159,7 +159,7 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
     <>
       {step === "mode" && (
         <div>
-           <h2 className="text-xl font-semibold text-black dark:text-zinc-50 mb-6">
+           <h2 className="text-xl font-semibold text-brand-ink dark:text-brand-yellow mb-6">
             Choose your storytelling mode
           </h2>
           <ModeSelection 
@@ -180,10 +180,10 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
       {step === "category" && (
         <div>
            <div className="flex items-center gap-4 mb-6">
-            <button onClick={handleBackToMode} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+            <button onClick={handleBackToMode} className="text-sm text-brand-ink/60 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow">
               ← Back to Mode
             </button>
-            <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+            <h2 className="text-xl font-semibold text-brand-ink dark:text-brand-yellow">
             What kind of story do you want to tell?
           </h2>
           </div>
@@ -203,10 +203,10 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
       {step === "archetype-selection" && (
         <div className="space-y-6">
           <div className="flex items-center gap-4 mb-6">
-            <button onClick={handleBackToType} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+            <button onClick={handleBackToType} className="text-sm text-brand-ink/60 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow">
               ← Back to Story Type
             </button>
-            <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+            <h2 className="text-xl font-semibold text-brand-ink dark:text-brand-yellow">
               Choose your Character Archetype
             </h2>
           </div>
@@ -225,7 +225,7 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
             <div className="space-y-4">
               <button 
                 onClick={() => setShowArchetypeGrid(false)}
-                className="text-sm text-purple-600 hover:underline"
+                className="text-sm text-brand-teal dark:text-brand-yellow hover:underline"
               >
                 ← Back to AI Suggestion
               </button>
@@ -242,12 +242,12 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
       {step === "archetype-combination" && selectedArchetype && (
         <div className="space-y-6">
            <div className="flex items-center justify-between mb-6">
-            <button onClick={handleBackToArchetypeSelection} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+            <button onClick={handleBackToArchetypeSelection} className="text-sm text-brand-ink/60 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow">
               ← Back to Archetype
             </button>
             <button 
               onClick={handleCombinationNext}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-ink dark:bg-brand-yellow text-white dark:text-brand-ink rounded-lg text-sm font-medium hover:bg-brand-teal dark:hover:bg-brand-seafoam"
             >
               Next Step <ChevronRight className="w-4 h-4" />
             </button>
@@ -263,12 +263,12 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
       {step === "archetype-flaws" && selectedArchetype && (
         <div className="space-y-6">
            <div className="flex items-center justify-between mb-6">
-            <button onClick={handleBackToCombination} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+            <button onClick={handleBackToCombination} className="text-sm text-brand-ink/60 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow">
               ← Back to Combination
             </button>
             <button 
               onClick={handleFlawsNext}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-ink dark:bg-brand-yellow text-white dark:text-brand-ink rounded-lg text-sm font-medium hover:bg-brand-teal dark:hover:bg-brand-seafoam"
             >
               Next Step <ChevronRight className="w-4 h-4" />
             </button>
@@ -284,12 +284,12 @@ export default function CreateStoryWizard({ styleGuides = [] }: CreateStoryWizar
       {step === "archetype-journey" && selectedArchetype && (
         <div className="space-y-6">
            <div className="flex items-center justify-between mb-6">
-            <button onClick={handleBackToFlaws} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
+            <button onClick={handleBackToFlaws} className="text-sm text-brand-ink/60 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow">
               ← Back to Flaws
             </button>
             <button 
               onClick={handleJourneyNext}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-ink dark:bg-brand-yellow text-white dark:text-brand-ink rounded-lg text-sm font-medium hover:bg-brand-teal dark:hover:bg-brand-seafoam"
             >
               Next Step <ChevronRight className="w-4 h-4" />
             </button>

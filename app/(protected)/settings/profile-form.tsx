@@ -28,7 +28,7 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="email" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
           Email
         </label>
         <div className="mt-1">
@@ -37,15 +37,15 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
             name="email"
             id="email"
             disabled
-            className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-3 py-2 text-zinc-500 dark:text-zinc-400 cursor-not-allowed"
+            className="block w-full rounded-md border border-brand-seafoam/40 bg-brand-cream/70 dark:bg-brand-ink/70 px-3 py-2 text-brand-ink/60 dark:text-brand-seafoam cursor-not-allowed"
             defaultValue={user.email}
           />
         </div>
-        <p className="mt-1 text-xs text-zinc-500">Email cannot be changed here.</p>
+        <p className="mt-1 text-xs text-brand-ink/60 dark:text-brand-seafoam">Email cannot be changed here.</p>
       </div>
 
       <div>
-        <label htmlFor="displayName" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="displayName" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
           Display Name
         </label>
         <div className="mt-1">
@@ -53,7 +53,7 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
             type="text"
             name="displayName"
             id="displayName"
-            className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal"
             defaultValue={profile?.displayName || ""}
             placeholder="Your Name"
           />
@@ -61,7 +61,7 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
       </div>
 
       <div>
-        <label htmlFor="bio" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="bio" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
           Bio
         </label>
         <div className="mt-1">
@@ -69,7 +69,7 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
             id="bio"
             name="bio"
             rows={3}
-            className="block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 placeholder-zinc-400 focus:border-zinc-500 dark:focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className="block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam placeholder-brand-ink/40 focus:border-brand-teal dark:focus:border-brand-yellow focus:outline-none focus:ring-1 focus:ring-brand-teal"
             defaultValue={profile?.bio || ""}
             placeholder="Tell us a bit about yourself..."
           />
@@ -80,7 +80,7 @@ export default function ProfileForm({ user, profile, updateProfileAction }: Prof
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-md border border-transparent bg-black dark:bg-zinc-50 py-2 px-4 text-sm font-medium text-white dark:text-black shadow-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 disabled:opacity-50"
+          className="inline-flex justify-center rounded-md border border-transparent bg-brand-ink dark:bg-brand-yellow py-2 px-4 text-sm font-medium text-white dark:text-brand-ink shadow-sm hover:bg-brand-teal dark:hover:bg-brand-seafoam focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2 disabled:opacity-50"
         >
           {isPending ? "Saving..." : "Save Changes"}
         </button>

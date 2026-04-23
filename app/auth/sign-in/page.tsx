@@ -203,8 +203,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-zinc-900 p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-brand-cream dark:bg-brand-ink px-4">
+      <div className="w-full max-w-md space-y-8 rounded-lg border border-brand-seafoam/30 bg-white/95 dark:bg-brand-ink/85 p-8 shadow-lg">
         {authDebugEnabled ? (
           <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
             <p className="font-semibold">AUTH DEBUG</p>
@@ -227,14 +227,14 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           </div>
         )}
         <div>
-          <h2 className="text-3xl font-bold text-center text-black dark:text-zinc-50">
+          <h2 className="text-3xl font-bold text-center text-brand-ink dark:text-brand-yellow">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-2 text-center text-sm text-brand-ink/70 dark:text-brand-seafoam">
             Or{" "}
             <Link
               href={withRedirectedFrom(AUTH_ROUTES.SIGN_UP, redirectedFrom)}
-              className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
+              className="font-medium text-brand-teal dark:text-brand-yellow hover:underline"
             >
               create a new account
             </Link>

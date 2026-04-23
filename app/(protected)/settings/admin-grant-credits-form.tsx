@@ -30,7 +30,7 @@ export default function AdminGrantCreditsForm({
       ) : null}
 
       <div>
-        <label htmlFor="targetUserId" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="targetUserId" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
           Target user ID
         </label>
         <input
@@ -39,13 +39,13 @@ export default function AdminGrantCreditsForm({
           type="text"
           required
           placeholder="UUID from auth.users"
-          className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+          className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="amount" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
             Amount
           </label>
           <input
@@ -56,12 +56,12 @@ export default function AdminGrantCreditsForm({
             step={1}
             defaultValue={20}
             required
-            className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
           />
         </div>
 
         <div>
-          <label htmlFor="reason" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="reason" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
             Reason
           </label>
           <input
@@ -69,7 +69,7 @@ export default function AdminGrantCreditsForm({
             name="reason"
             type="text"
             defaultValue="admin_grant"
-            className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-black dark:text-zinc-50 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
           />
         </div>
       </div>
@@ -78,7 +78,7 @@ export default function AdminGrantCreditsForm({
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-md border border-transparent bg-black dark:bg-zinc-50 py-2 px-4 text-sm font-medium text-white dark:text-black shadow-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50"
+          className="inline-flex justify-center rounded-md border border-transparent bg-brand-ink dark:bg-brand-yellow py-2 px-4 text-sm font-medium text-white dark:text-brand-ink shadow-sm hover:bg-brand-teal dark:hover:bg-brand-seafoam disabled:opacity-50"
         >
           {isPending ? "Granting..." : "Grant credits"}
         </button>

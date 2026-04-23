@@ -50,7 +50,7 @@ export function StyleGuideSelector({ styleGuides }: StyleGuideSelectorProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-black dark:bg-zinc-50 px-4 py-2.5 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm whitespace-nowrap"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-teal px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-ink transition-colors shadow-sm whitespace-nowrap dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
       >
         <Palette className="h-4 w-4" />
         Choose Style Guide
@@ -58,9 +58,9 @@ export function StyleGuideSelector({ styleGuides }: StyleGuideSelectorProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-zinc-900 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 border border-zinc-200 dark:border-zinc-800">
+        <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-brand-ink shadow-lg ring-1 ring-brand-seafoam/40 focus:outline-none z-50 border border-brand-seafoam/40 dark:border-brand-seafoam/30">
           <div className="py-1">
-            <div className="px-3 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            <div className="px-3 py-2 text-xs font-semibold text-brand-ink/60 dark:text-brand-seafoam uppercase tracking-wider">
               Select Guide
             </div>
             
@@ -69,21 +69,21 @@ export function StyleGuideSelector({ styleGuides }: StyleGuideSelectorProps) {
                 <button
                   key={guide.id}
                   onClick={() => handleSelect(guide.id)}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left"
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-brand-ink dark:text-brand-seafoam hover:bg-brand-cream dark:hover:bg-brand-seafoam/10 text-left"
                 >
-                  <BookOpen className="h-4 w-4 text-zinc-400" />
+                  <BookOpen className="h-4 w-4 text-brand-teal" />
                   <span className="truncate">{guide.name}</span>
                 </button>
               ))
             ) : (
-              <div className="px-4 py-2 text-sm text-zinc-500 italic">No guides found</div>
+              <div className="px-4 py-2 text-sm text-brand-ink/60 dark:text-brand-seafoam italic">No guides found</div>
             )}
 
-            <div className="border-t border-zinc-100 dark:border-zinc-800 my-1"></div>
+            <div className="border-t border-brand-seafoam/30 my-1"></div>
 
             <Link
               href="/style-guide"
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-brand-orange dark:text-brand-yellow hover:bg-brand-cream dark:hover:bg-brand-seafoam/10"
               onClick={() => setIsOpen(false)}
             >
               <Plus className="h-4 w-4" />

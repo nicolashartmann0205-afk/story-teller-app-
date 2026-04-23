@@ -113,20 +113,20 @@ export default async function StoriesPage() {
 
   // Render the page with proper error handling
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+    <div className="min-h-screen bg-brand-cream dark:bg-brand-ink">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-black dark:text-zinc-50">
+            <h1 className="text-3xl font-bold text-brand-ink dark:text-brand-yellow">
               My Stories
             </h1>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-sm text-brand-ink/70 dark:text-brand-seafoam">
               Welcome back, {user?.email || "User"}
             </p>
           </div>
           <Link
             href="/create-story"
-            className="rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
+            className="rounded-md bg-brand-ink dark:bg-brand-yellow px-4 py-2 text-sm font-medium text-white dark:text-brand-ink hover:bg-brand-teal dark:hover:bg-brand-seafoam"
           >
             Create Story
           </Link>
@@ -148,13 +148,13 @@ export default async function StoriesPage() {
 
         {/* Empty state - no stories and no error (successful empty response) */}
         {!storiesError && storiesList.length === 0 && (
-          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-12 text-center">
-            <div className="text-lg text-zinc-600 dark:text-zinc-400">
+          <div className="rounded-lg border border-brand-seafoam/30 bg-white dark:bg-brand-ink/80 p-12 text-center">
+            <div className="text-lg text-brand-ink/70 dark:text-brand-seafoam">
               You haven't created any stories yet. Start writing!
             </div>
             <Link
               href="/create-story"
-              className="mt-6 inline-block rounded-md bg-black dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
+              className="mt-6 inline-block rounded-md bg-brand-ink dark:bg-brand-yellow px-4 py-2 text-sm font-medium text-white dark:text-brand-ink hover:bg-brand-teal dark:hover:bg-brand-seafoam"
             >
               Create your first story
             </Link>
@@ -169,29 +169,29 @@ export default async function StoriesPage() {
               .map((story: { id: string; title: string; description: string | null; createdAt: Date | string }) => (
                 <div
                   key={story.id}
-                  className="group rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 hover:shadow-lg transition-shadow flex flex-col"
+                  className="group rounded-lg border border-brand-seafoam/30 bg-white dark:bg-brand-ink/80 p-6 hover:shadow-lg transition-shadow flex flex-col"
                 >
                   <Link href={`/stories/${story.id}`} className="flex-1 block">
                     <div>
-                      <h3 className="text-xl font-semibold text-black dark:text-zinc-50 group-hover:underline">
+                      <h3 className="text-xl font-semibold text-brand-ink dark:text-brand-yellow group-hover:underline">
                         {story.title}
                       </h3>
                       {story.description && (
-                        <p className="mt-2 line-clamp-3 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p className="mt-2 line-clamp-3 text-sm text-brand-ink/70 dark:text-brand-seafoam">
                           {story.description}
                         </p>
                       )}
-                      <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-500">
+                      <p className="mt-4 text-xs text-brand-ink/60 dark:text-brand-seafoam">
                         {story.createdAt 
                           ? new Date(story.createdAt).toLocaleDateString() 
                           : "Unknown date"}
                       </p>
                     </div>
                   </Link>
-                  <div className="mt-4 flex gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                  <div className="mt-4 flex gap-2 pt-4 border-t border-brand-seafoam/30">
                     <Link
                       href={`/stories/${story.id}/edit`}
-                      className="flex-1 rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                      className="flex-1 rounded-md border border-brand-seafoam/50 px-3 py-2 text-center text-sm font-medium text-brand-ink dark:text-brand-seafoam hover:bg-brand-cream dark:hover:bg-brand-seafoam/15"
                     >
                       Edit
                     </Link>

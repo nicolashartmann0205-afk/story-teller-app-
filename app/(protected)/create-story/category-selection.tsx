@@ -37,28 +37,28 @@ export function CategorySelection({ onSelect }: CategorySelectionProps) {
                 focus:outline-none focus:ring-4 
                 ${
                   category.color === "blue"
-                    ? "border-blue-100 bg-blue-50 hover:border-blue-400 focus:ring-blue-100 dark:border-blue-900/30 dark:bg-blue-900/20 dark:hover:border-blue-700"
+                    ? "border-brand-seafoam/40 bg-brand-cream hover:border-brand-teal focus:ring-brand-seafoam/40 dark:border-brand-seafoam/30 dark:bg-brand-seafoam/10 dark:hover:border-brand-yellow"
                     : category.color === "orange"
-                    ? "border-orange-100 bg-orange-50 hover:border-orange-400 focus:ring-orange-100 dark:border-orange-900/30 dark:bg-orange-900/20 dark:hover:border-orange-700"
+                    ? "border-brand-orange/40 bg-brand-yellow/10 hover:border-brand-orange focus:ring-brand-yellow/40 dark:border-brand-orange/30 dark:bg-brand-orange/10 dark:hover:border-brand-yellow"
                     : category.color === "purple"
-                    ? "border-purple-100 bg-purple-50 hover:border-purple-400 focus:ring-purple-100 dark:border-purple-900/30 dark:bg-purple-900/20 dark:hover:border-purple-700"
+                    ? "border-brand-teal/40 bg-brand-seafoam/15 hover:border-brand-teal focus:ring-brand-seafoam/40 dark:border-brand-seafoam/30 dark:bg-brand-teal/10 dark:hover:border-brand-yellow"
                     : category.color === "green"
-                    ? "border-green-100 bg-green-50 hover:border-green-400 focus:ring-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:hover:border-green-700"
+                    ? "border-brand-seafoam/50 bg-brand-seafoam/20 hover:border-brand-teal focus:ring-brand-seafoam/40 dark:border-brand-seafoam/30 dark:bg-brand-seafoam/10 dark:hover:border-brand-yellow"
                     : category.color === "yellow"
-                    ? "border-yellow-100 bg-yellow-50 hover:border-yellow-400 focus:ring-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:hover:border-yellow-700"
-                    : "border-zinc-100 bg-zinc-50 hover:border-zinc-400 focus:ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/30 dark:hover:border-zinc-700"
+                    ? "border-brand-yellow/50 bg-brand-yellow/20 hover:border-brand-orange focus:ring-brand-yellow/50 dark:border-brand-yellow/30 dark:bg-brand-yellow/10 dark:hover:border-brand-seafoam"
+                    : "border-brand-seafoam/30 bg-brand-cream hover:border-brand-teal focus:ring-brand-seafoam/40 dark:border-brand-seafoam/30 dark:bg-brand-ink/40 dark:hover:border-brand-yellow"
                 }
               `}
             >
               <div className="text-4xl mb-4">{category.icon}</div>
-              <h3 className="text-xl font-bold text-black dark:text-zinc-50 mb-2">
+              <h3 className="text-xl font-bold text-brand-ink dark:text-brand-yellow mb-2">
                 {category.name}
               </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+              <p className="text-sm text-brand-ink/85 dark:text-brand-seafoam mb-4">
                 {category.description}
               </p>
               {category.types.length > 0 && (
-                <div className="mt-auto flex items-center text-xs font-medium text-zinc-500 dark:text-zinc-500">
+                <div className="mt-auto flex items-center text-xs font-medium text-brand-ink/80 dark:text-brand-seafoam">
                   <span>{category.types.length} story types</span>
                 </div>
               )}
@@ -66,26 +66,26 @@ export function CategorySelection({ onSelect }: CategorySelectionProps) {
           ))}
         </div>
       ) : (
-        <div className="max-w-2xl mx-auto bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8">
+        <div className="max-w-2xl mx-auto bg-white dark:bg-brand-ink/80 rounded-2xl border border-brand-seafoam/30 p-8">
           <div className="flex items-center gap-4 mb-6">
             <button 
               onClick={() => setShowCustomForm(false)}
-              className="text-sm text-zinc-500 hover:text-black dark:hover:text-white"
+              className="text-sm text-brand-ink/80 dark:text-brand-seafoam hover:text-brand-teal dark:hover:text-brand-yellow"
             >
               ← Back
             </button>
-            <h2 className="text-2xl font-bold text-black dark:text-white">Define Custom Story</h2>
+            <h2 className="text-2xl font-bold text-brand-ink dark:text-brand-yellow">Define Custom Story</h2>
           </div>
           
           <form onSubmit={handleCustomSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2">
                 Describe your story type in a few words
               </label>
               <input
                 type="text"
                 required
-                className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                className="w-full rounded-lg border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-transparent px-4 py-2 text-brand-ink dark:text-brand-seafoam focus:outline-none focus:ring-2 focus:ring-brand-teal dark:focus:ring-brand-yellow"
                 placeholder="e.g., Interactive mystery game script"
                 value={customDescription}
                 onChange={(e) => setCustomDescription(e.target.value)}
@@ -93,13 +93,13 @@ export function CategorySelection({ onSelect }: CategorySelectionProps) {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam mb-2">
                 What's the main goal of this story?
               </label>
               <textarea
                 required
                 rows={3}
-                className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                className="w-full rounded-lg border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-transparent px-4 py-2 text-brand-ink dark:text-brand-seafoam focus:outline-none focus:ring-2 focus:ring-brand-teal dark:focus:ring-brand-yellow"
                 placeholder="e.g., To engage players in solving a crime..."
                 value={customGoal}
                 onChange={(e) => setCustomGoal(e.target.value)}
@@ -109,7 +109,7 @@ export function CategorySelection({ onSelect }: CategorySelectionProps) {
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full rounded-lg bg-black dark:bg-zinc-50 px-6 py-3 text-sm font-bold text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all"
+                className="w-full rounded-lg bg-brand-ink dark:bg-brand-yellow px-6 py-3 text-sm font-bold text-white dark:text-brand-ink hover:bg-brand-teal dark:hover:bg-brand-seafoam transition-all"
               >
                 Create Custom Story
               </button>

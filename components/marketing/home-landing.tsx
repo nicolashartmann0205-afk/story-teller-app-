@@ -49,24 +49,24 @@ export function HomeLanding() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-        <article className="space-y-14 text-foreground">
+        <article className="space-y-14 text-zinc-800 dark:text-zinc-200">
           <header className="space-y-4 text-center sm:text-left">
-            <h1 className="text-3xl font-semibold tracking-tight text-brand-teal sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50 sm:text-4xl">
               Story Teller — the tell your story app for structure, scenes, and finishing
             </h1>
-            <p className="text-lg leading-relaxed text-brand-teal/80">
+            <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
               Plan, draft, and refine in one storytelling app. If you want a tell your story app that respects plot, pacing, and voice—not just a blank document—you are in the right place.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <Link
                 href={AUTH_ROUTES.SIGN_UP}
-                className="inline-flex h-12 items-center justify-center rounded-full bg-brand-teal px-6 text-sm font-medium text-white transition-colors hover:bg-brand-seafoam-green"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-200"
               >
                 Sign up free
               </Link>
               <Link
                 href={AUTH_ROUTES.SIGN_IN}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-brand-border bg-brand-surface px-6 text-sm font-medium text-brand-teal transition-colors hover:bg-brand-sunshine-yellow/25"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-900"
               >
                 Sign in
               </Link>
