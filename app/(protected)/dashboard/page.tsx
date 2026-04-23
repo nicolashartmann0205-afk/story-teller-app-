@@ -109,7 +109,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       )}
       {/* Header Section */}
-      <div className="border-b border-brand-seafoam/40 bg-gradient-to-r from-brand-cream via-brand-seafoam/25 to-brand-yellow/20 dark:bg-brand-ink/80">
+      <div className="bg-white/80 dark:bg-brand-ink/80 border-b border-brand-seafoam/40">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -123,7 +123,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="flex flex-col items-end gap-3 w-full md:w-auto">
               <Link
                 href="/create-story"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-teal px-4 py-2.5 text-sm font-medium text-brand-cream transition-colors shadow-sm hover:bg-brand-orange dark:bg-brand-yellow dark:text-brand-ink dark:hover:bg-brand-seafoam"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-brand-ink dark:bg-brand-yellow px-4 py-2.5 text-sm font-medium text-white dark:text-brand-ink hover:bg-brand-teal dark:hover:bg-brand-seafoam transition-colors shadow-sm w-full"
               >
                 <Plus className="h-4 w-4" />
                 New Story
@@ -139,8 +139,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-center gap-4 rounded-xl border border-brand-teal/35 bg-white p-6 shadow-sm dark:bg-brand-ink/80">
-            <div className="rounded-full bg-brand-teal/20 p-3 text-brand-teal dark:text-brand-yellow">
+          <div className="bg-white dark:bg-brand-ink/80 rounded-xl p-6 shadow-sm border border-brand-seafoam/30 flex items-center gap-4">
+            <div className="p-3 rounded-full bg-brand-seafoam/25 text-brand-teal dark:text-brand-yellow">
               <BookOpen className="h-6 w-6" />
             </div>
             <div>
@@ -149,8 +149,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-brand-orange/35 bg-white p-6 shadow-sm dark:bg-brand-ink/80">
-            <div className="rounded-full bg-brand-orange/20 p-3 text-brand-orange dark:text-brand-yellow">
+          <div className="bg-white dark:bg-brand-ink/80 rounded-xl p-6 shadow-sm border border-brand-seafoam/30 flex items-center gap-4">
+            <div className="p-3 rounded-full bg-brand-yellow/25 text-brand-orange dark:text-brand-yellow">
               <PenTool className="h-6 w-6" />
             </div>
             <div>
@@ -159,8 +159,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-brand-seafoam/45 bg-white p-6 shadow-sm dark:bg-brand-ink/80">
-            <div className="rounded-full bg-brand-seafoam/25 p-3 text-brand-teal dark:text-brand-seafoam">
+          <div className="bg-white dark:bg-brand-ink/80 rounded-xl p-6 shadow-sm border border-brand-seafoam/30 flex items-center gap-4">
+            <div className="p-3 rounded-full bg-brand-teal/20 text-brand-teal dark:text-brand-seafoam">
               <TrendingUp className="h-6 w-6" />
             </div>
             <div>
@@ -186,13 +186,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           {recentStories.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentStories.map((story) => (
-                <div
+                <div 
                   key={story.id} 
-                  className="group flex h-full flex-col overflow-hidden rounded-xl border border-brand-seafoam/30 bg-white transition-shadow hover:shadow-md dark:bg-brand-ink/80"
+                  className="group bg-white dark:bg-brand-ink/80 rounded-xl border border-brand-seafoam/30 overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
                 >
                   <div className="p-6 flex-1">
                     <div className="flex items-start justify-between mb-2">
-                      <div className="inline-flex items-center rounded-full border border-brand-orange/40 bg-brand-orange/10 px-2.5 py-0.5 text-xs font-semibold text-brand-orange dark:border-brand-yellow/40 dark:bg-brand-yellow/10 dark:text-brand-yellow">
+                      <div className="inline-flex items-center rounded-full border border-brand-seafoam/40 px-2.5 py-0.5 text-xs font-semibold text-brand-ink dark:text-brand-seafoam">
                         {story.mode === 'quick' ? 'Quick Mode' : 'Comprehensive'}
                       </div>
                       <span className="text-xs text-brand-ink/80 dark:text-brand-seafoam flex items-center gap-1">
@@ -210,10 +210,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </p>
                   </div>
                   
-                  <div className="mt-auto border-t border-brand-seafoam/30 bg-brand-cream/60 px-6 py-4 dark:bg-brand-ink/60">
+                  <div className="px-6 py-4 bg-brand-cream/60 dark:bg-brand-ink/60 border-t border-brand-seafoam/30 mt-auto">
                     <Link
                       href={`/stories/${story.id}`}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-brand-teal/40 bg-brand-teal/10 px-4 py-2 text-sm font-medium text-brand-ink transition-colors hover:bg-brand-teal/20 dark:border-brand-seafoam/40 dark:bg-brand-seafoam/15 dark:text-brand-seafoam dark:hover:bg-brand-seafoam/25"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-white dark:bg-brand-ink border border-brand-seafoam/50 px-4 py-2 text-sm font-medium text-brand-ink dark:text-brand-seafoam hover:bg-brand-cream dark:hover:bg-brand-seafoam/15 transition-colors"
                     >
                       Continue Writing
                     </Link>
@@ -233,7 +233,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <div className="mt-6">
                 <Link
                   href="/create-story"
-                  className="inline-flex items-center rounded-md bg-brand-teal px-3 py-2 text-sm font-semibold text-brand-cream shadow-sm hover:bg-brand-orange focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal dark:bg-brand-yellow dark:text-brand-ink dark:hover:bg-brand-seafoam"
+                  className="inline-flex items-center rounded-md bg-brand-ink dark:bg-brand-yellow px-3 py-2 text-sm font-semibold text-white dark:text-brand-ink shadow-sm hover:bg-brand-teal dark:hover:bg-brand-seafoam focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
                 >
                   <Plus className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
                   Create Story

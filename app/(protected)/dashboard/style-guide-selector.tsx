@@ -50,7 +50,7 @@ export function StyleGuideSelector({ styleGuides }: StyleGuideSelectorProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-yellow px-4 py-2.5 text-sm font-medium text-brand-ink shadow-sm transition-colors whitespace-nowrap hover:bg-brand-orange hover:text-brand-cream dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-teal px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-ink transition-colors shadow-sm whitespace-nowrap dark:bg-brand-seafoam dark:text-brand-ink dark:hover:bg-brand-yellow"
       >
         <Palette className="h-4 w-4" />
         Choose Style Guide
