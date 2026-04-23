@@ -14,7 +14,16 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const creditBalance = user ? await getUserCreditBalance(user.id) : null;
+  let creditBalance: number | null = null;
+  if (user) {
+    try {
+      creditBalance = await getUserCreditBalance(user.id);
+    } catch (error) {
+      // Do not block authenticated pages if credits tables are unavailable in an environment.
+      console.error("Unable to load user credit balance for header.", error);
+      creditBalance = null;
+    }
+  }
   const canSeeBlogAdmin = isBlogAdminUser(user?.id, user?.email);
   const canSeeSeoAdmin = (user?.email || "").trim().toLowerCase() === "nicolas@hartmanns.net";
 
