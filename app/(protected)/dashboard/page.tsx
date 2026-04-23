@@ -88,7 +88,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   else greeting = "Good evening";
 
   return (
-    <div className="min-h-screen bg-brand-teal dark:bg-brand-teal pb-12">
+    <div className="min-h-screen bg-brand-seafoam dark:bg-brand-seafoam pb-12">
       {blogAdminAccessDenied && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/40">
           <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">

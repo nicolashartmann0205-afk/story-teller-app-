@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #2f9ea4;
+  --background: #7db8ad;
   --foreground: #e4843f;
   --brand-ink: #e4843f;
   --brand-teal: #2f9ea4;
   --brand-orange: #e4843f;
   --brand-yellow: #c58f9d;
   --brand-seafoam: #7db8ad;
-  --brand-cream: #7db8ad;
+  --brand-cream: #c58f9d;
 }
 
 @theme inline {
@@ -21,11 +21,11 @@
   --color-brand-seafoam: var(--brand-seafoam);
   --color-brand-cream: var(--brand-cream);
   /* Hard map default neutral palette to requested 4 colors, including /opacity variants (e.g. bg-white/80). */
-  --color-white: var(--brand-seafoam);
+  --color-white: var(--brand-yellow);
   --color-black: var(--brand-orange);
 
   --color-zinc-50: var(--brand-seafoam);
-  --color-zinc-100: var(--brand-seafoam);
+  --color-zinc-100: var(--brand-yellow);
   --color-zinc-200: var(--brand-seafoam);
   --color-zinc-300: var(--brand-yellow);
   --color-zinc-400: var(--brand-orange);
@@ -37,7 +37,7 @@
   --color-zinc-950: var(--brand-teal);
 
   --color-gray-50: var(--brand-seafoam);
-  --color-gray-100: var(--brand-seafoam);
+  --color-gray-100: var(--brand-yellow);
   --color-gray-200: var(--brand-seafoam);
   --color-gray-300: var(--brand-yellow);
   --color-gray-400: var(--brand-orange);
@@ -49,7 +49,7 @@
   --color-gray-950: var(--brand-teal);
 
   --color-neutral-50: var(--brand-seafoam);
-  --color-neutral-100: var(--brand-seafoam);
+  --color-neutral-100: var(--brand-yellow);
   --color-neutral-200: var(--brand-seafoam);
   --color-neutral-300: var(--brand-yellow);
   --color-neutral-400: var(--brand-orange);
@@ -61,7 +61,7 @@
   --color-neutral-950: var(--brand-teal);
 
   --color-slate-50: var(--brand-seafoam);
-  --color-slate-100: var(--brand-seafoam);
+  --color-slate-100: var(--brand-yellow);
   --color-slate-200: var(--brand-seafoam);
   --color-slate-300: var(--brand-yellow);
   --color-slate-400: var(--brand-orange);
@@ -73,7 +73,7 @@
   --color-slate-950: var(--brand-teal);
 
   --color-stone-50: var(--brand-seafoam);
-  --color-stone-100: var(--brand-seafoam);
+  --color-stone-100: var(--brand-yellow);
   --color-stone-200: var(--brand-seafoam);
   --color-stone-300: var(--brand-yellow);
   --color-stone-400: var(--brand-orange);
@@ -90,8 +90,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #2f9ea4;
-    --foreground: #c58f9d;
+    --background: #7db8ad;
+    --foreground: #e4843f;
   }
 }
 
@@ -134,7 +134,7 @@ a {
   background-color: var(--brand-seafoam) !important;
 }
 .bg-zinc-100 {
-  background-color: var(--brand-seafoam) !important;
+  background-color: var(--brand-yellow) !important;
 }
 .bg-zinc-200 {
   background-color: var(--brand-seafoam) !important;
@@ -234,7 +234,7 @@ a {
   background-color: var(--brand-seafoam) !important;
 }
 .dark [class~="dark:bg-zinc-100"] {
-  background-color: var(--brand-seafoam) !important;
+  background-color: var(--brand-yellow) !important;
 }
 .dark [class~="dark:bg-zinc-200"] {
   background-color: var(--brand-seafoam) !important;
