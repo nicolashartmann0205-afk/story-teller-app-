@@ -19,9 +19,9 @@ export async function SiteHeader() {
     try {
       creditBalance = await getUserCreditBalance(user.id);
     } catch (error) {
-      // Do not block authenticated pages if credits tables are unavailable in an environment.
-      console.error("Unable to load user credit balance for header.", error);
-      creditBalance = null;
+      // Fail open so navigation/dashboard can render even if credits tables are not migrated yet.
+      console.error("Failed to load user credit balance in header", error);
+      creditBalance = 0;
     }
   }
   const canSeeBlogAdmin = isBlogAdminUser(user?.id, user?.email);
