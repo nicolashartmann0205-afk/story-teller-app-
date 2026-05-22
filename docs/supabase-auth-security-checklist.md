@@ -60,9 +60,29 @@ See `.env.example` for the expected shape. Local `.env.local` should include at 
 
 ### Rotate in Vercel (Production + Preview)
 
-1. **GEMINI_API_KEY:** create a new key in Google AI Studio → Vercel → edit variable → paste new value → mark **Sensitive** → Save → **Redeploy** → revoke old key in Google.
-2. **POOLING_DATABASE_URL:** Supabase → **Connect** → **Transaction pooler** → copy URI → paste into Vercel → **Sensitive** → Save → Redeploy.
-3. **DATABASE_URL:** Supabase → **Direct connection** (port 5432) or session pooler → paste into Vercel → **Sensitive** → Save → Redeploy. (Optional if pooler is always set.)
+**Option A — one command (recommended)**
+
+1. Create a [Vercel access token](https://vercel.com/account/tokens) and add `VERCEL_TOKEN=...` to `.env.local`.
+2. Run:
+
+   ```bash
+   pnpm db:validate-env
+   pnpm db:sync-env-vercel --deploy
+   ```
+
+This copies `POOLING_DATABASE_URL`, `DATABASE_URL`, and `GEMINI_API_KEY` from `.env.local` into Vercel (Production + Preview) and triggers a Production redeploy.
+
+**Option B — manual paste**
+
+1. Run `pnpm db:copy-env-vercel all` (copies each value to clipboard on macOS).
+2. Vercel → **Settings → Environment Variables** → edit each variable → **Sensitive** → Production + Preview → Save.
+3. **Deployments → Redeploy** latest Production.
+
+**Per-variable rotation**
+
+1. **GEMINI_API_KEY:** create a new key in Google AI Studio → update in Vercel → redeploy → revoke old key in Google.
+2. **POOLING_DATABASE_URL:** Supabase → **Connect** → **Transaction pooler** → copy URI → update in Vercel → redeploy.
+3. **DATABASE_URL:** Supabase → **Direct connection** (port 5432) or session pooler → update in Vercel → redeploy. (Optional if pooler is always set.)
 
 After redeploy, run `pnpm db:migrate` against production if schema changed.
 
