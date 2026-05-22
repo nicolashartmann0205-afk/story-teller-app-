@@ -1,0 +1,91 @@
+import { sql } from "drizzle-orm";
+import { db } from "@/lib/db";
+
+export type AdminUsageStats = {
+  totalUsers: number;
+  newUsers7d: number;
+  newUsers30d: number;
+  activeUsers7d: number;
+  activeUsers30d: number;
+  totalStories: number;
+  totalAiGenerations: number;
+  aiGenerations7d: number;
+};
+
+export type RecentSignup = {
+  id: string;
+  email: string;
+  createdAt: Date;
+};
+
+function toCount(value: unknown): number {
+  return Number(value ?? 0);
+}
+
+export async function getAdminUsageStats(): Promise<AdminUsageStats> {
+  const [row] = await db.execute<{
+    total_users: string;
+    new_users_7d: string;
+    new_users_30d: string;
+    active_users_7d: string;
+    active_users_30d: string;
+    total_stories: string;
+    total_ai_generations: string;
+    ai_generations_7d: string;
+  }>(sql`
+    SELECT
+      (SELECT count(*)::int FROM auth.users) AS total_users,
+      (SELECT count(*)::int FROM auth.users WHERE created_at >= now() - interval '7 days') AS new_users_7d,
+      (SELECT count(*)::int FROM auth.users WHERE created_at >= now() - interval '30 days') AS new_users_30d,
+      (
+        SELECT count(DISTINCT user_id)::int FROM (
+          SELECT user_id FROM public.stories WHERE updated_at >= now() - interval '7 days'
+          UNION
+          SELECT user_id FROM public.credit_transactions WHERE created_at >= now() - interval '7 days'
+        ) active
+      ) AS active_users_7d,
+      (
+        SELECT count(DISTINCT user_id)::int FROM (
+          SELECT user_id FROM public.stories WHERE updated_at >= now() - interval '30 days'
+          UNION
+          SELECT user_id FROM public.credit_transactions WHERE created_at >= now() - interval '30 days'
+        ) active
+      ) AS active_users_30d,
+      (SELECT count(*)::int FROM public.stories) AS total_stories,
+      (SELECT count(*)::int FROM public.credit_transactions WHERE type = 'debit') AS total_ai_generations,
+      (
+        SELECT count(*)::int FROM public.credit_transactions
+        WHERE type = 'debit' AND created_at >= now() - interval '7 days'
+      ) AS ai_generations_7d
+  `);
+
+  return {
+    totalUsers: toCount(row?.total_users),
+    newUsers7d: toCount(row?.new_users_7d),
+    newUsers30d: toCount(row?.new_users_30d),
+    activeUsers7d: toCount(row?.active_users_7d),
+    activeUsers30d: toCount(row?.active_users_30d),
+    totalStories: toCount(row?.total_stories),
+    totalAiGenerations: toCount(row?.total_ai_generations),
+    aiGenerations7d: toCount(row?.ai_generations_7d),
+  };
+}
+
+export async function getRecentSignups(limit = 15): Promise<RecentSignup[]> {
+  const rows = await db.execute<{
+    id: string;
+    email: string;
+    created_at: Date;
+  }>(sql`
+    SELECT id, email, created_at
+    FROM auth.users
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `);
+
+  return rows.map((row) => ({
+    id: row.id,
+    email: row.email,
+    createdAt: new Date(row.created_at),
+  }));
+}
