@@ -318,8 +318,12 @@ export async function generateSceneVisualsAction(storyId: string, style: string 
 }
 
 import { analyzeStoryStructure } from "@/lib/ai/story-generator";
+import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
+import { consumeCredit } from "@/lib/credits/service";
 
-export async function analyzeStoryMap(storyId: string) {
+export async function analyzeStoryMap(
+  storyId: string
+): Promise<Awaited<ReturnType<typeof analyzeStoryStructure>> | InsufficientCreditsResponse> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -328,6 +332,15 @@ export async function analyzeStoryMap(storyId: string) {
   if (!user) {
     throw new Error("Unauthorized");
   }
+
+  const blocked = creditGate(
+    await consumeCredit({
+      userId: user.id,
+      reason: "map_analyze",
+      metadata: { storyId },
+    })
+  );
+  if (blocked) return blocked;
 
   // Fetch story and scenes
   const [story] = await db

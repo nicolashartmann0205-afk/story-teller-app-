@@ -71,6 +71,27 @@
       "when": 1776800000000,
       "tag": "0066_feedback_and_support_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1776900000000,
+      "tag": "0067_optimize_feedback_submissions_admin_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1777000000000,
+      "tag": "0068_revoke_get_or_create_user_execute",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1777100000000,
+      "tag": "0069_daily_credits_quota_140",
+      "breakpoints": true
     }
   ]
 }

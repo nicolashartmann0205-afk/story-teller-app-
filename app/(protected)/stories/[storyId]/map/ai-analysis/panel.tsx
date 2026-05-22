@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from "@/lib/credits/constants";
 import { analyzeStoryMap } from "../actions";
 import { useMap } from "../map-context";
 import { cn } from "@/lib/utils";
 
 export function AIAnalysisPanel() {
+  const router = useRouter();
   const { storyId } = useMap();
   const [isOpen, setIsOpen] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
@@ -14,6 +17,10 @@ export function AIAnalysisPanel() {
   const handleAnalyze = () => {
     startTransition(async () => {
       const result = await analyzeStoryMap(storyId);
+      if (isInsufficientCreditsPayload(result)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
       setAnalysis(result);
     });
   };

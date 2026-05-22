@@ -220,8 +220,8 @@ export const userCredits = pgTable("user_credits", {
   userId: uuid("user_id")
     .primaryKey()
     .references(() => authUsers.id, { onDelete: "cascade" }),
-  balance: integer("balance").notNull().default(20),
-  monthlyFreeQuota: integer("monthly_free_quota").notNull().default(20),
+  balance: integer("balance").notNull().default(140),
+  monthlyFreeQuota: integer("monthly_free_quota").notNull().default(140),
   monthlyUsed: integer("monthly_used").notNull().default(0),
   periodStart: timestamp("period_start", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

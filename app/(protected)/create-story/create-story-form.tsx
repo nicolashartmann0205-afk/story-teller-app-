@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from "@/lib/credits/constants";
 import { StoryCategory, StoryType } from "@/lib/data/storyTypes";
 import { hookTypes, HookTypeID } from "@/lib/data/hookTypes";
 import { tones, writingStyles, perspectives } from "@/lib/data/styleOptions";
@@ -37,6 +39,7 @@ export default function CreateStoryForm({
   styleGuides = [],
   onBack,
 }: CreateStoryFormProps) {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(createStoryAction, { error: undefined });
   
   // Hook Generation State
@@ -75,6 +78,10 @@ export default function CreateStoryForm({
       // For now, the generatePreviewHooksAction might not support styleGuideId yet.
       // We'll update that later.
       const result = await generatePreviewHooksAction(title, description, selectedHookTypes, language);
+      if (isInsufficientCreditsPayload(result)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
       if (result.hooks) {
         setGeneratedHooks(result.hooks);
       } else if (result.error) {

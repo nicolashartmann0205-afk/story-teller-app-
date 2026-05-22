@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAuthDebugEnabled } from "@/lib/auth/debug";
 import { AUTH_ROUTE_PREFIX, AUTH_ROUTES } from "@/lib/auth/routes";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
@@ -12,10 +13,8 @@ const publicRoutes = [
   AUTH_ROUTES.CALLBACK,
   AUTH_ROUTES.GOOGLE,
 ];
-const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
-
 function setAuthDebugHeader(response: NextResponse, key: string, value: string | boolean) {
-  if (!AUTH_DEBUG) return;
+  if (!isAuthDebugEnabled()) return;
   response.headers.set(`x-auth-debug-${key}`, String(value));
 }
 
@@ -205,7 +204,7 @@ export async function updateSession(request: NextRequest) {
   for (const cookie of supabaseResponse.cookies.getAll()) {
     response.cookies.set(cookie);
   }
-  if (AUTH_DEBUG) {
+  if (isAuthDebugEnabled()) {
     for (const [name, value] of supabaseResponse.headers.entries()) {
       if (name.startsWith("x-auth-debug-")) {
         response.headers.set(name, value);

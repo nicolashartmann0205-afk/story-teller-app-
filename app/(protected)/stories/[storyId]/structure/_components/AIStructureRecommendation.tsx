@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from '@/lib/credits/constants';
 import { getAIStructureRecommendationAction } from '../actions';
 import { StoryStructure } from '@/lib/data/structures';
 
@@ -9,6 +11,7 @@ interface AIStructureRecommendationProps {
 }
 
 export default function AIStructureRecommendation({ storyContext, onSelectStructure, availableStructures }: AIStructureRecommendationProps) {
+  const router = useRouter();
   const [recommendation, setRecommendation] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,6 +19,10 @@ export default function AIStructureRecommendation({ storyContext, onSelectStruct
     setIsLoading(true);
     try {
       const rec = await getAIStructureRecommendationAction(storyContext);
+      if (isInsufficientCreditsPayload(rec)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
       setRecommendation(rec);
     } catch (error) {
       console.error("Failed to get recommendation", error);

@@ -45,7 +45,7 @@ BEGIN
       CREATE POLICY "feedback_submissions_admin_select"
         ON "public"."feedback_submissions"
         FOR SELECT
-        USING ((select auth.jwt() ->> 'email') = 'nicolas@hartmanns.net');
+        USING (((select auth.jwt()) ->> 'email') = 'nicolas@hartmanns.net');
     END IF;
 
     IF NOT EXISTS (
@@ -58,8 +58,8 @@ BEGIN
       CREATE POLICY "feedback_submissions_admin_update"
         ON "public"."feedback_submissions"
         FOR UPDATE
-        USING ((select auth.jwt() ->> 'email') = 'nicolas@hartmanns.net')
-        WITH CHECK ((select auth.jwt() ->> 'email') = 'nicolas@hartmanns.net');
+        USING (((select auth.jwt()) ->> 'email') = 'nicolas@hartmanns.net')
+        WITH CHECK (((select auth.jwt()) ->> 'email') = 'nicolas@hartmanns.net');
     END IF;
   END IF;
 END $$;

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAuthCallbackUrlForRequest } from "@/lib/auth/callback-url";
 import { getRequestUser } from "@/lib/auth/request-user";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
+import { isAuthDebugEnabled } from "@/lib/auth/debug";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { createActionClient } from "@/lib/supabase/server-action";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
@@ -186,7 +187,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   );
   const redirectedFrom = sp.redirectedFrom;
   const { user, source } = await getRequestUser();
-  const authDebugEnabled = process.env.AUTH_DEBUG === "1";
+  const authDebugEnabled = isAuthDebugEnabled();
 
   if (authDebugEnabled) {
     console.info("[auth-debug] sign-in-page-user-check", {

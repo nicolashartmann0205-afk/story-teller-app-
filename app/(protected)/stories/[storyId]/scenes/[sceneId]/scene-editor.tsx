@@ -10,6 +10,7 @@ import {
 } from "../actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from "@/lib/credits/constants";
 import { ArrowLeft, Save, Sparkles, AlertCircle, Check, Eye, Target, MapPin, Heart, Lightbulb } from "lucide-react";
 
 // Types derived from schema/usage
@@ -144,6 +145,11 @@ export default function SceneEditor({
         movieTimeMeaning: getMeaning(),
         requestId: crypto.randomUUID(),
       }, storyId);
+
+      if (isInsufficientCreditsPayload(draft)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
       
       handleUpdate({ sceneContent: draft, completenessStatus: 'drafted' });
       setActiveTab('draft');

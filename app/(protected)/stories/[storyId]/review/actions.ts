@@ -8,9 +8,8 @@ import { generateFullStoryDraft, improveText, generateFallbackFullDraft } from "
 import { providerRouter } from "@/lib/ai/image-providers/router";
 import {
   consumeCredit,
-  INSUFFICIENT_CREDITS_CODE,
-  INSUFFICIENT_CREDITS_MESSAGE,
 } from "@/lib/credits/service";
+import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
 
 export async function getReviewData(storyId: string) {
   const supabase = await createClient();
@@ -175,7 +174,10 @@ export async function recordExport(storyId: string, format: string) {
         .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
 }
 
-export async function generateDraftAction(storyId: string, options: any) {
+export async function generateDraftAction(
+  storyId: string,
+  options: any
+): Promise<string | InsufficientCreditsResponse> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -197,9 +199,8 @@ export async function generateDraftAction(storyId: string, options: any) {
             requestId: typeof options?.requestId === "string" ? options.requestId : undefined,
             metadata: { storyId }
         });
-        if (!creditResult.ok && creditResult.code === INSUFFICIENT_CREDITS_CODE) {
-            throw new Error(INSUFFICIENT_CREDITS_MESSAGE);
-        }
+        const blocked = creditGate(creditResult);
+        if (blocked) return blocked;
     }
     
     const storyData = {

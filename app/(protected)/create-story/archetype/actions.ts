@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
+import { consumeCredit } from "@/lib/credits/service";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { archetypesLibrary } from "@/lib/data/archetypes";
 
@@ -20,13 +22,25 @@ interface ArchetypeSuggestion {
   alternativeOptions: { archetypeId: string; reason: string }[];
 }
 
-export async function getAIArchetypeSuggestion(context: StoryContext): Promise<ArchetypeSuggestion> {
+export async function getAIArchetypeSuggestion(
+  context: StoryContext,
+  requestId?: string
+): Promise<ArchetypeSuggestion | InsufficientCreditsResponse> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     throw new Error("Unauthorized");
   }
+
+  const creditResult = await consumeCredit({
+    userId: user.id,
+    reason: "archetype_suggest",
+    requestId,
+    metadata: { storyType: context.storyType ?? null },
+  });
+  const blocked = creditGate(creditResult);
+  if (blocked) return blocked;
 
   if (!apiKey) {
     // Fallback or error if no API key

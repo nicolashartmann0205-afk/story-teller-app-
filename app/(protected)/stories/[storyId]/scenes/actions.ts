@@ -8,9 +8,8 @@ import { generateSceneDraft, analyzeShowDontTell, suggestSensoryDetails } from "
 import { createClient } from "@/lib/supabase/server";
 import {
   consumeCredit,
-  INSUFFICIENT_CREDITS_CODE,
-  INSUFFICIENT_CREDITS_MESSAGE,
 } from "@/lib/credits/service";
+import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
 
 type CreateSceneSeed = {
   actionWhere?: string;
@@ -91,44 +90,41 @@ export async function deleteScene(sceneId: string, storyId: string) {
   revalidatePath(`/stories/${storyId}/scenes`);
 }
 
-export async function generateSceneDraftAction(sceneData: any, storyId: string) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Unauthorized");
+export async function generateSceneDraftAction(
+  sceneData: any,
+  storyId: string
+): Promise<string | InsufficientCreditsResponse> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
 
-      // Fetch story context
-      const [story] = await db
-        .select()
-        .from(stories)
-        .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
-      
-      if (!story) throw new Error("Story not found");
+  const [story] = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
 
-      const creditResult = await consumeCredit({
-        userId: user.id,
-        reason: "scene_generate",
-        requestId:
-          typeof sceneData?.requestId === "string" ? sceneData.requestId : undefined,
-        metadata: { storyId },
-      });
-      if (!creditResult.ok && creditResult.code === INSUFFICIENT_CREDITS_CODE) {
-        throw new Error(INSUFFICIENT_CREDITS_MESSAGE);
-      }
+  if (!story) throw new Error("Story not found");
 
-      const storyContext = {
-          storyType: (story.storyType as any)?.name || "General Fiction",
-          overallStakes: (story.hooks as any)?.selected?.whyItWorks || "Survival", // simplified fallback
-          theme: "Transformation" // Should fetch from story data if available
-      };
+  const blocked = creditGate(
+    await consumeCredit({
+      userId: user.id,
+      reason: "scene_generate",
+      requestId:
+        typeof sceneData?.requestId === "string" ? sceneData.requestId : undefined,
+      metadata: { storyId },
+    })
+  );
+  if (blocked) return blocked;
 
-      return await generateSceneDraft(sceneData, storyContext);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      throw new Error(message || "Failed to generate scene draft. Please try again.");
-    }
+  const storyContext = {
+    storyType: (story.storyType as any)?.name || "General Fiction",
+    overallStakes: (story.hooks as any)?.selected?.whyItWorks || "Survival",
+    theme: "Transformation",
+  };
+
+  return await generateSceneDraft(sceneData, storyContext);
 }
 
 export async function analyzeShowDontTellAction(content: string) {

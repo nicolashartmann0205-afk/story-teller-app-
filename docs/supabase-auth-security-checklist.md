@@ -4,15 +4,43 @@ Use this checklist for each Supabase environment (local/staging/production).
 
 ## Compromised Password Protection (HaveIBeenPwned)
 
-- **Setting:** Enable leaked/compromised password checks in Supabase Auth.
-- **Where:** Supabase Dashboard -> Authentication -> Providers -> Email (password settings).
-- **Why:** Blocks users from setting passwords that are known to be compromised.
-- **Required state:** `Enabled` in all environments.
+- **Setting:** Prevent use of leaked/compromised passwords (`password_hibp_enabled`).
+- **Why:** Blocks passwords known from public breaches (credential stuffing).
+- **Required state:** Enabled in all environments.
+- **Plan:** Requires a Supabase plan with the `password_hibp` entitlement (typically **Pro** or above). Free projects may not be able to enable this via API.
 
-## Verification
+### Option A — Dashboard (manual)
 
-- Attempt to set or reset to a known weak/compromised password.
-- Confirm Supabase rejects it with a password safety error.
+1. Open [Authentication → Providers → Email](https://supabase.com/dashboard/project/_/auth/providers?provider=Email) for your project.
+2. Under **Password security**, turn on **Prevent use of leaked passwords** (HaveIBeenPwned).
+3. Save. Re-run **Security Advisor** in the dashboard.
+
+### Option B — Management API (script)
+
+1. Create a [Supabase access token](https://supabase.com/dashboard/account/tokens).
+2. Add to `.env.local`:
+
+   ```bash
+   SUPABASE_ACCESS_TOKEN=your_personal_access_token
+   ```
+
+3. Run:
+
+   ```bash
+   pnpm db:enable-password-hibp
+   ```
+
+The script reads `NEXT_PUBLIC_SUPABASE_URL` to resolve the project ref and sets `password_hibp_enabled: true`.
+
+### Verification
+
+- Security Advisor no longer reports `auth_leaked_password_protection` / `leaked_password_protection`.
+- Sign-up with a known breached password (e.g. `password123` from test lists) is rejected with a clear error.
+
+## SECURITY DEFINER RPC functions
+
+- Legacy `public.get_or_create_user(...)` must **not** be executable by `anon` / `authenticated` (see migration `0068_revoke_get_or_create_user_execute.sql`).
+- Prefer Drizzle/server-side access for user profile rows; drop unused DEFINER RPCs when possible.
 
 ## Pre-Deploy Security Checklist
 
@@ -20,5 +48,6 @@ Use this checklist for each Supabase environment (local/staging/production).
 - Confirm RLS is enabled on sensitive public tables, including `public.users` and `public.blog_posts`.
 - Confirm RLS policy optimizations are applied:
   - `auth.uid()` predicates use `(select auth.uid())`.
-  - `auth.jwt()` predicates use `(select auth.jwt())`.
+  - `auth.jwt()` predicates use `((select auth.jwt()) ->> '...')`.
+- Enable HaveIBeenPwned password protection (above).
 - Re-run Supabase Security Advisor and ensure no critical auth/RLS warnings remain.

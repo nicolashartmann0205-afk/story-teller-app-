@@ -5,20 +5,28 @@ import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { 
-  recommendStructure, 
-  generateBeatDraft, 
-  generateStructureOutline 
+import {
+  recommendStructure,
+  generateBeatDraft,
+  generateStructureOutline,
 } from "@/lib/ai/story-generator";
 import { structureDefinitions } from "@/lib/data/structures";
+import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
+import { consumeCredit } from "@/lib/credits/service";
 
-export async function saveStructure(storyId: string, structureData: any) {
+async function requireUserId() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     throw new Error("Unauthorized");
   }
+  return user.id;
+}
+
+export async function saveStructure(storyId: string, structureData: any) {
+  const userId = await requireUserId();
 
   try {
     await db
@@ -27,7 +35,7 @@ export async function saveStructure(storyId: string, structureData: any) {
         structure: structureData,
         updatedAt: new Date(),
       })
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+      .where(and(eq(stories.id, storyId), eq(stories.userId, userId)));
 
     revalidatePath(`/stories/${storyId}/structure`);
     return { success: true };
@@ -37,26 +45,60 @@ export async function saveStructure(storyId: string, structureData: any) {
   }
 }
 
-export async function getAIStructureRecommendationAction(storyContext: any) {
+export async function getAIStructureRecommendationAction(
+  storyContext: any
+): Promise<
+  Awaited<ReturnType<typeof recommendStructure>> | InsufficientCreditsResponse
+> {
+  const userId = await requireUserId();
+  const blocked = creditGate(
+    await consumeCredit({
+      userId,
+      reason: "structure_recommend",
+      metadata: { storyId: storyContext?.id ?? null },
+    })
+  );
+  if (blocked) return blocked;
+
   const availableStructures = Object.values(structureDefinitions);
   return await recommendStructure(storyContext, availableStructures);
 }
 
-export async function getBeatDraftAction(beat: any, storyContext: any, previousBeats: any[]) {
+export async function getBeatDraftAction(
+  beat: any,
+  storyContext: any,
+  previousBeats: any[],
+  requestId?: string
+): Promise<string | InsufficientCreditsResponse> {
+  const userId = await requireUserId();
+  const blocked = creditGate(
+    await consumeCredit({
+      userId,
+      reason: "structure_beat_draft",
+      requestId,
+      metadata: { beatId: beat?.id ?? null, storyId: storyContext?.id ?? null },
+    })
+  );
+  if (blocked) return blocked;
+
   return await generateBeatDraft(beat, storyContext, previousBeats);
 }
 
-export async function getStructureOutlineAction(structureId: string, storyContext: any) {
+export async function getStructureOutlineAction(
+  structureId: string,
+  storyContext: any
+): Promise<Awaited<ReturnType<typeof generateStructureOutline>> | InsufficientCreditsResponse> {
+  const userId = await requireUserId();
+  const blocked = creditGate(
+    await consumeCredit({
+      userId,
+      reason: "structure_outline",
+      metadata: { structureId, storyId: storyContext?.id ?? null },
+    })
+  );
+  if (blocked) return blocked;
+
   const structure = structureDefinitions[structureId];
   if (!structure) throw new Error("Structure not found");
   return await generateStructureOutline(structure, storyContext);
 }
-
-
-
-
-
-
-
-
-

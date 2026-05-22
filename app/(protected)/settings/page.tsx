@@ -157,7 +157,7 @@ export default async function ProfilePage() {
           <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
             <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">AI credits</h3>
             <p className="mt-1 text-sm text-brand-ink/80 dark:text-brand-seafoam">
-              Your generation balance and latest credit activity.
+              You get 140 AI credits per day (UTC). Each AI generation uses 10 credits (up to 14 per day). When you run out, wait until tomorrow for a full refill.
             </p>
           </div>
           <div className="px-4 py-5 sm:p-6 space-y-4">

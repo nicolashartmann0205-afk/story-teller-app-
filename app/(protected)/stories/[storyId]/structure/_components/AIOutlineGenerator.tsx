@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { StoryStructure } from '@/lib/data/structures';
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from '@/lib/credits/constants';
 import { getStructureOutlineAction } from '../actions';
 
 interface AIOutlineGeneratorProps {
@@ -10,6 +12,7 @@ interface AIOutlineGeneratorProps {
 }
 
 export default function AIOutlineGenerator({ structure, storyContext, initialOutline, onSave }: AIOutlineGeneratorProps) {
+  const router = useRouter();
   const [outline, setOutline] = useState<any[]>(initialOutline?.beats ? initialOutline.beats : []);
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(!!initialOutline?.beats);
@@ -18,6 +21,10 @@ export default function AIOutlineGenerator({ structure, storyContext, initialOut
     setIsGenerating(true);
     try {
       const generatedBeats = await getStructureOutlineAction(structure.id, storyContext);
+      if (isInsufficientCreditsPayload(generatedBeats)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
       setOutline(generatedBeats);
       setHasGenerated(true);
       onSave({ generated: true, beats: generatedBeats, generatedAt: new Date().toISOString() });

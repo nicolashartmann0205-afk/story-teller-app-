@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from "@/lib/credits/constants";
 import { saveStoryDraft, generateDraftAction, improveTextAction, recordExport } from "./actions";
 import { exportStory as exportFile } from "@/lib/export";
 
@@ -37,11 +39,16 @@ export function ReviewProvider({
         (story.draftContent ? JSON.stringify(story.draftContent) : "")
     );
     const [isGenerating, setIsGenerating] = useState(false);
+    const router = useRouter();
 
     const generateDraft = async (options: any) => {
         setIsGenerating(true);
         try {
             const draft = await generateDraftAction(storyId, options);
+            if (isInsufficientCreditsPayload(draft)) {
+                router.push(INSUFFICIENT_CREDITS_PATH);
+                return;
+            }
             // Replace content entirely
             setDraftContent(draft);
             

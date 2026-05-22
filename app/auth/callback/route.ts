@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { isAuthDebugEnabled } from "@/lib/auth/debug";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
@@ -7,10 +8,8 @@ import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 const DEFAULT_NEXT = "/dashboard";
-const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
-
 function setAuthDebugHeader(response: NextResponse, key: string, value: string | boolean) {
-  if (!AUTH_DEBUG) return;
+  if (!isAuthDebugEnabled()) return;
   response.headers.set(`x-auth-debug-${key}`, String(value));
 }
 

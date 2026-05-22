@@ -1,16 +1,27 @@
-import { and, eq, gte, lt, sql } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { creditTransactions, userCredits } from "@/lib/db/schema";
 
-const DEFAULT_MONTHLY_FREE_QUOTA = 20;
+/** Daily AI generation allowance (stored in `monthly_free_quota` column for v1 schema). */
+export const DAILY_FREE_QUOTA = 140;
+
+/** Credits spent per AI generation (draft, suggestion, outline, etc.). */
+export const CREDITS_PER_AI_USE = 10;
+
 export const INSUFFICIENT_CREDITS_CODE = "INSUFFICIENT_CREDITS";
 export const INSUFFICIENT_CREDITS_MESSAGE =
-  "No credits left. Please wait for monthly refill or contact support for a top-up.";
+  "You do not have enough credits. Please try again tomorrow.";
 
 export type CreditConsumeReason =
   | "story_generate"
   | "story_draft_generate"
-  | "scene_generate";
+  | "scene_generate"
+  | "archetype_suggest"
+  | "hook_preview"
+  | "structure_beat_draft"
+  | "structure_outline"
+  | "structure_recommend"
+  | "map_analyze";
 
 type EnsureCreditRowInput = {
   userId: string;
@@ -27,9 +38,9 @@ export type ConsumeCreditResult =
   | { ok: true; balance: number; alreadyConsumed?: boolean }
   | { ok: false; code: typeof INSUFFICIENT_CREDITS_CODE; message: string; balance: number };
 
-function startOfCurrentUtcMonth(): Date {
+function startOfCurrentUtcDay(): Date {
   const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
 }
 
 async function ensureCreditRow({ userId }: EnsureCreditRowInput) {
@@ -37,38 +48,39 @@ async function ensureCreditRow({ userId }: EnsureCreditRowInput) {
     .insert(userCredits)
     .values({
       userId,
-      balance: DEFAULT_MONTHLY_FREE_QUOTA,
-      monthlyFreeQuota: DEFAULT_MONTHLY_FREE_QUOTA,
+      balance: DAILY_FREE_QUOTA,
+      monthlyFreeQuota: DAILY_FREE_QUOTA,
       monthlyUsed: 0,
-      periodStart: startOfCurrentUtcMonth(),
+      periodStart: startOfCurrentUtcDay(),
       updatedAt: new Date(),
     })
     .onConflictDoNothing();
 }
 
-async function applyMonthlyRefill(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], userId: string) {
-  const monthStart = startOfCurrentUtcMonth();
+/** Reset balance to the daily quota when a new UTC day starts. */
+async function applyDailyRefill(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], userId: string) {
+  const dayStart = startOfCurrentUtcDay();
 
   const [refilled] = await tx
     .update(userCredits)
     .set({
-      balance: sql`${userCredits.balance} + ${userCredits.monthlyFreeQuota}`,
+      balance: userCredits.monthlyFreeQuota,
       monthlyUsed: 0,
-      periodStart: monthStart,
+      periodStart: dayStart,
       updatedAt: new Date(),
     })
-    .where(and(eq(userCredits.userId, userId), lt(userCredits.periodStart, monthStart)))
+    .where(and(eq(userCredits.userId, userId), lt(userCredits.periodStart, dayStart)))
     .returning({
-      monthlyFreeQuota: userCredits.monthlyFreeQuota,
+      dailyQuota: userCredits.monthlyFreeQuota,
     });
 
   if (refilled) {
     await tx.insert(creditTransactions).values({
       userId,
       type: "refill",
-      amount: refilled.monthlyFreeQuota,
-      reason: "monthly_refill",
-      metadata: { periodStart: monthStart.toISOString() },
+      amount: refilled.dailyQuota,
+      reason: "daily_refill",
+      metadata: { periodStart: dayStart.toISOString() },
     });
   }
 }
@@ -77,7 +89,7 @@ export async function getUserCreditBalance(userId: string): Promise<number> {
   await ensureCreditRow({ userId });
 
   return db.transaction(async (tx) => {
-    await applyMonthlyRefill(tx, userId);
+    await applyDailyRefill(tx, userId);
     const [row] = await tx
       .select({ balance: userCredits.balance })
       .from(userCredits)
@@ -93,7 +105,7 @@ export async function consumeCredit(input: ConsumeCreditInput): Promise<ConsumeC
 
   try {
     return await db.transaction(async (tx) => {
-      await applyMonthlyRefill(tx, userId);
+      await applyDailyRefill(tx, userId);
 
       if (requestId) {
         const [existing] = await tx
@@ -121,11 +133,13 @@ export async function consumeCredit(input: ConsumeCreditInput): Promise<ConsumeC
       const [debitResult] = await tx
         .update(userCredits)
         .set({
-          balance: sql`${userCredits.balance} - 1`,
-          monthlyUsed: sql`${userCredits.monthlyUsed} + 1`,
+          balance: sql`${userCredits.balance} - ${CREDITS_PER_AI_USE}`,
+          monthlyUsed: sql`${userCredits.monthlyUsed} + ${CREDITS_PER_AI_USE}`,
           updatedAt: new Date(),
         })
-        .where(and(eq(userCredits.userId, userId), gte(userCredits.balance, 1)))
+        .where(
+          and(eq(userCredits.userId, userId), sql`${userCredits.balance} >= ${CREDITS_PER_AI_USE}`)
+        )
         .returning({ balance: userCredits.balance });
 
       if (!debitResult) {
@@ -145,7 +159,7 @@ export async function consumeCredit(input: ConsumeCreditInput): Promise<ConsumeC
       await tx.insert(creditTransactions).values({
         userId,
         type: "debit",
-        amount: -1,
+        amount: -CREDITS_PER_AI_USE,
         reason,
         requestId: requestId ?? null,
         metadata: metadata ?? {},
@@ -154,7 +168,6 @@ export async function consumeCredit(input: ConsumeCreditInput): Promise<ConsumeC
       return { ok: true, balance: debitResult.balance };
     });
   } catch (error) {
-    // Unique request_id collision means the debit already happened in another concurrent attempt.
     if (requestId && error instanceof Error && /credit_transactions_request_id_unique/i.test(error.message)) {
       const balance = await getUserCreditBalance(userId);
       return { ok: true, balance, alreadyConsumed: true };
@@ -175,7 +188,7 @@ export async function adminGrantCredits(
   await ensureCreditRow({ userId });
 
   return db.transaction(async (tx) => {
-    await applyMonthlyRefill(tx, userId);
+    await applyDailyRefill(tx, userId);
 
     const [updated] = await tx
       .update(userCredits)

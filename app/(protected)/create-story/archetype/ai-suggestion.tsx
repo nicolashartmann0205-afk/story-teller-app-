@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from "@/lib/credits/constants";
 import { getAIArchetypeSuggestion } from "./actions";
 import { Archetype } from "@/lib/data/archetypes";
 
@@ -19,6 +21,7 @@ export function AIArchetypeSuggestion({
   onSelect,
   onBrowseGrid,
 }: AIArchetypeSuggestionProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [suggestion, setSuggestion] = useState<{
     primaryRecommendation: string;
@@ -29,9 +32,18 @@ export function AIArchetypeSuggestion({
   const [error, setError] = useState<string | null>(null);
 
   const handleGetSuggestion = () => {
+    setError(null);
     startTransition(async () => {
       try {
-        const result = await getAIArchetypeSuggestion(context);
+        const requestId =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : undefined;
+        const result = await getAIArchetypeSuggestion(context, requestId);
+        if (isInsufficientCreditsPayload(result)) {
+          router.push(INSUFFICIENT_CREDITS_PATH);
+          return;
+        }
         setSuggestion(result);
       } catch (err) {
         setError("Failed to get AI suggestion. You can browse the grid instead.");

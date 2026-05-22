@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { INSUFFICIENT_CREDITS_PATH, isInsufficientCreditsPayload } from '@/lib/credits/constants';
+import { rethrowIfRedirect } from '@/lib/navigation/redirect-error';
 import { StoryStructure } from '@/lib/data/structures';
 import { getBeatDraftAction } from '../actions';
 import { AlertCircle } from 'lucide-react';
@@ -73,14 +75,28 @@ export default function BeatByBeatEditor({ structure, storyContext, initialBeats
         }
       };
 
-      const draft = await getBeatDraftAction(currentBeat, sanitizedContext, previousBeats);
-      if (!draft) {
+      const requestId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : undefined;
+      const draft = await getBeatDraftAction(
+        currentBeat,
+        sanitizedContext,
+        previousBeats,
+        requestId
+      );
+      if (isInsufficientCreditsPayload(draft)) {
+        router.push(INSUFFICIENT_CREDITS_PATH);
+        return;
+      }
+      if (!draft || typeof draft !== "string") {
         throw new Error("No draft returned from AI service");
       }
       handleContentChange(draft);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      rethrowIfRedirect(err);
       console.error("Failed to generate draft", err);
-      setError(err.message || "Failed to generate draft. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to generate draft. Please try again.");
     } finally {
       setIsGenerating(false);
     }
