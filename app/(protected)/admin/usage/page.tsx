@@ -2,11 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getAdminUsageStats, getRecentSignups, type AdminUsageStats, type RecentSignup } from "@/lib/admin/usage-queries";
+import { USAGE_ADMIN_PATH } from "@/lib/admin/paths";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
-
-export const USAGE_ADMIN_PATH = "/admin/usage";
 
 export async function generateMetadata() {
   return buildDynamicPageMetadata("usage-admin", {
@@ -67,8 +66,10 @@ export default async function UsageAdminPage() {
       totalUsers: 0,
       newUsers7d: 0,
       newUsers30d: 0,
+      activeUsers24h: 0,
       activeUsers7d: 0,
       activeUsers30d: 0,
+      recentlyOnlineUsers: 0,
       totalStories: 0,
       totalAiGenerations: 0,
       aiGenerations7d: 0,
@@ -100,6 +101,11 @@ export default async function UsageAdminPage() {
           <StatCard label="New sign-ups (7 days)" value={stats.newUsers7d} />
           <StatCard label="New sign-ups (30 days)" value={stats.newUsers30d} />
           <StatCard
+            label="Daily active users (24h)"
+            value={stats.activeUsers24h}
+            hint="Story updates or AI credit use today"
+          />
+          <StatCard
             label="Active users (7 days)"
             value={stats.activeUsers7d}
             hint="Story updates or AI credit use"
@@ -108,6 +114,11 @@ export default async function UsageAdminPage() {
             label="Active users (30 days)"
             value={stats.activeUsers30d}
             hint="Story updates or AI credit use"
+          />
+          <StatCard
+            label="Recently online (~15 min)"
+            value={stats.recentlyOnlineUsers}
+            hint="Approximate — last sign-in within 15 minutes"
           />
         </div>
       </section>
@@ -121,6 +132,15 @@ export default async function UsageAdminPage() {
           <StatCard label="Total AI generations" value={stats.totalAiGenerations} />
           <StatCard label="AI generations (7 days)" value={stats.aiGenerations7d} />
         </div>
+      </section>
+
+      <section className="rounded-xl border border-brand-seafoam/20 bg-brand-cream/40 p-4 text-sm text-brand-ink/80 dark:bg-brand-ink/60 dark:text-brand-seafoam">
+        <p className="font-medium text-brand-ink dark:text-brand-yellow">Real-time analytics</p>
+        <p className="mt-1">
+          For live page views, funnels, and session replay, use a third-party tool (Vercel Web
+          Analytics, PostHog, or Plausible). Keep product metrics here; use analytics tools for
+          traffic and behavior — embed their dashboard in a separate admin tab when needed.
+        </p>
       </section>
 
       <section className="space-y-3">

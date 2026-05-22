@@ -5,8 +5,10 @@ export type AdminUsageStats = {
   totalUsers: number;
   newUsers7d: number;
   newUsers30d: number;
+  activeUsers24h: number;
   activeUsers7d: number;
   activeUsers30d: number;
+  recentlyOnlineUsers: number;
   totalStories: number;
   totalAiGenerations: number;
   aiGenerations7d: number;
@@ -27,8 +29,10 @@ export async function getAdminUsageStats(): Promise<AdminUsageStats> {
     total_users: string;
     new_users_7d: string;
     new_users_30d: string;
+    active_users_24h: string;
     active_users_7d: string;
     active_users_30d: string;
+    recently_online_users: string;
     total_stories: string;
     total_ai_generations: string;
     ai_generations_7d: string;
@@ -37,6 +41,13 @@ export async function getAdminUsageStats(): Promise<AdminUsageStats> {
       (SELECT count(*)::int FROM auth.users) AS total_users,
       (SELECT count(*)::int FROM auth.users WHERE created_at >= now() - interval '7 days') AS new_users_7d,
       (SELECT count(*)::int FROM auth.users WHERE created_at >= now() - interval '30 days') AS new_users_30d,
+      (
+        SELECT count(DISTINCT user_id)::int FROM (
+          SELECT user_id FROM public.stories WHERE updated_at >= now() - interval '24 hours'
+          UNION
+          SELECT user_id FROM public.credit_transactions WHERE created_at >= now() - interval '24 hours'
+        ) active
+      ) AS active_users_24h,
       (
         SELECT count(DISTINCT user_id)::int FROM (
           SELECT user_id FROM public.stories WHERE updated_at >= now() - interval '7 days'
@@ -51,6 +62,10 @@ export async function getAdminUsageStats(): Promise<AdminUsageStats> {
           SELECT user_id FROM public.credit_transactions WHERE created_at >= now() - interval '30 days'
         ) active
       ) AS active_users_30d,
+      (
+        SELECT count(*)::int FROM auth.users
+        WHERE last_sign_in_at >= now() - interval '15 minutes'
+      ) AS recently_online_users,
       (SELECT count(*)::int FROM public.stories) AS total_stories,
       (SELECT count(*)::int FROM public.credit_transactions WHERE type = 'debit') AS total_ai_generations,
       (
@@ -63,8 +78,10 @@ export async function getAdminUsageStats(): Promise<AdminUsageStats> {
     totalUsers: toCount(row?.total_users),
     newUsers7d: toCount(row?.new_users_7d),
     newUsers30d: toCount(row?.new_users_30d),
+    activeUsers24h: toCount(row?.active_users_24h),
     activeUsers7d: toCount(row?.active_users_7d),
     activeUsers30d: toCount(row?.active_users_30d),
+    recentlyOnlineUsers: toCount(row?.recently_online_users),
     totalStories: toCount(row?.total_stories),
     totalAiGenerations: toCount(row?.total_ai_generations),
     aiGenerations7d: toCount(row?.ai_generations_7d),

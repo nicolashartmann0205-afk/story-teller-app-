@@ -11,6 +11,7 @@ const active =
 const SEO_ADMIN_PATH = "/seo-admin";
 const FEEDBACK_ADMIN_PATH = "/admin/feedback";
 const USAGE_ADMIN_PATH = "/admin/usage";
+const ANALYTICS_ADMIN_PATH = "/admin/analytics";
 
 function navClass(isActive: boolean) {
   return isActive ? active : inactive;
@@ -42,7 +43,11 @@ export function AppShellNavLinks({
     pathname.startsWith("/blog/");
   const isBlogAdmin = pathname === BLOG_ADMIN_BASE_PATH || pathname.startsWith(`${BLOG_ADMIN_BASE_PATH}/`);
   const isFeedbackAdmin = pathname === FEEDBACK_ADMIN_PATH || pathname.startsWith(`${FEEDBACK_ADMIN_PATH}/`);
-  const isUsageAdmin = pathname === USAGE_ADMIN_PATH || pathname.startsWith(`${USAGE_ADMIN_PATH}/`);
+  const isUsageAdmin =
+    pathname === USAGE_ADMIN_PATH ||
+    pathname.startsWith(`${USAGE_ADMIN_PATH}/`) ||
+    pathname === ANALYTICS_ADMIN_PATH ||
+    pathname.startsWith(`${ANALYTICS_ADMIN_PATH}/`);
   const isSeoAdmin = pathname === SEO_ADMIN_PATH || pathname.startsWith(`${SEO_ADMIN_PATH}/`);
 
   return (
