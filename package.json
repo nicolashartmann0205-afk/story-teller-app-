@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:enable-password-hibp": "tsx scripts/enable-supabase-password-hibp.ts",
+    "db:validate-env": "tsx scripts/validate-env.ts",
     "db:check": "tsx scripts/check-db-state.ts",
     "db:repair-blog-posts": "tsx scripts/apply-blog-posts-table.ts",
     "db:sync-blog-posts": "tsx scripts/sync-blog-posts.ts",

@@ -42,6 +42,30 @@ The script reads `NEXT_PUBLIC_SUPABASE_URL` to resolve the project ref and sets 
 - Legacy `public.get_or_create_user(...)` must **not** be executable by `anon` / `authenticated` (see migration `0068_revoke_get_or_create_user_execute.sql`).
 - Prefer Drizzle/server-side access for user profile rows; drop unused DEFINER RPCs when possible.
 
+## Vercel environment variables (Needs Attention)
+
+If Vercel shows **Needs Attention** on `POOLING_DATABASE_URL`, `DATABASE_URL`, or `GEMINI_API_KEY`, rotate each secret (do not delete the variable name).
+
+### Validate locally first
+
+```bash
+pnpm db:validate-env
+```
+
+See `.env.example` for the expected shape. Local `.env.local` should include at minimum:
+
+- `POOLING_DATABASE_URL` — Supabase **Transaction pooler** (port **6543**), used by the app on Vercel
+- `DATABASE_URL` — optional direct/session fallback for CLI migrations
+- `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey)
+
+### Rotate in Vercel (Production + Preview)
+
+1. **GEMINI_API_KEY:** create a new key in Google AI Studio → Vercel → edit variable → paste new value → mark **Sensitive** → Save → **Redeploy** → revoke old key in Google.
+2. **POOLING_DATABASE_URL:** Supabase → **Connect** → **Transaction pooler** → copy URI → paste into Vercel → **Sensitive** → Save → Redeploy.
+3. **DATABASE_URL:** Supabase → **Direct connection** (port 5432) or session pooler → paste into Vercel → **Sensitive** → Save → Redeploy. (Optional if pooler is always set.)
+
+After redeploy, run `pnpm db:migrate` against production if schema changed.
+
 ## Pre-Deploy Security Checklist
 
 - Run DB migrations: `pnpm db:migrate`.
