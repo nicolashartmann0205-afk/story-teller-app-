@@ -17,6 +17,8 @@ import { desc, eq } from "drizzle-orm";
 import ProfileForm from "./profile-form";
 import {
   adminGrantCredits,
+  adminResetCreditsToDailyQuota,
+  DAILY_FREE_QUOTA,
   getUserCreditBalance,
 } from "@/lib/credits/service";
 import { isBlogAdminUser } from "@/lib/blog/admin";
@@ -68,6 +70,24 @@ async function grantCreditsAction(
   } = await supabase.auth.getUser();
   if (!user || !isBlogAdminUser(user.id, user.email)) {
     return { error: "Unauthorized" };
+  }
+
+  const action = String(formData.get("creditAction") ?? "grant").trim();
+
+  if (action === "reset_daily") {
+    const targetUserId = String(formData.get("targetUserId") ?? user.id).trim();
+    if (!targetUserId) {
+      return { error: "Target user ID is required." };
+    }
+    try {
+      const balance = await adminResetCreditsToDailyQuota(targetUserId);
+      revalidatePath("/settings");
+      revalidatePath("/dashboard");
+      return { success: `Reset to full daily allowance. Balance is now ${balance}/${DAILY_FREE_QUOTA}.` };
+    } catch (error) {
+      console.error("Error resetting credits:", error);
+      return { error: error instanceof Error ? error.message : "Failed to reset credits." };
+    }
   }
 
   const targetUserId = String(formData.get("targetUserId") ?? "").trim();
@@ -163,7 +183,9 @@ export default async function ProfilePage() {
           <div className="px-4 py-5 sm:p-6 space-y-4">
             <div className="rounded-md border border-brand-seafoam/40 px-4 py-3 bg-brand-cream/50 dark:bg-brand-ink/70">
               <p className="text-xs uppercase tracking-wide text-brand-ink/80 dark:text-brand-seafoam">Current balance</p>
-              <p className="mt-1 text-2xl font-semibold text-brand-ink dark:text-brand-yellow">{creditBalance}</p>
+              <p className="mt-1 text-2xl font-semibold text-brand-ink dark:text-brand-yellow">
+                {creditBalance}/{DAILY_FREE_QUOTA}
+              </p>
             </div>
 
             <div>
@@ -207,8 +229,11 @@ export default async function ProfilePage() {
                 Temporary support tool to manually top up user credits.
               </p>
             </div>
-            <div className="px-4 py-5 sm:p-6">
-              <AdminGrantCreditsForm grantCreditsAction={grantCreditsAction} />
+            <div className="px-4 py-5 sm:p-6 space-y-6">
+              <AdminGrantCreditsForm
+                grantCreditsAction={grantCreditsAction}
+                defaultTargetUserId={user.id}
+              />
             </div>
           </div>
         ) : null}

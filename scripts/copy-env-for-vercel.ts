@@ -9,6 +9,7 @@
 import { execSync } from "child_process";
 import { config } from "dotenv";
 import { resolve } from "path";
+import { isValidPostgresUrl, normalizeDatabaseUrl } from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -43,9 +44,18 @@ function copyToClipboard(text: string) {
 
 function runStep(key: StepKey) {
   const step = STEPS[key];
-  const value = (process.env[step.envKey] || "").trim();
+  const value = normalizeDatabaseUrl(process.env[step.envKey]);
   if (!value) {
     console.error(`Missing ${step.envKey} in .env.local`);
+    process.exit(1);
+  }
+  if (
+    (step.envKey === "POOLING_DATABASE_URL" || step.envKey === "DATABASE_URL") &&
+    !isValidPostgresUrl(value)
+  ) {
+    console.error(
+      `${step.envKey} in .env.local is not a valid postgres URL. Fix before copying to Vercel.`
+    );
     process.exit(1);
   }
 
@@ -58,8 +68,9 @@ function runStep(key: StepKey) {
   } else {
     console.log("Copy the value from .env.local manually (pbcopy not available).");
   }
-  console.log("\nVercel path: Project story-teller-app → Settings → Environment Variables");
-  console.log(`Edit "${step.vercelName}" → paste → Sensitive → Production + Preview → Save\n`);
+  console.log("Vercel path: Project story-teller-app → Settings → Environment Variables");
+  console.log(`Edit "${step.vercelName}" → paste → Sensitive → Production + Preview → Save`);
+  console.log("Then: Deployments → Redeploy latest Production (required after any env change).\n");
 }
 
 const arg = (process.argv[2] || "all").toLowerCase();

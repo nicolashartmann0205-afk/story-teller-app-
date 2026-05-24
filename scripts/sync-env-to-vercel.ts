@@ -12,6 +12,7 @@
  */
 import { config } from "dotenv";
 import { resolve } from "path";
+import { isValidPostgresUrl, normalizeDatabaseUrl } from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -129,10 +130,16 @@ async function main() {
   console.log(`Vercel project: ${project.name} (${project.id})\n`);
 
   for (const key of ENV_KEYS) {
-    const value = (process.env[key] || "").trim();
+    const value = normalizeDatabaseUrl(process.env[key]);
     if (!value) {
       console.warn(`Skipping ${key}: not set in .env.local`);
       continue;
+    }
+    if (
+      (key === "POOLING_DATABASE_URL" || key === "DATABASE_URL") &&
+      !isValidPostgresUrl(value)
+    ) {
+      throw new Error(`${key} in .env.local is not a valid postgres URL. Fix locally before syncing.`);
     }
     await upsertEnv(project.id, key, value);
     console.log(`Updated ${key} (Production + Preview, encrypted)`);

@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getAdminUsageStats, getRecentSignups, type AdminUsageStats, type RecentSignup } from "@/lib/admin/usage-queries";
 import { USAGE_ADMIN_PATH } from "@/lib/admin/paths";
 import { isBlogAdminUser } from "@/lib/blog/admin";
+import { adminMetricsLoadWarning } from "@/lib/db/connection-error";
 import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
   return buildDynamicPageMetadata("usage-admin", {
@@ -40,6 +44,8 @@ function StatCard({
 }
 
 export default async function UsageAdminPage() {
+  await headers();
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,8 +66,7 @@ export default async function UsageAdminPage() {
     [stats, recentSignups] = await Promise.all([getAdminUsageStats(), getRecentSignups()]);
   } catch (error) {
     console.error("Failed to load admin usage stats", error);
-    loadError =
-      "Could not load usage metrics. Ensure the database connection can read auth.users and credit_transactions.";
+    loadError = adminMetricsLoadWarning(error);
     stats = {
       totalUsers: 0,
       newUsers7d: 0,

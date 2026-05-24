@@ -210,3 +210,36 @@ export async function adminGrantCredits(
     return updated?.balance ?? 0;
   });
 }
+
+/** Set balance to the full daily allowance (140) for today — normal starting amount. */
+export async function adminResetCreditsToDailyQuota(
+  userId: string,
+  reason = "admin_reset_daily_quota"
+): Promise<number> {
+  await ensureCreditRow({ userId });
+  const dayStart = startOfCurrentUtcDay();
+
+  return db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(userCredits)
+      .set({
+        balance: DAILY_FREE_QUOTA,
+        monthlyFreeQuota: DAILY_FREE_QUOTA,
+        monthlyUsed: 0,
+        periodStart: dayStart,
+        updatedAt: new Date(),
+      })
+      .where(eq(userCredits.userId, userId))
+      .returning({ balance: userCredits.balance });
+
+    await tx.insert(creditTransactions).values({
+      userId,
+      type: "admin_grant",
+      amount: DAILY_FREE_QUOTA,
+      reason,
+      metadata: { resetToDailyQuota: true, periodStart: dayStart.toISOString() },
+    });
+
+    return updated?.balance ?? DAILY_FREE_QUOTA;
+  });
+}

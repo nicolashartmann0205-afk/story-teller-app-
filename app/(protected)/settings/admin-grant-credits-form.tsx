@@ -11,13 +11,15 @@ type GrantCreditsAction = (
 
 export default function AdminGrantCreditsForm({
   grantCreditsAction,
+  defaultTargetUserId,
 }: {
   grantCreditsAction: GrantCreditsAction;
+  defaultTargetUserId?: string;
 }) {
   const [state, formAction, isPending] = useActionState(grantCreditsAction, null);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <div className="space-y-6">
       {state?.error ? (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3">
           <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>
@@ -29,6 +31,25 @@ export default function AdminGrantCreditsForm({
         </div>
       ) : null}
 
+      <form action={formAction} className="space-y-4">
+        <input type="hidden" name="creditAction" value="reset_daily" />
+        <input type="hidden" name="targetUserId" value={defaultTargetUserId ?? ""} />
+        <p className="text-sm text-brand-ink/80 dark:text-brand-seafoam">
+          Set balance back to the normal daily amount (140 credits). Use this if credits look too low after testing.
+        </p>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="inline-flex justify-center rounded-md border border-brand-seafoam/50 bg-brand-cream/80 dark:bg-brand-ink/70 py-2 px-4 text-sm font-medium text-brand-ink dark:text-brand-seafoam hover:bg-brand-seafoam/20 disabled:opacity-50"
+        >
+          {isPending ? "Resetting..." : "Reset to 140 credits (full daily allowance)"}
+        </button>
+      </form>
+
+      <form action={formAction} className="space-y-4 border-t border-brand-seafoam/30 pt-6">
+        <input type="hidden" name="creditAction" value="grant" />
+        <h4 className="text-sm font-medium text-brand-ink dark:text-brand-seafoam">Grant extra credits</h4>
+
       <div>
         <label htmlFor="targetUserId" className="block text-sm font-medium text-brand-ink dark:text-brand-seafoam">
           Target user ID
@@ -38,6 +59,7 @@ export default function AdminGrantCreditsForm({
           name="targetUserId"
           type="text"
           required
+          defaultValue={defaultTargetUserId ?? ""}
           placeholder="UUID from auth.users"
           className="mt-1 block w-full rounded-md border border-brand-seafoam/60 dark:border-brand-seafoam/40 bg-white dark:bg-brand-ink/70 px-3 py-2 text-brand-ink dark:text-brand-seafoam focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
         />
@@ -83,6 +105,7 @@ export default function AdminGrantCreditsForm({
           {isPending ? "Granting..." : "Grant credits"}
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

@@ -13,6 +13,8 @@
     "db:enable-password-hibp": "tsx scripts/enable-supabase-password-hibp.ts",
     "db:validate-env": "tsx scripts/validate-env.ts",
     "db:check-user-stories": "tsx scripts/check-user-stories.ts",
+    "db:test-usage-admin": "tsx scripts/test-usage-admin.ts",
+    "db:reset-user-credits": "tsx scripts/reset-user-credits.ts",
     "db:copy-env-vercel": "tsx scripts/copy-env-for-vercel.ts",
     "db:sync-env-vercel": "tsx scripts/sync-env-to-vercel.ts",
     "db:check": "tsx scripts/check-db-state.ts",

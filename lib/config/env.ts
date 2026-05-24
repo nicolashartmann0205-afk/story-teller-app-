@@ -3,6 +3,8 @@
  * Validates and provides consistent access to all environment variables
  */
 
+import { resolveDatabaseConnectionUrl } from "@/lib/db/runtime-env";
+
 // Supabase configuration
 export const supabaseConfig = {
   // Public variables (available in browser)
@@ -14,11 +16,14 @@ export const supabaseConfig = {
   anonKey: process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 };
 
-// Database configuration
-export const databaseConfig = {
-  poolingUrl: process.env.POOLING_DATABASE_URL,
-  url: process.env.DATABASE_URL,
-};
+// Database configuration (read at call time — see lib/db/runtime-env.ts)
+export function getDatabaseConfig() {
+  const url = resolveDatabaseConnectionUrl();
+  return {
+    poolingUrl: url,
+    url,
+  };
+}
 
 // App URL configuration (for redirects and API calls)
 function normalizePublicUrl(raw: string): string {
@@ -84,7 +89,7 @@ function validateSupabaseConfig() {
 
 // Validate database configuration (only when needed)
 export function validateDatabaseConfig() {
-  if (!databaseConfig.poolingUrl && !databaseConfig.url) {
+  if (!resolveDatabaseConnectionUrl()) {
     throw new Error(
       "POOLING_DATABASE_URL or DATABASE_URL is required"
     );
@@ -127,7 +132,7 @@ export function getSupabaseAnonKey(): string {
 
 export function getDatabaseUrl(): string {
   validateDatabaseConfig();
-  return databaseConfig.poolingUrl || databaseConfig.url!;
+  return resolveDatabaseConnectionUrl()!;
 }
 
 export function getAppUrl(): string {

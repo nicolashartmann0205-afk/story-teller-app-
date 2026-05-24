@@ -5,6 +5,7 @@
 import { config } from "dotenv";
 import { resolve } from "path";
 import postgres from "postgres";
+import { isValidPostgresUrl, normalizeDatabaseUrl } from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -19,18 +20,23 @@ function maskUrl(url: string): string {
 }
 
 async function testDatabase(label: string, url: string | undefined): Promise<boolean> {
-  if (!url?.trim()) {
+  const normalized = normalizeDatabaseUrl(url);
+  if (!normalized) {
     console.log(`  ${label}: not set`);
     return false;
   }
-  const sql = postgres(url.trim(), { prepare: false, max: 1, connect_timeout: 10 });
+  if (!isValidPostgresUrl(normalized)) {
+    console.log(`  ${label}: FAIL (invalid url) — must start with postgresql:// and be a complete Supabase pooler URI`);
+    return false;
+  }
+  const sql = postgres(normalized, { prepare: false, max: 1, connect_timeout: 10 });
   try {
     const [{ ok }] = await sql`SELECT 1 AS ok`;
-    console.log(`  ${label}: OK (${maskUrl(url)})`);
+    console.log(`  ${label}: OK (${maskUrl(normalized)})`);
     return ok === 1;
   } catch (error) {
     console.log(
-      `  ${label}: FAIL (${maskUrl(url)}) — ${error instanceof Error ? error.message : error}`
+      `  ${label}: FAIL (${maskUrl(normalized)}) — ${error instanceof Error ? error.message : error}`
     );
     return false;
   } finally {
@@ -61,8 +67,8 @@ async function testGemini(key: string | undefined): Promise<boolean> {
 }
 
 async function main() {
-  const pooling = process.env.POOLING_DATABASE_URL?.trim();
-  const database = process.env.DATABASE_URL?.trim();
+  const pooling = normalizeDatabaseUrl(process.env.POOLING_DATABASE_URL);
+  const database = normalizeDatabaseUrl(process.env.DATABASE_URL);
   const gemini = process.env.GEMINI_API_KEY?.trim();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 

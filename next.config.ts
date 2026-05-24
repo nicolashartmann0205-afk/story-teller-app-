@@ -75,7 +75,7 @@ const nextConfig: NextConfig = {
   // Use output.standalone to help with serverless deployments
   output: 'standalone',
   // Externalize pdf-parse to prevent Next.js from analyzing it (we use alias for pdfjs-dist)
-  serverExternalPackages: ['pdf-parse', '@napi-rs/canvas'],
+  serverExternalPackages: ['pdf-parse', '@napi-rs/canvas', 'postgres'],
   // Add empty turbopack config to silence the warning about webpack config with Turbopack
   // The webpack config is still needed for the build process
   turbopack: {},
