@@ -9,8 +9,6 @@ import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucid
 import { getStyleGuidesForUser } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
 import { getRequestUser } from "@/lib/auth/request-user";
-import { isBlogAdminUser } from "@/lib/blog/admin";
-import { dashboardDataLoadWarning } from "@/lib/db/connection-error";
 
 export const dynamic = "force-dynamic";
 
@@ -95,9 +93,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     recentStories = dashboardData.recentStories;
   } catch (error) {
     console.error("Failed to load dashboard data", error);
-    dataLoadWarning = dashboardDataLoadWarning(error, {
-      isOwner: isBlogAdminUser(user.id, user.email),
-    });
+    dataLoadWarning =
+      "We could not load your story stats right now. You can still create stories — if this persists, check that POOLING_DATABASE_URL is set on Vercel.";
   }
 
   let styleGuides: Awaited<ReturnType<typeof getStyleGuidesForUser>> = [];
