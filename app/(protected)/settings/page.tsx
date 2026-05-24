@@ -14,6 +14,7 @@ import {
 import { db } from "@/lib/db";
 import { creditTransactions, users } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
+import { getDatabaseDiagnostics } from "@/lib/db/diagnostics";
 import ProfileForm from "./profile-form";
 import {
   adminGrantCredits,
@@ -100,20 +101,50 @@ export default async function ProfilePage() {
   }
 
   // Fetch user profile from DB
-  const [userProfile] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  const creditBalance = await getUserCreditBalance(user.id);
-  const recentCreditTransactions = await db
-    .select({
-      id: creditTransactions.id,
-      type: creditTransactions.type,
-      amount: creditTransactions.amount,
-      reason: creditTransactions.reason,
-      createdAt: creditTransactions.createdAt,
-    })
-    .from(creditTransactions)
-    .where(eq(creditTransactions.userId, user.id))
-    .orderBy(desc(creditTransactions.createdAt))
-    .limit(8);
+  let userProfile: (typeof users.$inferSelect) | undefined;
+  let creditBalance = 0;
+  let recentCreditTransactions: {
+    id: string;
+    type: string;
+    amount: number;
+    reason: string;
+    createdAt: Date;
+  }[] = [];
+  let dbWarning: string | null = null;
+
+  const dbDiagnostics = await getDatabaseDiagnostics();
+
+  if (!dbDiagnostics.configured) {
+    dbWarning =
+      "Database URL is missing on this server (POOLING_DATABASE_URL). Credits and profile cannot load until Vercel env is fixed.";
+  } else if (!dbDiagnostics.connected) {
+    dbWarning = `Cannot connect to database (${dbDiagnostics.host ?? "unknown"}).`;
+  }
+
+  try {
+    [userProfile] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    creditBalance = await getUserCreditBalance(user.id);
+    recentCreditTransactions = await db
+      .select({
+        id: creditTransactions.id,
+        type: creditTransactions.type,
+        amount: creditTransactions.amount,
+        reason: creditTransactions.reason,
+        createdAt: creditTransactions.createdAt,
+      })
+      .from(creditTransactions)
+      .where(eq(creditTransactions.userId, user.id))
+      .orderBy(desc(creditTransactions.createdAt))
+      .limit(8);
+  } catch (error) {
+    console.error("Settings page DB load failed", error);
+    if (!dbWarning) {
+      dbWarning =
+        error instanceof Error
+          ? `Database error: ${error.message}`
+          : "Could not load credits or profile from the database.";
+    }
+  }
   const canGrantCredits = isBlogAdminUser(user.id, user.email);
 
   const metadataBaseUrl = getAppUrl().replace(/\/$/, "") || "http://localhost:3000";
@@ -134,6 +165,16 @@ export default async function ProfilePage() {
              ← Back to Dashboard
            </Link>
         </div>
+        {dbWarning ? (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+            {dbWarning}
+            <p className="mt-2 text-xs opacity-90">
+              Signed in as <strong>{user.email}</strong> (id: <code className="break-all">{user.id}</code>).
+              Run <code className="text-xs">pnpm db:sync-env-vercel --deploy</code> locally after setting{" "}
+              <code className="text-xs">VERCEL_TOKEN</code> in .env.local.
+            </p>
+          </div>
+        ) : null}
         <div className="bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
           <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
             <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">

@@ -9,8 +9,8 @@ import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucid
 import { getStyleGuidesForUser } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
 import { getRequestUser } from "@/lib/auth/request-user";
-import { isBlogAdminUser } from "@/lib/blog/admin";
-import { probeDatabase } from "@/lib/db/probe";
+import { getDatabaseDiagnostics, getStoryCountForUser } from "@/lib/db/diagnostics";
+import { isDatabaseConfigured } from "@/lib/db/is-configured";
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +79,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const sp = await searchParams;
   const blogAdminAccessDenied = sp.blogAdmin === "denied";
-  const isAdmin = isBlogAdminUser(user.id, user.email);
 
   let stats = {
     totalStories: 0,
@@ -90,28 +89,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let recentStories: Awaited<ReturnType<typeof getDashboardData>>["recentStories"] = [];
   let dataLoadWarning: string | null = null;
 
-  const dbProbe = await probeDatabase();
-  if (!dbProbe.ok) {
+  const dbDiagnostics = await getDatabaseDiagnostics();
+  if (!dbDiagnostics.configured) {
     dataLoadWarning =
-      dbProbe.code === "NOT_CONFIGURED"
-        ? "The live site is not connected to your Supabase database yet. Set POOLING_DATABASE_URL in Vercel → Environment Variables (Production), paste the value from your local .env.local, then redeploy. Your stories and credits are still in Supabase — they are not lost."
-        : "The live site cannot reach your Supabase database (connection failed). In Vercel, update POOLING_DATABASE_URL with the Transaction pooler URI from Supabase (port 6543), mark it Sensitive, apply to Production, and redeploy.";
-    if (isAdmin) {
-      dataLoadWarning += ` Admin detail: ${dbProbe.message}`;
-    }
-  } else {
-    try {
-      const dashboardData = await getDashboardData(user.id);
-      stats = dashboardData.stats;
-      recentStories = dashboardData.recentStories;
-    } catch (error) {
-      console.error("Failed to load dashboard data", error);
-      const detail = error instanceof Error ? error.message : "Unknown error";
-      dataLoadWarning =
-        "We could not load your story stats from the database. If you just fixed Vercel env vars, redeploy and try again.";
-      if (isAdmin) {
-        dataLoadWarning += ` Admin detail: ${detail}`;
-      }
+      "Your stories and credits are stored in the database, but this server is missing POOLING_DATABASE_URL on Vercel. Add the Supabase pooler URL (same project as auth), redeploy, then refresh.";
+  } else if (!dbDiagnostics.connected) {
+    dataLoadWarning = `Could not connect to the database (${dbDiagnostics.host ?? "unknown host"}). Check POOLING_DATABASE_URL on Vercel matches your Supabase project.`;
+  }
+
+  try {
+    const dashboardData = await getDashboardData(user.id);
+    stats = dashboardData.stats;
+    recentStories = dashboardData.recentStories;
+  } catch (error) {
+    console.error("Failed to load dashboard data", error);
+    if (!dataLoadWarning) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      dataLoadWarning = isDatabaseConfigured()
+        ? `Could not load your stories (${message}). Your account id is ${user.id} — if stories exist under a different login, sign in with that email.`
+        : "Database is not configured on this deployment. Set POOLING_DATABASE_URL on Vercel to the same Supabase project where your stories were created.";
     }
   }
 
@@ -120,6 +116,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     styleGuides = await getStyleGuidesForUser(user.id);
   } catch (error) {
     console.error("Failed to load style guides for dashboard", error);
+  }
+
+  if (
+    dbDiagnostics.connected &&
+    stats.totalStories === 0 &&
+    !dataLoadWarning
+  ) {
+    const dbStoryCount = await getStoryCountForUser(user.id);
+    if (dbStoryCount === 0 && recentStories.length === 0) {
+      const email = (user.email || "").toLowerCase();
+      const hint =
+        email === "nicolashartmann0205@gmail.com"
+          ? " Your 63 stories are on the nicolas@hartmanns.net account — sign out and sign in with that email (or link Google to that account in Supabase)."
+          : email !== "nicolas@hartmanns.net"
+            ? " If you created stories with nicolas@hartmanns.net, sign in with that email instead."
+            : "";
+      dataLoadWarning = `No stories found for this account (${user.email ?? user.id}).${hint}`;
+    }
   }
 
   // Determine greeting based on time of day
