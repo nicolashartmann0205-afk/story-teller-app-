@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:enable-password-hibp": "tsx scripts/enable-supabase-password-hibp.ts",
     "db:validate-env": "tsx scripts/validate-env.ts",
+    "db:check-user-stories": "tsx scripts/check-user-stories.ts",
     "db:copy-env-vercel": "tsx scripts/copy-env-for-vercel.ts",
     "db:sync-env-vercel": "tsx scripts/sync-env-to-vercel.ts",
     "db:check": "tsx scripts/check-db-state.ts",

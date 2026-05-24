@@ -93,8 +93,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     recentStories = dashboardData.recentStories;
   } catch (error) {
     console.error("Failed to load dashboard data", error);
+    const errMsg = error instanceof Error ? error.message : String(error);
     dataLoadWarning =
-      "We could not load your story stats right now. You can still create stories — if this persists, check that POOLING_DATABASE_URL is set on Vercel.";
+      errMsg.includes("DATABASE_NOT_CONFIGURED") || errMsg.includes("DATABASE_URL")
+        ? "Production cannot reach your database yet. Your stories and credits are still saved — add POOLING_DATABASE_URL in Vercel (Settings → Environment Variables → Production), paste the value from your local .env.local, then Redeploy."
+        : `We could not load your story stats (${errMsg}). Your account is signed in as ${user.email ?? user.id}.`;
   }
 
   let styleGuides: Awaited<ReturnType<typeof getStyleGuidesForUser>> = [];

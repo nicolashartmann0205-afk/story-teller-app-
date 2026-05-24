@@ -64,12 +64,32 @@ async function main() {
   const pooling = process.env.POOLING_DATABASE_URL?.trim();
   const database = process.env.DATABASE_URL?.trim();
   const gemini = process.env.GEMINI_API_KEY?.trim();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
   console.log("Environment validation\n");
 
   const poolOk = await testDatabase("POOLING_DATABASE_URL", pooling);
   const dbOk = pooling ? true : await testDatabase("DATABASE_URL", database);
   const geminiOk = await testGemini(gemini);
+
+  if (supabaseUrl && pooling) {
+    try {
+      const ref = new URL(supabaseUrl).hostname.split(".")[0];
+      const poolHost = new URL(pooling.replace(/^postgres(ql)?:/, "http:")).hostname;
+      const aligned =
+        poolHost.includes(ref) || poolHost.includes("pooler.supabase.com");
+      console.log(
+        `  Supabase ↔ DB project: ${aligned ? "OK" : "WARN — URL hosts may be different projects"}`
+      );
+      if (!aligned) {
+        console.log(
+          "    Ensure NEXT_PUBLIC_SUPABASE_URL and POOLING_DATABASE_URL are from the same Supabase project."
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }
 
   const runtimeOk = poolOk || dbOk;
   console.log("");
