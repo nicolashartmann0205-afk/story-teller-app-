@@ -1,60 +1,56 @@
 /**
- * Check story/credit counts for a user email in the configured database.
- * Usage: pnpm exec tsx scripts/check-user-data.ts [email]
+ * Check stories + credits for a user by email (uses .env.local DB).
+ * Usage: pnpm exec tsx scripts/check-user-data.ts nicolas@hartmanns.net
  */
 import { config } from "dotenv";
 import { resolve } from "path";
+import { count, eq, sql } from "drizzle-orm";
 import postgres from "postgres";
+import { stories, userCredits } from "../lib/db/schema";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
 
-const emailFilter = (process.argv[2] || "nicolas").trim();
+const email = (process.argv[2] || "nicolas@hartmanns.net").trim().toLowerCase();
+const url =
+  process.env.POOLING_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim();
 
 async function main() {
-  const url =
-    process.env.POOLING_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim();
   if (!url) {
     console.error("Set POOLING_DATABASE_URL or DATABASE_URL in .env.local");
     process.exit(1);
   }
 
-  const sql = postgres(url, { prepare: false, max: 1 });
+  const sqlClient = postgres(url, { prepare: false, max: 1 });
   try {
-    const [{ total_stories }] = await sql`
-      SELECT count(*)::int AS total_stories FROM public.stories
+    const users = await sqlClient`
+      SELECT id, email FROM auth.users WHERE lower(email) = ${email} LIMIT 1
     `;
-    console.log(`Database host: ${new URL(url.replace(/^postgres(ql)?:/, "http:")).hostname}`);
-    console.log(`Total stories in DB: ${total_stories}`);
-
-    const users = await sql`
-      SELECT
-        u.id,
-        u.email,
-        (SELECT count(*)::int FROM public.stories s WHERE s.user_id = u.id) AS story_count,
-        (SELECT balance FROM public.user_credits c WHERE c.user_id = u.id) AS credits
-      FROM auth.users u
-      WHERE u.email ILIKE ${"%" + emailFilter + "%"}
-      ORDER BY story_count DESC
-      LIMIT 10
-    `;
-
-    if (users.length === 0) {
-      console.log(`No auth.users matching email filter: ${emailFilter}`);
-    } else {
-      console.log("\nMatching users:");
-      for (const row of users) {
-        console.log(
-          `  ${row.email} | id=${row.id} | stories=${row.story_count} | credits=${row.credits ?? "none"}`
-        );
-      }
+    const user = users[0];
+    if (!user) {
+      console.error(`No auth.users row for ${email}`);
+      process.exit(1);
     }
+
+    const [storyRow] = await sqlClient`
+      SELECT count(*)::int AS c FROM public.stories WHERE user_id = ${user.id}
+    `;
+    const [creditRow] = await sqlClient`
+      SELECT balance, monthly_free_quota FROM public.user_credits WHERE user_id = ${user.id}
+    `;
+
+    console.log(`User: ${user.email}`);
+    console.log(`ID:   ${user.id}`);
+    console.log(`Stories in DB: ${storyRow?.c ?? 0}`);
+    console.log(
+      `Credits: ${creditRow?.balance ?? "(no row)"} / quota ${creditRow?.monthly_free_quota ?? "—"}`,
+    );
   } finally {
-    await sql.end({ timeout: 5 });
+    await sqlClient.end();
   }
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
 });
