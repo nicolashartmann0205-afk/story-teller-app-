@@ -17,22 +17,12 @@ const STEPS = {
   pooling: {
     envKey: "POOLING_DATABASE_URL",
     vercelName: "POOLING_DATABASE_URL",
-    hint: "REQUIRED for stories/credits on production. Supabase Transaction pooler (port 6543). Sensitive → Production + Preview.",
+    hint: "Supabase Transaction pooler (port 6543). Mark Sensitive. Apply to Production + Preview.",
   },
   database: {
     envKey: "DATABASE_URL",
     vercelName: "DATABASE_URL",
-    hint: "Optional fallback. Can match pooler URI or use Direct (5432).",
-  },
-  supabaseUrl: {
-    envKey: "NEXT_PUBLIC_SUPABASE_URL",
-    vercelName: "NEXT_PUBLIC_SUPABASE_URL",
-    hint: "Must be the same Supabase project as POOLING_DATABASE_URL.",
-  },
-  supabaseAnon: {
-    envKey: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    vercelName: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    hint: "Supabase anon key for the same project.",
+    hint: "Same pooler URI is OK for now, or use Supabase Direct (5432) for migrations fallback.",
   },
   gemini: {
     envKey: "GEMINI_API_KEY",
@@ -79,10 +69,10 @@ if (arg === "all") {
     runStep(key);
     console.log("---");
   }
-  console.log("After all are saved: Deployments → Redeploy latest Production.");
+  console.log("After all three are saved: Deployments → Redeploy latest Production.");
 } else if (arg in STEPS) {
   runStep(arg as StepKey);
 } else {
-  console.error("Usage: copy-env-for-vercel.ts [pooling|database|supabaseUrl|supabaseAnon|gemini|all]");
+  console.error("Usage: copy-env-for-vercel.ts [pooling|database|gemini|all]");
   process.exit(1);
 }
