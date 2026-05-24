@@ -14,6 +14,7 @@
     "db:validate-env": "tsx scripts/validate-env.ts",
     "db:copy-env-vercel": "tsx scripts/copy-env-for-vercel.ts",
     "db:sync-env-vercel": "tsx scripts/sync-env-to-vercel.ts",
+    "db:check-user-data": "tsx scripts/check-user-data.ts",
     "db:check": "tsx scripts/check-db-state.ts",
     "db:repair-blog-posts": "tsx scripts/apply-blog-posts-table.ts",
     "db:sync-blog-posts": "tsx scripts/sync-blog-posts.ts",

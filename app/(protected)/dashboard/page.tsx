@@ -9,6 +9,8 @@ import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucid
 import { getStyleGuidesForUser } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
 import { getRequestUser } from "@/lib/auth/request-user";
+import { isBlogAdminUser } from "@/lib/blog/admin";
+import { probeDatabase } from "@/lib/db/probe";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +79,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const sp = await searchParams;
   const blogAdminAccessDenied = sp.blogAdmin === "denied";
+  const isAdmin = isBlogAdminUser(user.id, user.email);
 
   let stats = {
     totalStories: 0,
@@ -87,14 +90,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   let recentStories: Awaited<ReturnType<typeof getDashboardData>>["recentStories"] = [];
   let dataLoadWarning: string | null = null;
 
-  try {
-    const dashboardData = await getDashboardData(user.id);
-    stats = dashboardData.stats;
-    recentStories = dashboardData.recentStories;
-  } catch (error) {
-    console.error("Failed to load dashboard data", error);
+  const dbProbe = await probeDatabase();
+  if (!dbProbe.ok) {
     dataLoadWarning =
-      "We could not load your story stats right now. You can still create stories — if this persists, check that POOLING_DATABASE_URL is set on Vercel.";
+      dbProbe.code === "NOT_CONFIGURED"
+        ? "The live site is not connected to your Supabase database yet. Set POOLING_DATABASE_URL in Vercel → Environment Variables (Production), paste the value from your local .env.local, then redeploy. Your stories and credits are still in Supabase — they are not lost."
+        : "The live site cannot reach your Supabase database (connection failed). In Vercel, update POOLING_DATABASE_URL with the Transaction pooler URI from Supabase (port 6543), mark it Sensitive, apply to Production, and redeploy.";
+    if (isAdmin) {
+      dataLoadWarning += ` Admin detail: ${dbProbe.message}`;
+    }
+  } else {
+    try {
+      const dashboardData = await getDashboardData(user.id);
+      stats = dashboardData.stats;
+      recentStories = dashboardData.recentStories;
+    } catch (error) {
+      console.error("Failed to load dashboard data", error);
+      const detail = error instanceof Error ? error.message : "Unknown error";
+      dataLoadWarning =
+        "We could not load your story stats from the database. If you just fixed Vercel env vars, redeploy and try again.";
+      if (isAdmin) {
+        dataLoadWarning += ` Admin detail: ${detail}`;
+      }
+    }
   }
 
   let styleGuides: Awaited<ReturnType<typeof getStyleGuidesForUser>> = [];
