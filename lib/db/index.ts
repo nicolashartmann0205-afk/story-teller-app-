@@ -1,6 +1,7 @@
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { getDatabaseConnectionUrl } from "./connection-string";
+import { isDatabaseConfigured } from "./is-configured";
 import * as schema from "./schema";
 import * as aiSchema from "./ai-schema";
 
@@ -14,6 +15,9 @@ const globalForDb = globalThis as typeof globalThis & {
 };
 
 function createDb(): Database {
+  if (!isDatabaseConfigured()) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
   const connectionString = getDatabaseConnectionUrl();
   // Disable prefetch as it is not supported for "Transaction" pool mode
   const client = postgres(connectionString, { prepare: false });

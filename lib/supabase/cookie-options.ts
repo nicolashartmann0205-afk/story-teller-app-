@@ -18,14 +18,31 @@ function hostnameFromContext(context?: { host?: string }): string | undefined {
   return host.split(":")[0]?.toLowerCase();
 }
 
+/** Known production hosts — always share cookies across apex + www. */
+function productionCookieDomainForHost(hostname: string): string | undefined {
+  const h = hostname.toLowerCase();
+  if (h === "storyinthemaking.com" || h === "www.storyinthemaking.com") {
+    return ".storyinthemaking.com";
+  }
+  return undefined;
+}
+
 /**
  * Shared cookie domain for apex + www (e.g. `.storyinthemaking.com`).
- * Prefers explicit AUTH_COOKIE_DOMAIN, then NEXT_PUBLIC_APP_URL, then request host.
+ * Prefers explicit AUTH_COOKIE_DOMAIN, then known production host, then NEXT_PUBLIC_APP_URL / request host.
  */
 function resolveSharedDomain(context?: { host?: string }): string | undefined {
   const explicit = process.env.AUTH_COOKIE_DOMAIN?.trim();
   if (explicit) {
     return normalizeLeadingDotDomain(explicit);
+  }
+
+  const requestHost = hostnameFromContext(context);
+  if (requestHost) {
+    const knownProduction = productionCookieDomainForHost(requestHost);
+    if (knownProduction) {
+      return knownProduction;
+    }
   }
 
   const hostnames: string[] = [];
@@ -40,9 +57,9 @@ function resolveSharedDomain(context?: { host?: string }): string | undefined {
     }
   }
 
-  const requestHost = hostnameFromContext(context);
-  if (requestHost) {
-    hostnames.push(requestHost);
+  const requestHostForFallback = hostnameFromContext(context);
+  if (requestHostForFallback) {
+    hostnames.push(requestHostForFallback);
   }
 
   for (const hostname of hostnames) {
@@ -82,7 +99,13 @@ export function getSupabaseCookieOptions(
   }
 
   if (process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "production") {
-    return undefined;
+    // Still allow shared domain on the live production hostname during preview testing.
+    const host =
+      context?.host ??
+      (typeof window !== "undefined" ? window.location.hostname : undefined);
+    if (!host || !productionCookieDomainForHost(host)) {
+      return undefined;
+    }
   }
 
   return {

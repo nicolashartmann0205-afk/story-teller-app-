@@ -6,9 +6,11 @@ import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucide-react";
-import { getStyleGuides } from "../style-guide/actions";
+import { getStyleGuidesForUser } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
 import { getRequestUser } from "@/lib/auth/request-user";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = selfReferencingCanonical("/dashboard");
 
@@ -83,6 +85,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     completionRate: 0,
   };
   let recentStories: Awaited<ReturnType<typeof getDashboardData>>["recentStories"] = [];
+  let dataLoadWarning: string | null = null;
 
   try {
     const dashboardData = await getDashboardData(user.id);
@@ -90,10 +93,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     recentStories = dashboardData.recentStories;
   } catch (error) {
     console.error("Failed to load dashboard data", error);
+    dataLoadWarning =
+      "We could not load your story stats right now. You can still create stories — if this persists, check that POOLING_DATABASE_URL is set on Vercel.";
   }
 
-  // Fetch style guides for the selector
-  const styleGuides = await getStyleGuides().catch(() => []);
+  let styleGuides: Awaited<ReturnType<typeof getStyleGuidesForUser>> = [];
+  try {
+    styleGuides = await getStyleGuidesForUser(user.id);
+  } catch (error) {
+    console.error("Failed to load style guides for dashboard", error);
+  }
 
   // Determine greeting based on time of day
   const hour = new Date().getHours();
@@ -104,6 +113,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   return (
     <div className="min-h-screen bg-brand-seafoam dark:bg-brand-ink pb-12">
+      {dataLoadWarning ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/40">
+          <p className="mx-auto max-w-7xl text-sm text-amber-950 dark:text-amber-100">{dataLoadWarning}</p>
+        </div>
+      ) : null}
       {blogAdminAccessDenied && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/40">
           <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
@@ -212,7 +226,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       </div>
                       <span className="text-xs text-brand-ink/80 dark:text-brand-seafoam flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {new Date(story.updatedAt).toLocaleDateString()}
+                        {story.updatedAt
+                          ? new Date(story.updatedAt).toLocaleDateString()
+                          : "—"}
                       </span>
                     </div>
                     

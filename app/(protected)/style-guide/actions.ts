@@ -14,10 +14,15 @@ export async function getStyleGuides() {
     throw new Error("Unauthorized");
   }
 
-  const guides = await db.query.styleGuides.findMany({
-    where: eq(styleGuides.userId, user.id),
-    orderBy: [desc(styleGuides.updatedAt)],
-  });
+  return getStyleGuidesForUser(user.id);
+}
+
+export async function getStyleGuidesForUser(userId: string) {
+  const guides = await db
+    .select()
+    .from(styleGuides)
+    .where(eq(styleGuides.userId, userId))
+    .orderBy(desc(styleGuides.updatedAt));
 
   return guides;
 }
