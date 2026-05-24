@@ -76,7 +76,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const sp = await searchParams;
   const blogAdminAccessDenied = sp.blogAdmin === "denied";
 
-  const { stats, recentStories } = await getDashboardData(user.id);
+  let stats = {
+    totalStories: 0,
+    totalWords: 0,
+    streak: 0,
+    completionRate: 0,
+  };
+  let recentStories: Awaited<ReturnType<typeof getDashboardData>>["recentStories"] = [];
+
+  try {
+    const dashboardData = await getDashboardData(user.id);
+    stats = dashboardData.stats;
+    recentStories = dashboardData.recentStories;
+  } catch (error) {
+    console.error("Failed to load dashboard data", error);
+  }
+
   // Fetch style guides for the selector
   const styleGuides = await getStyleGuides().catch(() => []);
 

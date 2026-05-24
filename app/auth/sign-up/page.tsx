@@ -6,7 +6,7 @@ import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { isAuthDebugEnabled } from "@/lib/auth/debug";
 import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { formatPasswordAuthError } from "@/lib/auth/format-password-auth-error";
-import { createClient } from "@/lib/supabase/server";
+import { createActionClient } from "@/lib/supabase/server-action";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import SignUpForm from "./sign-up-form";
 
@@ -41,7 +41,7 @@ async function signUpAction(previousState: { error?: string } | null | void, for
     return { error: "Email and password are required" };
   }
 
-  const supabase = await createClient();
+  const supabase = await createActionClient();
 
   const callbackUrl = new URL(await getAuthCallbackUrlForRequest());
   callbackUrl.searchParams.set("next", nextPath);
@@ -61,7 +61,8 @@ async function signUpAction(previousState: { error?: string } | null | void, for
   const back = rawNext
     ? withRedirectedFrom(AUTH_ROUTES.SIGN_IN, rawNext)
     : AUTH_ROUTES.SIGN_IN;
-  redirect(back);
+  const separator = back.includes("?") ? "&" : "?";
+  redirect(`${back}${separator}signup=confirm`);
 }
 
 type SignUpPageProps = {

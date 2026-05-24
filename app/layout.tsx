@@ -22,7 +22,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getAppUrl().replace(/\/$/, "") || "http://localhost:3000"),
+  metadataBase: (() => {
+    try {
+      return new URL(getAppUrl().replace(/\/$/, "") || "http://localhost:3000");
+    } catch {
+      return new URL("http://localhost:3000");
+    }
+  })(),
   title: {
     default: DEFAULT_PAGE_TITLE,
     template: TITLE_TEMPLATE,

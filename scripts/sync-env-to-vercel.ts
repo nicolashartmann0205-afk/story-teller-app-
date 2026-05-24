@@ -20,7 +20,15 @@ const PROJECT_NAME = (process.env.VERCEL_PROJECT_NAME || "story-teller-app-").tr
 const VERCEL_TOKEN = (process.env.VERCEL_TOKEN || "").trim();
 const SHOULD_DEPLOY = process.argv.includes("--deploy");
 
-const ENV_KEYS = ["POOLING_DATABASE_URL", "DATABASE_URL", "GEMINI_API_KEY"] as const;
+const ENV_KEYS = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "NEXT_PUBLIC_APP_URL",
+  "AUTH_COOKIE_DOMAIN",
+  "POOLING_DATABASE_URL",
+  "DATABASE_URL",
+  "GEMINI_API_KEY",
+] as const;
 
 type VercelEnv = {
   id: string;

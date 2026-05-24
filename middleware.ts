@@ -13,12 +13,28 @@ function isLocalOrPreviewHost(hostname: string): boolean {
   return false;
 }
 
+/** Never bounce OAuth/auth flows between apex and www — breaks PKCE and session cookies. */
+function shouldSkipHostNormalization(request: NextRequest): boolean {
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith("/auth/")) {
+    return true;
+  }
+  if (
+    request.nextUrl.searchParams.has("code") ||
+    request.nextUrl.searchParams.has("error")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function redirectUrlForCanonicalHost(request: NextRequest): URL | null {
   const rawApp = process.env.NEXT_PUBLIC_APP_URL?.trim();
   if (!rawApp) return null;
 
   try {
-    const canonical = new URL(rawApp);
+    const normalized = /^https?:\/\//i.test(rawApp) ? rawApp : `https://${rawApp}`;
+    const canonical = new URL(normalized);
     if (isLocalOrPreviewHost(canonical.hostname)) return null;
 
     const forwarded = request.headers.get("x-forwarded-host");
@@ -43,11 +59,8 @@ function redirectUrlForCanonicalHost(request: NextRequest): URL | null {
 }
 
 /**
- * OAuth root callback: send the browser to `AUTH_ROUTES.CALLBACK` on a single stable origin.
- *
- * When `NEXT_PUBLIC_APP_URL` is set and matches the same site as the request (apex vs www),
- * use that origin — avoids apex↔www redirect loops when forwarded headers disagree with Vercel.
- * Otherwise fall back to `x-forwarded-host` / `host` (local preview, missing env).
+ * OAuth root callback: send the browser to `/auth/callback` on the **same host** that received
+ * `?code=`, so PKCE verifier cookies match the exchange (see docs/oauth-callback-production.md).
  */
 function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
   const url = request.nextUrl;
@@ -56,26 +69,6 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
   }
 
   const search = url.search;
-  const rawApp = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (rawApp) {
-    try {
-      const canonical = new URL(rawApp);
-      const forwarded = request.headers.get("x-forwarded-host");
-      const hostHeader =
-        forwarded?.split(",")[0]?.trim() || request.headers.get("host") || "";
-      const reqHostname = hostHeader.split(":")[0]?.toLowerCase() ?? "";
-      if (
-        !reqHostname ||
-        registrableHost(reqHostname) ===
-          registrableHost(canonical.hostname)
-      ) {
-        return new URL(`${AUTH_ROUTES.CALLBACK}${search}`, canonical.origin);
-      }
-    } catch {
-      // fall through to forwarded headers
-    }
-  }
-
   const forwarded = request.headers.get("x-forwarded-host");
   const hostHeader =
     forwarded?.split(",")[0]?.trim() || request.headers.get("host") || "";
@@ -93,17 +86,17 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
 }
 
 export async function middleware(request: NextRequest) {
-  const canonicalRedirect = redirectUrlForCanonicalHost(request);
-  if (canonicalRedirect) {
-    return NextResponse.redirect(canonicalRedirect);
-  }
-
-  // OAuth sometimes lands on Site URL root (?code=) instead of /auth/callback; redirect so path matches /auth/callback (cookies/PKCE).
-  // If this redirect ever changes origin vs where the PKCE cookie was set, exchange can fail — align NEXT_PUBLIC_APP_URL,
-  // AUTH_COOKIE_DOMAIN, and Supabase Redirect URLs (see docs/oauth-callback-production.md).
+  // Handle OAuth on `/` before any apex↔www normalization.
   const oauthRedirect = redirectUrlForOAuthRootCode(request);
   if (oauthRedirect) {
     return NextResponse.redirect(oauthRedirect);
+  }
+
+  if (!shouldSkipHostNormalization(request)) {
+    const canonicalRedirect = redirectUrlForCanonicalHost(request);
+    if (canonicalRedirect) {
+      return NextResponse.redirect(canonicalRedirect);
+    }
   }
 
   return await updateSession(request);
@@ -121,4 +114,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

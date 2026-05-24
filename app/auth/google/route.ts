@@ -5,30 +5,11 @@ import { safeRelativeNextPath } from "@/lib/auth/safe-next-path";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/config/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
-function registrableHost(hostname: string): string {
-  const h = hostname.toLowerCase();
-  return h.startsWith("www.") ? h.slice(4) : h;
-}
-
-function getCanonicalOrigin(currentUrl: URL): string {
-  const rawApp = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (!rawApp) return currentUrl.origin;
-  try {
-    const canonical = new URL(rawApp);
-    if (registrableHost(canonical.hostname) === registrableHost(currentUrl.hostname)) {
-      return canonical.origin;
-    }
-    return currentUrl.origin;
-  } catch {
-    return currentUrl.origin;
-  }
-}
-
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const nextPath = safeRelativeNextPath(url.searchParams.get("next"));
   const oauthRetry = url.searchParams.get("oauthRetry");
-  const callbackUrl = new URL(AUTH_ROUTES.CALLBACK, getCanonicalOrigin(url));
+  const callbackUrl = new URL(AUTH_ROUTES.CALLBACK, url.origin);
   callbackUrl.searchParams.set("next", nextPath);
   if (oauthRetry === "1") {
     callbackUrl.searchParams.set("oauthRetry", "1");

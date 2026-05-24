@@ -175,6 +175,7 @@ type SignInPageProps = {
     error_code?: string;
     error_description?: string;
     redirectedFrom?: string;
+    signup?: string;
   }>;
 };
 
@@ -217,6 +218,18 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <p>error_code: {sp.error_code ?? "null"}</p>
           </div>
         ) : null}
+        {sp.signup === "confirm" && (
+          <div
+            className="rounded-md bg-green-50 dark:bg-green-900/20 p-4"
+            role="status"
+          >
+            <p className="text-sm text-green-900 dark:text-green-100">
+              Check your email for a confirmation link to activate your account. After confirming,
+              return here to sign in. (Sign-up sends a link, not a 6-digit code — use email sign-in
+              below if you need a code instead.)
+            </p>
+          </div>
+        )}
         {authErrorMessage && (
           <div
             className="rounded-md bg-red-50 dark:bg-red-900/20 p-4"

@@ -21,10 +21,19 @@ export const databaseConfig = {
 };
 
 // App URL configuration (for redirects and API calls)
+function normalizePublicUrl(raw: string): string {
+  const trimmed = raw.trim().replace(/\/$/, "");
+  if (!trimmed) return "http://localhost:3000";
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 function getAppUrlFromEnv(): string {
   // Prefer NEXT_PUBLIC_APP_URL if set (should include protocol)
   if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
+    return normalizePublicUrl(process.env.NEXT_PUBLIC_APP_URL);
   }
   
   // VERCEL_URL doesn't include protocol, add it

@@ -61,6 +61,11 @@ export default function SignUpForm({
         </div>
       </div>
 
+      <p className="text-xs text-brand-ink/70 dark:text-brand-seafoam/80">
+        You will receive a confirmation link by email (not a 6-digit code). Check spam if it does
+        not arrive within a few minutes.
+      </p>
+
       <div>
         <button
           type="submit"
