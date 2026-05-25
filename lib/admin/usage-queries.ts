@@ -1,5 +1,11 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
+import { isDirectPostgresConnectionError } from "@/lib/db/supabase-fallback";
+import {
+  getAdminUsageStatsViaSupabase,
+  getRecentSignupsViaSupabase,
+} from "./usage-queries-supabase";
 
 export type AdminUsageStats = {
   totalUsers: number;
@@ -24,7 +30,7 @@ function toCount(value: unknown): number {
   return Number(value ?? 0);
 }
 
-export async function getAdminUsageStats(): Promise<AdminUsageStats> {
+async function getAdminUsageStatsViaPostgres(): Promise<AdminUsageStats> {
   const [row] = await db.execute<{
     total_users: string;
     new_users_7d: string;
@@ -88,7 +94,7 @@ export async function getAdminUsageStats(): Promise<AdminUsageStats> {
   };
 }
 
-export async function getRecentSignups(limit = 15): Promise<RecentSignup[]> {
+async function getRecentSignupsViaPostgres(limit = 15): Promise<RecentSignup[]> {
   const rows = await db.execute<{
     id: string;
     email: string;
@@ -105,4 +111,34 @@ export async function getRecentSignups(limit = 15): Promise<RecentSignup[]> {
     email: row.email,
     createdAt: new Date(row.created_at),
   }));
+}
+
+export async function getAdminUsageStats(): Promise<AdminUsageStats> {
+  if (shouldPreferSupabaseOverPostgres()) {
+    return getAdminUsageStatsViaSupabase();
+  }
+
+  try {
+    return await getAdminUsageStatsViaPostgres();
+  } catch (error) {
+    if (isDirectPostgresConnectionError(error)) {
+      return getAdminUsageStatsViaSupabase();
+    }
+    throw error;
+  }
+}
+
+export async function getRecentSignups(limit = 15): Promise<RecentSignup[]> {
+  if (shouldPreferSupabaseOverPostgres()) {
+    return getRecentSignupsViaSupabase(limit);
+  }
+
+  try {
+    return await getRecentSignupsViaPostgres(limit);
+  } catch (error) {
+    if (isDirectPostgresConnectionError(error)) {
+      return getRecentSignupsViaSupabase(limit);
+    }
+    throw error;
+  }
 }

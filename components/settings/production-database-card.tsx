@@ -68,10 +68,10 @@ export function ProductionDatabaseCard() {
                 Preview → Save
               </li>
               <li>Deployments → Redeploy Production</li>
-              <li>
-                Optional: add <code className="text-xs">SUPABASE_SERVICE_ROLE_KEY</code> (Supabase → Settings → API →
-                service_role) for a stronger fallback
-              </li>
+            <li>
+              Optional: add <code className="text-xs">SUPABASE_SERVICE_ROLE_KEY</code> (Supabase → Settings → API →
+              service_role) — required for <strong>Usage admin</strong> when the pooler URL is broken
+            </li>
             </ol>
             <p>
               <Link

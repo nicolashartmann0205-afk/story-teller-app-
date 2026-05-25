@@ -85,5 +85,9 @@ export function dashboardDataLoadWarning(
 }
 
 export function adminMetricsLoadWarning(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+    return `Could not load usage metrics. ${message} Or fix POOLING_DATABASE_URL on Vercel (pnpm db:copy-env-vercel pooling → paste → redeploy).`;
+  }
   return `Could not load usage metrics. ${dashboardDataLoadWarning(error, { isOwner: true })}`;
 }
