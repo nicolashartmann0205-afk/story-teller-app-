@@ -4,9 +4,12 @@ import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import { db } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getRequestUser } from "@/lib/auth/request-user";
+import { loadUserStories } from "@/lib/stories/load-user-stories";
+import { isDirectPostgresConnectionError } from "@/lib/db/supabase-fallback";
+import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
 
 export const metadata = selfReferencingCanonical("/stories");
 
@@ -18,31 +21,22 @@ async function getStories() {
       return { stories: [], error: "Unauthorized" };
     }
 
-    const userStories = await db
-      .select({
-        id: stories.id,
-        title: stories.title,
-        description: stories.description,
-        createdAt: stories.createdAt,
-      })
-      .from(stories)
-      .where(eq(stories.userId, user.id))
-      .orderBy(desc(stories.createdAt));
-    
-    // Explicitly check for potential nulls or serialization issues in development
-    const sanitizedStories = userStories.map(s => ({
-        ...s,
-        title: s.title || "Untitled",
-        description: s.description || "",
-        createdAt: s.createdAt ? new Date(s.createdAt) : new Date()
-    }));
+    const userStories = await loadUserStories(user.id);
 
-    return { stories: sanitizedStories, error: null };
+    return {
+      stories: userStories.map((s) => ({
+        ...s,
+        description: s.description || "",
+      })),
+      error: null,
+    };
   } catch (error) {
     console.error("Error fetching stories from DB:", error);
-    return { 
-      stories: [], 
-      error: "Error loading stories from database." 
+    return {
+      stories: [],
+      error: isDirectPostgresConnectionError(error)
+        ? "Could not load stories. The database pooler URL on Vercel may be wrong — stories are loaded via Supabase when possible."
+        : "Error loading stories from database.",
     };
   }
 }
@@ -57,14 +51,40 @@ async function deleteStoryAction(storyId: string) {
   }
 
   try {
-    await db
-      .delete(stories)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
-      
+    if (shouldPreferSupabaseOverPostgres()) {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = await createClient();
+      const { error } = await supabase
+        .from("stories")
+        .delete()
+        .eq("id", storyId)
+        .eq("user_id", user.id);
+      if (error) {
+        throw error;
+      }
+    } else {
+      try {
+        await db.delete(stories).where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+      } catch (error) {
+        if (!isDirectPostgresConnectionError(error)) {
+          throw error;
+        }
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = await createClient();
+        const { error: deleteError } = await supabase
+          .from("stories")
+          .delete()
+          .eq("id", storyId)
+          .eq("user_id", user.id);
+        if (deleteError) {
+          throw deleteError;
+        }
+      }
+    }
+
     revalidatePath("/stories");
   } catch (error) {
     console.error("Error deleting story:", error);
-    // In a real app we might want to return an error state
     return;
   }
 }

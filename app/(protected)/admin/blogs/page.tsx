@@ -3,10 +3,8 @@ import { redirect } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 import { BLOG_ADMIN_ACCESS_DENIED_PATH, BLOG_ADMIN_BASE_PATH, isBlogAdminUser } from "@/lib/blog/admin";
-import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
+import { listBlogPostsForAdmin } from "@/lib/blog/admin-posts-queries";
 
 export const metadata = selfReferencingCanonical("/admin/blogs");
 
@@ -22,7 +20,7 @@ export default async function AdminBlogsPage() {
     redirect(BLOG_ADMIN_ACCESS_DENIED_PATH);
   }
 
-  const rows = await db.select().from(blogPosts).orderBy(desc(blogPosts.publishedAt));
+  const rows = await listBlogPostsForAdmin();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

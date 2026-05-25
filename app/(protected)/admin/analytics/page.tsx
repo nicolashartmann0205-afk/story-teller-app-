@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { AUTH_ROUTES } from "@/lib/auth/routes";
-import { withRedirectedFrom } from "@/lib/auth/redirect-from";
+import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getRequestUser } from "@/lib/auth/request-user";
 import { ANALYTICS_ADMIN_PATH, USAGE_ADMIN_PATH } from "@/lib/admin/paths";
 import { isUsageAdminUser, USAGE_ADMIN_ACCESS_DENIED_PATH } from "@/lib/admin/usage-access";

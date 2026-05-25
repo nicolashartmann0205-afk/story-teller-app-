@@ -17,7 +17,8 @@ export type DashboardStoryRow = {
   mode: "quick" | "comprehensive" | null;
 };
 
-async function getSupabaseClientForUserData(userId: string): Promise<SupabaseClient> {
+/** Signed-in user JWT, or service role when acting on another user (admin tools). */
+export async function getSupabaseClientForUserData(userId: string): Promise<SupabaseClient> {
   const anon = (await createClient()) as unknown as SupabaseClient;
   const {
     data: { user },
@@ -118,6 +119,257 @@ export async function getUserCreditBalanceViaSupabase(userId: string): Promise<n
   }
 
   return data?.balance ?? 0;
+}
+
+export type UserStoryListRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  createdAt: Date;
+};
+
+export async function getUserStoriesListViaSupabase(userId: string): Promise<UserStoryListRow[]> {
+  const supabase = await getSupabaseClientForUserData(userId);
+  const { data, error } = await supabase
+    .from("stories")
+    .select("id, title, description, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    title: row.title || "Untitled",
+    description: row.description,
+    createdAt: new Date(row.created_at),
+  }));
+}
+
+export type UserProfileRow = {
+  id: string;
+  email: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  preferences: unknown;
+  analytics: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export async function getUserProfileViaSupabase(userId: string): Promise<UserProfileRow | null> {
+  const supabase = await getSupabaseClientForUserData(userId);
+  const { data, error } = await supabase.from("users").select("*").eq("id", userId).maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    email: data.email,
+    displayName: data.display_name,
+    avatarUrl: data.avatar_url,
+    bio: data.bio,
+    preferences: data.preferences,
+    analytics: data.analytics,
+    createdAt: new Date(data.created_at),
+    updatedAt: new Date(data.updated_at),
+  };
+}
+
+export type CreditTransactionRow = {
+  id: string;
+  type: string;
+  amount: number;
+  reason: string;
+  createdAt: Date;
+};
+
+export async function getRecentCreditTransactionsViaSupabase(
+  userId: string,
+  limit = 8
+): Promise<CreditTransactionRow[]> {
+  const supabase = await getSupabaseClientForUserData(userId);
+  const { data, error } = await supabase
+    .from("credit_transactions")
+    .select("id, type, amount, reason, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    type: row.type,
+    amount: row.amount,
+    reason: row.reason,
+    createdAt: new Date(row.created_at),
+  }));
+}
+
+export async function updateUserProfileViaSupabase(
+  userId: string,
+  fields: { displayName: string; bio: string }
+): Promise<void> {
+  const supabase = await getSupabaseClientForUserData(userId);
+  const { error } = await supabase
+    .from("users")
+    .update({
+      display_name: fields.displayName,
+      bio: fields.bio,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+/** Service role when configured; otherwise the signed-in session (owner RLS policies). */
+export async function getSupabaseClientForAdminOperations(): Promise<SupabaseClient> {
+  const service = getServiceRoleClient();
+  if (service) {
+    return service;
+  }
+  return (await createClient()) as unknown as SupabaseClient;
+}
+
+export type BlogPostAdminRow = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  publishedAt: Date;
+};
+
+export async function listBlogPostsAdminViaSupabase(): Promise<BlogPostAdminRow[]> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, description, published_at")
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    description: row.description,
+    publishedAt: new Date(row.published_at),
+  }));
+}
+
+export type FeedbackSubmissionRow = {
+  id: string;
+  email: string | null;
+  category: string;
+  subject: string;
+  message: string;
+  status: string;
+  createdAt: Date;
+};
+
+export async function listFeedbackSubmissionsViaSupabase(): Promise<FeedbackSubmissionRow[]> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const { data, error } = await supabase
+    .from("feedback_submissions")
+    .select("id, email, category, subject, message, status, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    email: row.email,
+    category: row.category,
+    subject: row.subject,
+    message: row.message,
+    status: row.status,
+    createdAt: new Date(row.created_at),
+  }));
+}
+
+export async function updateFeedbackStatusViaSupabase(id: string, status: string): Promise<void> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const { error } = await supabase
+    .from("feedback_submissions")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export type BlogPostSeoRow = {
+  slug: string;
+  title: string;
+  seoTitle: string | null;
+  metaDescription: string | null;
+  canonicalUrl: string | null;
+  updatedAt: Date;
+};
+
+export async function listBlogPostSeoRowsViaSupabase(): Promise<BlogPostSeoRow[]> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("slug, title, seo_title, meta_description, canonical_url, updated_at")
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => ({
+    slug: row.slug,
+    title: row.title,
+    seoTitle: row.seo_title,
+    metaDescription: row.meta_description,
+    canonicalUrl: row.canonical_url,
+    updatedAt: new Date(row.updated_at),
+  }));
+}
+
+export async function updateBlogPostSeoViaSupabase(
+  slug: string,
+  fields: { seoTitle: string | null; metaDescription: string | null; canonicalUrl: string | null }
+): Promise<boolean> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .update({
+      seo_title: fields.seoTitle,
+      meta_description: fields.metaDescription,
+      canonical_url: fields.canonicalUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("slug", slug)
+    .select("slug")
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return Boolean(data);
 }
 
 function messageIncludesPostgresFailure(message: string): boolean {

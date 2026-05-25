@@ -11,10 +11,9 @@ import {
   TITLE_TEMPLATE,
   selfReferencingCanonical,
 } from "@/lib/seo/site-metadata";
-import { db } from "@/lib/db";
-import { creditTransactions, users } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
 import ProfileForm from "./profile-form";
+import { loadSettingsPageData } from "@/lib/settings/load-settings-data";
+import { updateUserProfile } from "@/lib/settings/update-user-profile";
 import {
   adminGrantCredits,
   adminResetCreditsToDailyQuota,
@@ -42,14 +41,7 @@ async function updateProfileAction(previousState: { error?: string; success?: st
   }
 
   try {
-    await db.update(users)
-      .set({
-        displayName,
-        bio,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, user.id));
-
+    await updateUserProfile(user.id, { displayName, bio });
     return { success: "Profile updated successfully" };
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -120,21 +112,8 @@ export default async function ProfilePage() {
     redirect(AUTH_ROUTES.SIGN_IN);
   }
 
-  // Fetch user profile from DB
-  const [userProfile] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+  const { profile: userProfile, recentCreditTransactions } = await loadSettingsPageData(user.id);
   const creditBalance = await getUserCreditBalance(user.id);
-  const recentCreditTransactions = await db
-    .select({
-      id: creditTransactions.id,
-      type: creditTransactions.type,
-      amount: creditTransactions.amount,
-      reason: creditTransactions.reason,
-      createdAt: creditTransactions.createdAt,
-    })
-    .from(creditTransactions)
-    .where(eq(creditTransactions.userId, user.id))
-    .orderBy(desc(creditTransactions.createdAt))
-    .limit(8);
   const canGrantCredits = isBlogAdminUser(user.id, user.email);
 
   const metadataBaseUrl = getAppUrl().replace(/\/$/, "") || "http://localhost:3000";
