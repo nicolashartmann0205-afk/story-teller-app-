@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata = selfReferencingCanonical("/dashboard");
 
 type DashboardPageProps = {
-  searchParams: Promise<{ blogAdmin?: string }>;
+  searchParams: Promise<{ blogAdmin?: string; usageAdmin?: string }>;
 };
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -27,6 +27,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const sp = await searchParams;
   const blogAdminAccessDenied = sp.blogAdmin === "denied";
+  const usageAdminAccessDenied = sp.usageAdmin === "denied";
 
   let stats = {
     totalStories: 0,
@@ -78,6 +79,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Your current user id is{" "}
               <code className="break-all rounded bg-amber-100/80 px-1 py-0.5 text-xs dark:bg-amber-900/50">{user.id}</code>
               — add this exact value to that env var locally and on your host, then redeploy.
+            </p>
+            <Link
+              href="/dashboard"
+              className="shrink-0 text-sm font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950 dark:text-amber-200 dark:hover:text-amber-50"
+            >
+              Dismiss
+            </Link>
+          </div>
+        </div>
+      )}
+      {usageAdminAccessDenied && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/40">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p className="text-sm text-amber-950 dark:text-amber-100">
+              <span className="font-medium">Usage admin is restricted.</span> Only the site owner can view usage metrics.
             </p>
             <Link
               href="/dashboard"

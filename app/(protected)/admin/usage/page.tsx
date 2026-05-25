@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getAdminUsageStats, getRecentSignups, type AdminUsageStats, type RecentSignup } from "@/lib/admin/usage-queries";
 import { USAGE_ADMIN_PATH } from "@/lib/admin/paths";
-import { isBlogAdminUser } from "@/lib/blog/admin";
+import { isUsageAdminUser, USAGE_ADMIN_ACCESS_DENIED_PATH } from "@/lib/admin/usage-access";
 import { adminMetricsLoadWarning } from "@/lib/db/connection-error";
 import { createClient } from "@/lib/supabase/server";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
@@ -51,8 +51,8 @@ export default async function UsageAdminPage() {
   if (!user) {
     redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, USAGE_ADMIN_PATH));
   }
-  if (!isBlogAdminUser(user.id, user.email)) {
-    redirect("/dashboard?blogAdmin=denied");
+  if (!isUsageAdminUser(user.id, user.email)) {
+    redirect(USAGE_ADMIN_ACCESS_DENIED_PATH);
   }
 
   let stats: AdminUsageStats;

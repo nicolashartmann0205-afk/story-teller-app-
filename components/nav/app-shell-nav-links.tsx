@@ -23,9 +23,11 @@ function navClass(isActive: boolean) {
  */
 export function AppShellNavLinks({
   showBlogAdmin = true,
+  showUsageAdmin = false,
   showSeoAdmin = false,
 }: {
   showBlogAdmin?: boolean;
+  showUsageAdmin?: boolean;
   showSeoAdmin?: boolean;
 }) {
   const pathname = usePathname() ?? "";
@@ -77,7 +79,7 @@ export function AppShellNavLinks({
           Feedback Admin
         </Link>
       ) : null}
-      {showBlogAdmin ? (
+      {showUsageAdmin ? (
         <Link href={USAGE_ADMIN_PATH} className={navClass(isUsageAdmin)}>
           Usage Admin
         </Link>

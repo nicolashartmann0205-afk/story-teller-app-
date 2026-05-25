@@ -5,6 +5,7 @@ import { SiteHeaderFallback } from "@/components/nav/site-header-fallback";
 import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
 import { PublicAuthLinks, PublicPrimaryNavLinks } from "@/components/nav/public-nav-links";
 import { isBlogAdminUser } from "@/lib/blog/admin";
+import { isUsageAdminUser } from "@/lib/admin/usage-access";
 import { CREDITS_PER_AI_USE, DAILY_FREE_QUOTA, getUserCreditBalance } from "@/lib/credits/service";
 import { isDatabaseConfigured } from "@/lib/db/is-configured";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +40,7 @@ export async function SiteHeader() {
       }
     }
     const canSeeBlogAdmin = isBlogAdminUser(user?.id, user?.email);
+    const canSeeUsageAdmin = isUsageAdminUser(user?.id, user?.email);
     const canSeeSeoAdmin = (user?.email || "").trim().toLowerCase() === "nicolas@hartmanns.net";
 
     return (
@@ -55,7 +57,11 @@ export async function SiteHeader() {
               Story Teller
             </Link>
             {user ? (
-              <AppShellNavLinks showBlogAdmin={canSeeBlogAdmin} showSeoAdmin={canSeeSeoAdmin} />
+              <AppShellNavLinks
+                showBlogAdmin={canSeeBlogAdmin}
+                showUsageAdmin={canSeeUsageAdmin}
+                showSeoAdmin={canSeeSeoAdmin}
+              />
             ) : (
               <>
                 <PublicPrimaryNavLinks />

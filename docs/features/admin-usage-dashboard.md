@@ -11,11 +11,11 @@ As the Story Teller owner/admin, I want to see total users, recent sign-ups, act
 
 ## Functional Requirements
 1. Add admin-only route at `/admin/usage`.
-2. Reuse `isBlogAdminUser()` for access control (same as Blog Admin / Feedback Admin).
+2. Use `isUsageAdminUser()` for access control (owner email only — not `BLOG_ADMIN_USER_IDS`).
 3. Display aggregate metrics: total registered users, new users (7d / 30d), active users (7d / 30d), total stories, total AI generations, AI generations (7d).
 4. Show a table of the 15 most recent sign-ups (email + date).
 5. Page is server-rendered; no public API exposure of metrics.
-6. Add nav link **Usage Admin** visible only to blog admins.
+6. Add nav link **Usage Admin** visible only to the site owner.
 
 ## Data Requirements
 - Read from `auth.users` (registration counts and recent sign-ups).
@@ -26,13 +26,13 @@ As the Story Teller owner/admin, I want to see total users, recent sign-ups, act
 ## User Flow
 1. Admin signs in and clicks **Usage Admin** in the nav.
 2. Page loads aggregate stats and recent sign-ups.
-3. Non-admins are redirected to dashboard with denied message.
+3. Non-owners are redirected to dashboard with denied message.
 
 ## Acceptance Criteria
-- `/admin/usage` is accessible only to owner/blog admins.
+- `/admin/usage` is accessible only to `nicolas@hartmanns.net`.
 - Metrics reflect live database counts.
 - Recent sign-ups list shows email and created date.
-- Nav shows **Usage Admin** for admins only.
+- Nav shows **Usage Admin** for the owner only.
 
 ## Edge Cases
 - Empty database shows zeros, not errors.

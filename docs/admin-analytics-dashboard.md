@@ -22,40 +22,31 @@ Sign in as admin → nav shows **Usage Admin** → or open either URL directly.
 
 ---
 
-## 1. Access control (admin only)
+## 1. Access control (owner only)
 
-**Admin identity:** `nicolas@hartmanns.net` (hard-coded owner) plus optional UUIDs in `BLOG_ADMIN_USER_IDS`.
+**Usage admin** is separate from **Blog admin**. Only `nicolas@hartmanns.net` can open `/admin/usage` or see **Usage Admin** in the nav — `BLOG_ADMIN_USER_IDS` does not grant access.
 
-```10:18:lib/blog/admin.ts
-export function isBlogAdminUser(userId: string | undefined | null, email?: string | null): boolean {
-  if ((email || "").trim().toLowerCase() === BLOG_ADMIN_OWNER_EMAIL) {
-    return true;
-  }
-  if (!userId) return false;
-  const allow = getBlogAdminUserIds();
-  if (allow.length === 0) return false;
-  return allow.includes(userId);
+```7:9:lib/admin/usage-access.ts
+export function isUsageAdminUser(_userId: string | undefined | null, email?: string | null): boolean {
+  return (email || "").trim().toLowerCase() === USAGE_ADMIN_OWNER_EMAIL;
 }
 ```
 
-**Page guard** (every admin route follows this pattern):
+**Page guard:**
 
-```45:50:app/(protected)/admin/usage/page.tsx
-  if (!user) {
-    redirect(withRedirectedFrom(AUTH_ROUTES.SIGN_IN, USAGE_ADMIN_PATH));
-  }
-  if (!isBlogAdminUser(user.id, user.email)) {
-    redirect("/dashboard?blogAdmin=denied");
+```52:56:app/(protected)/admin/usage/page.tsx
+  if (!isUsageAdminUser(user.id, user.email)) {
+    redirect(USAGE_ADMIN_ACCESS_DENIED_PATH);
   }
 ```
 
 | Visitor | Result |
 |---------|--------|
 | Not signed in | Redirect to sign-in, then back to admin page |
-| Signed in, not admin | Redirect to `/dashboard?blogAdmin=denied` |
-| Admin (`nicolas@hartmanns.net`) | Dashboard loads |
+| Signed in, not owner | Redirect to `/dashboard?usageAdmin=denied` |
+| Owner (`nicolas@hartmanns.net`) | Dashboard loads |
 
-**Add another admin:** set in `.env.local`:
+**Blog admin** (CMS, feedback, credits) still uses `isBlogAdminUser()` — optional extra admins via `.env.local`:
 
 ```bash
 BLOG_ADMIN_USER_IDS=uuid-from-supabase-auth-users
