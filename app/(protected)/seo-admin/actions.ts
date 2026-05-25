@@ -2,12 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { updateBlogPostSeo } from "@/lib/seo/blog-posts-seo-queries";
+import { SITE_OWNER_EMAIL } from "@/lib/admin/owner-email";
 
 const SEO_ADMIN_PATH = "/seo-admin";
-const SEO_ADMIN_EMAIL = "nicolas@hartmanns.net";
+const SEO_ADMIN_EMAIL = SITE_OWNER_EMAIL;
 
 type ActionState = { error?: string; success?: string } | null;
 
@@ -29,16 +28,11 @@ export async function updateBlogSeoAction(slug: string, _prev: ActionState, form
   const metaDescription = String(formData.get("metaDescription") ?? "").trim();
   const canonicalUrl = String(formData.get("canonicalUrl") ?? "").trim();
 
-  const [updated] = await db
-    .update(blogPosts)
-    .set({
-      seoTitle: seoTitle || null,
-      metaDescription: metaDescription || null,
-      canonicalUrl: canonicalUrl || null,
-      updatedAt: new Date(),
-    })
-    .where(eq(blogPosts.slug, slug))
-    .returning({ slug: blogPosts.slug });
+  const updated = await updateBlogPostSeo(slug, {
+    seoTitle: seoTitle || null,
+    metaDescription: metaDescription || null,
+    canonicalUrl: canonicalUrl || null,
+  });
 
   if (!updated) {
     return { error: "Post not found." };

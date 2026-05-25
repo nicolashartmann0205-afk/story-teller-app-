@@ -6,13 +6,12 @@ import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { selfReferencingCanonical, SITE_NAME, TITLE_TEMPLATE, DEFAULT_PAGE_TITLE, DEFAULT_DESCRIPTION } from "@/lib/seo/site-metadata";
 import { getAppUrl } from "@/lib/config/env";
 import { createClient } from "@/lib/supabase/server";
-import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { listBlogPostSeoRows } from "@/lib/seo/blog-posts-seo-queries";
+import { SITE_OWNER_EMAIL } from "@/lib/admin/owner-email";
 import { updateBlogSeoAction } from "./actions";
 
 const SEO_ADMIN_PATH = "/seo-admin";
-const SEO_ADMIN_EMAIL = "nicolas@hartmanns.net";
+const SEO_ADMIN_EMAIL = SITE_OWNER_EMAIL;
 
 export const metadata = selfReferencingCanonical(SEO_ADMIN_PATH);
 
@@ -41,17 +40,7 @@ export default async function SeoAdminPage() {
   let loadError: string | null = null;
 
   try {
-    const rows = await db
-      .select({
-        slug: blogPosts.slug,
-        title: blogPosts.title,
-        seoTitle: blogPosts.seoTitle,
-        metaDescription: blogPosts.metaDescription,
-        canonicalUrl: blogPosts.canonicalUrl,
-        updatedAt: blogPosts.updatedAt,
-      })
-      .from(blogPosts)
-      .orderBy(desc(blogPosts.publishedAt));
+    const rows = await listBlogPostSeoRows();
 
     serializedRows = rows.map((row) => ({
       ...row,
@@ -63,7 +52,7 @@ export default async function SeoAdminPage() {
   } catch (error) {
     console.error("Failed loading SEO admin blog rows:", error);
     loadError =
-      "Could not load blog SEO rows. Verify production DB migrations (blog_posts seo_title/meta_description/canonical_url) and DATABASE_URL/POOLING_DATABASE_URL env vars.";
+      "Could not load blog SEO rows. Run DB migrations (0070–0071) on production, or fix POOLING_DATABASE_URL on Vercel (pnpm db:copy-env-vercel pooling → redeploy).";
   }
 
   return (

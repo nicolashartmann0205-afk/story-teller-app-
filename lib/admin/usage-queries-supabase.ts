@@ -1,15 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { getServiceRoleClient } from "@/lib/supabase/service-role";
 import type { AdminUsageStats, RecentSignup } from "./usage-queries";
 
-function requireServiceRole(): SupabaseClient {
-  const client = getServiceRoleClient();
-  if (!client) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY is not configured. Add it on Vercel (Supabase → Settings → API → service_role) or fix POOLING_DATABASE_URL."
-    );
+async function getAdminMetricsSupabase(): Promise<SupabaseClient> {
+  const service = getServiceRoleClient();
+  if (service) {
+    return service;
   }
-  return client;
+  return (await createClient()) as unknown as SupabaseClient;
+}
+
+function hasServiceRole(): boolean {
+  return getServiceRoleClient() !== null;
 }
 
 function daysAgoIso(days: number): string {
@@ -24,27 +27,64 @@ function minutesAgoIso(minutes: number): string {
   return d.toISOString();
 }
 
-async function listAllAuthUsers(supabase: SupabaseClient) {
-  const users: Array<{
-    id: string;
-    email?: string;
-    created_at?: string;
-    last_sign_in_at?: string | null;
-  }> = [];
-  let page = 1;
-  const perPage = 1000;
+type ListedUser = {
+  id: string;
+  email?: string;
+  created_at?: string;
+  last_sign_in_at?: string | null;
+};
+
+async function listAllAuthUsers(supabase: SupabaseClient): Promise<ListedUser[]> {
+  if (hasServiceRole()) {
+    const users: ListedUser[] = [];
+    let page = 1;
+    const perPage = 1000;
+
+    while (true) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+      if (error) {
+        throw error;
+      }
+      const batch = data.users ?? [];
+      users.push(...batch);
+      if (batch.length < perPage) {
+        break;
+      }
+      page += 1;
+    }
+
+    return users;
+  }
+
+  const users: ListedUser[] = [];
+  const pageSize = 1000;
+  let from = 0;
 
   while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, email, created_at")
+      .order("created_at", { ascending: true })
+      .range(from, from + pageSize - 1);
+
     if (error) {
       throw error;
     }
-    const batch = data.users ?? [];
-    users.push(...batch);
-    if (batch.length < perPage) {
+
+    const batch = data ?? [];
+    users.push(
+      ...batch.map((row) => ({
+        id: row.id,
+        email: row.email ?? undefined,
+        created_at: row.created_at,
+        last_sign_in_at: null,
+      }))
+    );
+
+    if (batch.length < pageSize) {
       break;
     }
-    page += 1;
+    from += pageSize;
   }
 
   return users;
@@ -98,7 +138,7 @@ function mergeActiveUserCounts(...sets: Set<string>[]): number {
 }
 
 export async function getAdminUsageStatsViaSupabase(): Promise<AdminUsageStats> {
-  const supabase = requireServiceRole();
+  const supabase = await getAdminMetricsSupabase();
   const users = await listAllAuthUsers(supabase);
   const now = Date.now();
   const since24h = new Date(now - 24 * 60 * 60 * 1000).toISOString();
@@ -172,7 +212,7 @@ export async function getAdminUsageStatsViaSupabase(): Promise<AdminUsageStats> 
 }
 
 export async function getRecentSignupsViaSupabase(limit = 15): Promise<RecentSignup[]> {
-  const supabase = requireServiceRole();
+  const supabase = await getAdminMetricsSupabase();
   const users = await listAllAuthUsers(supabase);
 
   return users

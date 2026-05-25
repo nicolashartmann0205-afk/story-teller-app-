@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { desc } from "drizzle-orm";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
-import { db } from "@/lib/db";
-import { feedbackSubmissions } from "@/lib/db/schema";
+import { listFeedbackSubmissions } from "@/lib/admin/feedback-queries";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 import { updateFeedbackStatusAction } from "./actions";
@@ -32,11 +30,16 @@ export default async function FeedbackAdminPage() {
     redirect("/dashboard?blogAdmin=denied");
   }
 
-  const rows = await db
-    .select()
-    .from(feedbackSubmissions)
-    .orderBy(desc(feedbackSubmissions.createdAt))
-    .limit(200);
+  let rows: Awaited<ReturnType<typeof listFeedbackSubmissions>> = [];
+  let loadError: string | null = null;
+
+  try {
+    rows = await listFeedbackSubmissions();
+  } catch (error) {
+    console.error("Failed to load feedback submissions", error);
+    loadError =
+      "Could not load feedback. Sign in as the site owner or fix POOLING_DATABASE_URL on Vercel (pnpm db:copy-env-vercel pooling → redeploy).";
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
@@ -47,9 +50,15 @@ export default async function FeedbackAdminPage() {
         </p>
       </div>
 
-      {rows.length === 0 ? (
+      {loadError ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+          {loadError}
+        </div>
+      ) : null}
+
+      {!loadError && rows.length === 0 ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">No feedback submissions yet.</p>
-      ) : (
+      ) : !loadError ? (
         <ul className="space-y-3">
           {rows.map((row) => (
             <li key={row.id} className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
@@ -85,7 +94,7 @@ export default async function FeedbackAdminPage() {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
       <p>
         <Link href="/dashboard" className="text-sm text-zinc-600 hover:underline dark:text-zinc-400">

@@ -1,12 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
-import { db } from "@/lib/db";
-import { feedbackSubmissions } from "@/lib/db/schema";
+import { updateFeedbackStatus } from "@/lib/admin/feedback-queries";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 
 const FEEDBACK_ADMIN_PATH = "/admin/feedback";
@@ -35,13 +33,7 @@ export async function updateFeedbackStatusAction(
     return;
   }
 
-  await db
-    .update(feedbackSubmissions)
-    .set({
-      status,
-      updatedAt: new Date(),
-    })
-    .where(eq(feedbackSubmissions.id, id));
+  await updateFeedbackStatus(id, status);
 
   revalidatePath(FEEDBACK_ADMIN_PATH);
 }

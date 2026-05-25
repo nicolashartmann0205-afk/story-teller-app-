@@ -45,7 +45,7 @@ export function ProductionDatabaseCard() {
               After repair: port <strong>{repairedDiag.port ?? "—"}</strong>, user role{" "}
               <strong>{repairedDiag.passesUrlParse ? "valid" : "invalid"}</strong>
             </li>
-            <li>Service role fallback: {hasServiceRole ? "configured" : "not set"}</li>
+            <li>Service role fallback: {hasServiceRole ? "configured" : "not set (Usage admin uses owner session if migrations 0070–0071 are applied)"}</li>
           </ul>
         </div>
 

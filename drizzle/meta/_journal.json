@@ -92,6 +92,20 @@
       "when": 1777100000000,
       "tag": "0069_daily_credits_quota_140",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1777200000000,
+      "tag": "0070_usage_admin_owner_select_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1777300000000,
+      "tag": "0071_blog_posts_seo_admin_update_policy",
+      "breakpoints": true
     }
   ]
 }

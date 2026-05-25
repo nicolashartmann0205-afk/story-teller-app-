@@ -33,6 +33,11 @@ const STEPS = {
     vercelName: "GEMINI_API_KEY",
     hint: "Google AI Studio API key. Mark Sensitive. Apply to Production + Preview.",
   },
+  service_role: {
+    envKey: "SUPABASE_SERVICE_ROLE_KEY",
+    vercelName: "SUPABASE_SERVICE_ROLE_KEY",
+    hint: "Supabase → Settings → API → service_role (secret). Enables Usage admin + stronger fallbacks. Mark Sensitive. Production + Preview.",
+  },
 } as const;
 
 type StepKey = keyof typeof STEPS;
@@ -88,10 +93,10 @@ if (arg === "all") {
     runStep(key);
     console.log("---");
   }
-  console.log("After all three are saved: Deployments → Redeploy latest Production.");
+  console.log("After all four are saved: Deployments → Redeploy latest Production.");
 } else if (arg in STEPS) {
   runStep(arg as StepKey);
 } else {
-  console.error("Usage: copy-env-for-vercel.ts [pooling|database|gemini|all]");
+  console.error("Usage: copy-env-for-vercel.ts [pooling|database|gemini|service_role|all]");
   process.exit(1);
 }
