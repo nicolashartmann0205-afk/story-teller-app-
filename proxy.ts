@@ -29,7 +29,7 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
   return new URL(`${AUTH_ROUTES.CALLBACK}${search}`, `${proto}://${hostHeader}`);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Handle OAuth on `/` before session refresh. Do not apex↔www redirect here — that breaks
   // PKCE/session cookies when combined with Vercel domain redirects (see docs/oauth-callback-production.md).
   const oauthRedirect = redirectUrlForOAuthRootCode(request);

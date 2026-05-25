@@ -9,7 +9,10 @@
 import { execSync } from "child_process";
 import { config } from "dotenv";
 import { resolve } from "path";
-import { repairPostgresConnectionUrl } from "../lib/db/normalize-database-url";
+import {
+  getPoolerUrlIssues,
+  repairPostgresConnectionUrl,
+} from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -51,6 +54,13 @@ function runStep(key: StepKey) {
   if (!value) {
     console.error(`Missing or invalid ${step.envKey} in .env.local`);
     process.exit(1);
+  }
+  if (step.envKey === "POOLING_DATABASE_URL") {
+    const issues = getPoolerUrlIssues(value);
+    if (issues.includes("wrong_port_session_pooler")) {
+      console.error("POOLING_DATABASE_URL must use Transaction pooler port 6543, not Session pooler 5432.");
+      process.exit(1);
+    }
   }
 
   const copied = copyToClipboard(value);

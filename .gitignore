@@ -20,6 +20,9 @@
 # production
 /build
 
+# Claude local worktrees (not git submodules)
+.claude/worktrees/
+
 # misc
 .DS_Store
 *.pem

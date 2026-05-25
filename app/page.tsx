@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { HomeLanding } from "@/components/marketing/home-landing";
 import { buildDynamicPageMetadata } from "@/lib/seo/dynamic-metadata";
 
-// OAuth ?code= on `/` is redirected to `/auth/callback` in middleware.ts (no duplicate redirect here).
+// OAuth ?code= on `/` is redirected to `/auth/callback` in proxy.ts (no duplicate redirect here).
 // Ensure OAuth handling is never served from a stale static shell.
 export const dynamic = "force-dynamic";
 

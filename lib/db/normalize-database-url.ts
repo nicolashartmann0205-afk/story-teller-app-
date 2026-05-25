@@ -86,6 +86,52 @@ function rebuildWithEncodedCredentials(url: string): string | undefined {
   return isValidPostgresUrl(rebuilt) ? rebuilt : undefined;
 }
 
+const TRANSACTION_POOLER_PORT = "6543";
+const SESSION_POOLER_PORT = "5432";
+
+/** Session pooler (5432) pasted into POOLING_DATABASE_URL — use transaction pooler (6543). */
+function fixSupabasePoolerPort(url: string): string {
+  if (!/pooler\.supabase\.com/i.test(url)) {
+    return url;
+  }
+  return url.replace(
+    new RegExp(`:${SESSION_POOLER_PORT}(/|$)`, "g"),
+    `:${TRANSACTION_POOLER_PORT}$1`
+  );
+}
+
+export type PoolerUrlIssue =
+  | "wrong_port_session_pooler"
+  | "wrong_username"
+  | "not_pooler_host";
+
+/** Non-secret checks for Supabase transaction pooler URLs. */
+export function getPoolerUrlIssues(url: string): PoolerUrlIssue[] {
+  const issues: PoolerUrlIssue[] = [];
+
+  if (!/pooler\.supabase\.com/i.test(url)) {
+    issues.push("not_pooler_host");
+    return issues;
+  }
+
+  const port = url.match(/:(\d+)\//)?.[1];
+  if (port === SESSION_POOLER_PORT) {
+    issues.push("wrong_port_session_pooler");
+  }
+
+  const atIdx = url.lastIndexOf("@");
+  if (atIdx > 0) {
+    const schemeEnd = url.indexOf("://");
+    const userinfo = url.slice(schemeEnd >= 0 ? schemeEnd + 3 : 0, atIdx);
+    const user = userinfo.split(":")[0] || "";
+    if (user === "postgres" || !user.includes(".")) {
+      issues.push("wrong_username");
+    }
+  }
+
+  return issues;
+}
+
 /**
  * Normalize and repair a Postgres URL for runtime use (pooler or direct).
  */
@@ -104,13 +150,15 @@ export function repairPostgresConnectionUrl(raw: string | undefined): string | u
     }
   }
 
+  url = fixSupabasePoolerPort(url);
+
   if (isValidPostgresUrl(url)) {
     return url;
   }
 
   const rebuilt = rebuildWithEncodedCredentials(url);
   if (rebuilt) {
-    return rebuilt;
+    return fixSupabasePoolerPort(rebuilt);
   }
 
   return undefined;
@@ -123,6 +171,7 @@ export type PostgresUrlDiagnostics = {
   host?: string;
   port?: string;
   looksLikeSupabasePooler: boolean;
+  poolerIssues: PoolerUrlIssue[];
 };
 
 /** Safe metadata for /api/health/db — never includes credentials. */
@@ -134,6 +183,7 @@ export function diagnosePostgresUrl(raw: string | undefined): PostgresUrlDiagnos
       hasPostgresqlPrefix: false,
       passesUrlParse: false,
       looksLikeSupabasePooler: false,
+      poolerIssues: [],
     };
   }
 
@@ -158,12 +208,15 @@ export function diagnosePostgresUrl(raw: string | undefined): PostgresUrlDiagnos
     port = hostPart.match(/:(\d+)\//)?.[1];
   }
 
+  const looksLikeSupabasePooler = /pooler\.supabase\.com/i.test(url);
+
   return {
     length: url.length,
     hasPostgresqlPrefix,
     passesUrlParse,
     host,
     port,
-    looksLikeSupabasePooler: /pooler\.supabase\.com/i.test(url),
+    looksLikeSupabasePooler,
+    poolerIssues: looksLikeSupabasePooler ? getPoolerUrlIssues(url) : [],
   };
 }

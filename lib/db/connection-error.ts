@@ -62,12 +62,19 @@ export function dashboardDataLoadWarning(
 
   if (isLikelyConnectionError(error)) {
     if (options?.isOwner) {
-      return `${base} Database connection failed. Check POOLING_DATABASE_URL (Supabase transaction pooler, port 6543) and redeploy Production.`;
+      const msg = error instanceof Error ? error.message.toLowerCase() : "";
+      if (msg.includes("password authentication")) {
+        return `${base} Database password rejected on Vercel. In Supabase → Connect → Transaction pooler (port 6543), copy a fresh URI (not Session pooler on 5432), update POOLING_DATABASE_URL, redeploy.`;
+      }
+      return `${base} Database connection failed. Use Supabase Transaction pooler (port 6543), not Session pooler (5432), then redeploy Production.`;
     }
     return `${base} Please try again in a few minutes.`;
   }
 
   const errMsg = error instanceof Error ? error.message : String(error);
+  if (options?.isOwner && errMsg.includes("Failed query")) {
+    return `${base} Connected to the database but queries failed — usually wrong pooler URL (use Transaction pooler port 6543) or wrong password. Check /api/health/db then fix POOLING_DATABASE_URL on Vercel and redeploy.`;
+  }
   return `We could not load your story stats (${errMsg}).`;
 }
 

@@ -2,8 +2,31 @@ import { NextResponse } from "next/server";
 import postgres from "postgres";
 import {
   diagnosePostgresUrl,
+  type PostgresUrlDiagnostics,
   repairPostgresConnectionUrl,
 } from "@/lib/db/normalize-database-url";
+
+function poolingHint(
+  pooling: PostgresUrlDiagnostics,
+  errorMessage: string
+): string {
+  if (pooling.poolerIssues.includes("wrong_port_session_pooler")) {
+    return "POOLING_DATABASE_URL uses port 5432 (session pooler). In Supabase → Connect choose Transaction pooler (port 6543), not Session pooler.";
+  }
+  if (pooling.poolerIssues.includes("wrong_username")) {
+    return "POOLING_DATABASE_URL username should be postgres.YOUR_PROJECT_REF (from Supabase Connect), not postgres alone.";
+  }
+  if (errorMessage.toLowerCase().includes("password authentication")) {
+    return "Password rejected. In Supabase reset the database password, copy a fresh Transaction pooler URI (port 6543), update POOLING_DATABASE_URL on Vercel, redeploy.";
+  }
+  if (pooling.length > 0 && pooling.length !== 110) {
+    return `POOLING_DATABASE_URL length is ${pooling.length} chars; a valid transaction pooler URI is usually ~110. Copy again from Supabase → Connect → Transaction pooler.`;
+  }
+  if (!pooling.passesUrlParse) {
+    return "POOLING_DATABASE_URL cannot be parsed. Copy the full URI from Supabase (no extra quotes).";
+  }
+  return "Confirm Transaction pooler (port 6543) and redeploy Production after saving the env var.";
+}
 import {
   getDatabaseUrlsFromRuntimeEnv,
   getRawDatabaseUrlsFromRuntimeEnv,
@@ -70,12 +93,7 @@ export async function GET() {
           pooling: Boolean(repairedPooling),
           database: Boolean(repairedDatabase),
         },
-        hint:
-          poolingDiag.length > 0 && poolingDiag.length !== 110
-            ? `POOLING_DATABASE_URL length on server is ${poolingDiag.length} chars; a valid Supabase pooler URI is usually ~110. Delete the variable in Vercel, paste again from Supabase → Connect → Transaction pooler (port 6543), save, redeploy.`
-            : !poolingDiag.passesUrlParse
-              ? "POOLING_DATABASE_URL cannot be parsed. Password may need encoding, or the value is truncated. Copy the full URI from Supabase again."
-              : "URL parses but connection failed. Confirm transaction pooler (port 6543) and that the password matches the current database password.",
+        hint: poolingHint(poolingDiag, message),
       },
       { status: 503 }
     );
