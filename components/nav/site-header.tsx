@@ -1,5 +1,7 @@
+import { connection } from "next/server";
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { SiteHeaderFallback } from "@/components/nav/site-header-fallback";
 import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
 import { PublicAuthLinks, PublicPrimaryNavLinks } from "@/components/nav/public-nav-links";
 import { isBlogAdminUser } from "@/lib/blog/admin";
@@ -7,10 +9,21 @@ import { CREDITS_PER_AI_USE, DAILY_FREE_QUOTA, getUserCreditBalance } from "@/li
 import { isDatabaseConfigured } from "@/lib/db/is-configured";
 import { createClient } from "@/lib/supabase/server";
 
+function isDynamicServerUsageError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "digest" in error &&
+    (error as Error & { digest?: string }).digest === "DYNAMIC_SERVER_USAGE"
+  );
+}
+
 /**
  * Single global navigation bar for the whole app (public + authenticated).
+ * Wrapped in Suspense in root layout — must not run cookie auth during static prerender.
  */
 export async function SiteHeader() {
+  await connection();
+
   try {
     const supabase = await createClient();
     const {
@@ -63,13 +76,10 @@ export async function SiteHeader() {
       </header>
     );
   } catch (error) {
+    if (isDynamicServerUsageError(error)) {
+      throw error;
+    }
     console.error("SiteHeader failed to render", error);
-    return (
-      <header className="sticky top-0 z-30 border-b border-brand-seafoam/50 bg-brand-cream/90 px-4 py-3 dark:bg-brand-ink/90">
-        <Link href="/" className="text-sm font-semibold text-brand-ink dark:text-brand-yellow">
-          Story Teller
-        </Link>
-      </header>
-    );
+    return <SiteHeaderFallback />;
   }
 }

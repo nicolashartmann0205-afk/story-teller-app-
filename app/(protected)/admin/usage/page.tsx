@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AUTH_ROUTES, withRedirectedFrom } from "@/lib/auth/routes";
 import { getAdminUsageStats, getRecentSignups, type AdminUsageStats, type RecentSignup } from "@/lib/admin/usage-queries";
@@ -44,8 +43,6 @@ function StatCard({
 }
 
 export default async function UsageAdminPage() {
-  await headers();
-
   const supabase = await createClient();
   const {
     data: { user },
