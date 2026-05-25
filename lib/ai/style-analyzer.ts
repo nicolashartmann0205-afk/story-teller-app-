@@ -1,13 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getGeminiClient, requireGeminiApiKey } from "./gemini-env";
 
-const apiKey = process.env.GEMINI_API_KEY;
 const MODEL_NAME = "gemini-3-flash-preview";
-
-if (!apiKey) {
-  console.warn("GEMINI_API_KEY is not set. AI style analysis will fail if called.");
-}
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export interface StyleAnalysisResult {
   toneId: string;
@@ -66,12 +59,10 @@ const VALID_COMPLEXITY_LEVELS = [
 export async function analyzeStyleFromText(
   text: string
 ): Promise<StyleAnalysisResult> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ 
+    const model = getGeminiClient().getGenerativeModel({
       model: MODEL_NAME,
       generationConfig: {
         temperature: 0.3, // Lower temperature for more consistent analysis
@@ -86,10 +77,10 @@ ${text.substring(0, 10000)}
 
 Analyze the text and return a JSON object with the following structure:
 {
-  "toneId": "<one of: ${VALID_TONES.join(', ')}>",
-  "writingStyleId": "<one of: ${VALID_WRITING_STYLES.join(', ')}>",
-  "perspectiveId": "<one of: ${VALID_PERSPECTIVES.join(', ')}>",
-  "complexityLevel": "<one of: ${VALID_COMPLEXITY_LEVELS.join(', ')}>",
+  "toneId": "<one of: ${VALID_TONES.join(", ")}>",
+  "writingStyleId": "<one of: ${VALID_WRITING_STYLES.join(", ")}>",
+  "perspectiveId": "<one of: ${VALID_PERSPECTIVES.join(", ")}>",
+  "complexityLevel": "<one of: ${VALID_COMPLEXITY_LEVELS.join(", ")}>",
   "toneDescription": "<A detailed 2-3 sentence description of the voice, tone, and writing style. Include specific observations about formality, emotion, sentence structure, vocabulary level, and any distinctive characteristics.>",
   "suggestedTerms": [
     {
@@ -119,10 +110,10 @@ Return ONLY the JSON object, no additional text.`;
     const result = await model.generateContent(prompt);
     const response = result.response;
     const jsonText = response.text();
-    
+
     // Parse the JSON response
     const analysis = JSON.parse(jsonText) as StyleAnalysisResult;
-    
+
     // Validate and sanitize the response
     if (!VALID_TONES.includes(analysis.toneId)) {
       analysis.toneId = "neutral";
@@ -136,23 +127,23 @@ Return ONLY the JSON object, no additional text.`;
     if (!VALID_COMPLEXITY_LEVELS.includes(analysis.complexityLevel)) {
       analysis.complexityLevel = "High School";
     }
-    
+
     // Ensure confidence scores are within valid range
     analysis.confidence = {
       tone: Math.min(1, Math.max(0, analysis.confidence?.tone || 0.5)),
       style: Math.min(1, Math.max(0, analysis.confidence?.style || 0.5)),
       perspective: Math.min(1, Math.max(0, analysis.confidence?.perspective || 0.5)),
     };
-    
+
     // Limit suggested terms to 15 max
     if (analysis.suggestedTerms && analysis.suggestedTerms.length > 15) {
       analysis.suggestedTerms = analysis.suggestedTerms.slice(0, 15);
     }
-    
+
     return analysis;
   } catch (error) {
     console.error("Style analysis error:", error);
-    
+
     // Return default values on error
     return {
       toneId: "neutral",

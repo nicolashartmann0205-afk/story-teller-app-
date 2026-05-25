@@ -3,11 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { creditGate, type InsufficientCreditsResponse } from "@/lib/credits/redirect";
 import { consumeCredit } from "@/lib/credits/service";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  getGeminiClient,
+  isGeminiConfigured,
+  warnGeminiMissingOnce,
+} from "@/lib/ai/gemini-env";
 import { archetypesLibrary } from "@/lib/data/archetypes";
-
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey || "");
 
 interface StoryContext {
   title: string;
@@ -42,9 +43,8 @@ export async function getAIArchetypeSuggestion(
   const blocked = creditGate(creditResult);
   if (blocked) return blocked;
 
-  if (!apiKey) {
-    // Fallback or error if no API key
-    console.warn("GEMINI_API_KEY not set for archetype suggestion");
+  if (!isGeminiConfigured()) {
+    warnGeminiMissingOnce("archetype suggestion");
     // Return a mock suggestion to avoid breaking the UI in dev without keys
     return {
       primaryRecommendation: "warrior", // fallback
@@ -55,7 +55,7 @@ export async function getAIArchetypeSuggestion(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
 
     const archetypesList = Object.values(archetypesLibrary).map(a => `${a.id} (${a.name}): ${a.tagline}`).join("\n");
 

@@ -1,24 +1,21 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  getGeminiClient,
+  isGeminiConfigured,
+  isNextProductionBuild,
+  requireGeminiApiKey,
+  warnGeminiMissingOnce,
+} from "./gemini-env";
 
-const apiKey = process.env.GEMINI_API_KEY;
 // Use a specific model version to avoid 404s with generic alias
 const MODEL_NAME = "gemini-3-flash-preview";
 // Scene drafting is currently more reliable on this model than preview aliases.
 const SCENE_MODEL_NAME = process.env.GEMINI_SCENE_MODEL || "gemini-1.5-pro";
 
-if (!apiKey) {
-  console.warn("GEMINI_API_KEY is not set. AI story generation will fail if called.");
-}
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
-
 export async function generateStory(title: string, description: string, language: string = "en"): Promise<string> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME });
 
     const langMap: Record<string, string> = {
         'de': 'German',
@@ -55,12 +52,10 @@ export async function generateHooks(
   selectedTypes: string[],
   language: string = "en"
 ): Promise<any> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
     const langMap: Record<string, string> = {
         'de': 'German',
@@ -116,12 +111,10 @@ export async function refineHook(
   refinementType: string,
   storyContext: { title: string; description: string }
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME });
 
     const prompt = `You are a creative writing editor. Refine the following story hook.
 
@@ -149,12 +142,10 @@ export async function analyzeStoryStructure(
   scenes: any[],
   structureId: string
 ): Promise<any> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story structure expert. Analyze the following story map.
 
@@ -192,12 +183,10 @@ export async function suggestArchetype(
   description: string,
   storyType: string
 ): Promise<any> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `You are a story consultant specializing in character development and Jungian archetypes.
     
@@ -314,12 +303,10 @@ export async function generateFullStoryDraft(
     language?: string;
   } = {}
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME });
 
     // Construct a comprehensive prompt
     let prompt = `You are a professional novelist. Write a full draft of a short story based on the following detailed outline.\n\n`;
@@ -410,12 +397,10 @@ export async function generateFullStoryDraft(
 }
 
 export async function improveText(text: string, type: "rewrite" | "expand" | "shorten" | "grammar"): Promise<string> {
-   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+   requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME });
     
     let prompt = "";
     switch(type) {
@@ -437,9 +422,7 @@ export async function improveText(text: string, type: "rewrite" | "expand" | "sh
 }
 
 export async function generateSceneDraft(sceneData: any, storyContext: any): Promise<string> {
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+   requireGeminiApiKey();
   
     try {
       const modelCandidates = [SCENE_MODEL_NAME, MODEL_NAME];
@@ -481,7 +464,7 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
 
       for (const modelName of modelCandidates) {
         try {
-          const model = genAI.getGenerativeModel({ model: modelName });
+          const model = getGeminiClient().getGenerativeModel({ model: modelName });
           const text = await retryWithBackoff(async () => {
             const result = await model.generateContent(prompt);
             const response = await result.response;
@@ -525,12 +508,10 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
   }
   
   export async function analyzeShowDontTell(sceneContent: string): Promise<any> {
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+   requireGeminiApiKey();
   
     try {
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+      const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `You are a writing coach analyzing a scene for "show don't tell" effectiveness.
   
@@ -568,12 +549,10 @@ export async function generateSceneDraft(sceneData: any, storyContext: any): Pro
   }
   
   export async function suggestSensoryDetails(location: string, action: string): Promise<string[]> {
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+   requireGeminiApiKey();
   
     try {
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+      const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
   
       const prompt = `Given this scene location and action:
   
@@ -607,12 +586,10 @@ export async function recommendStructure(
   },
   availableStructures: any[]
 ): Promise<any> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
     const structuresList = availableStructures.map(s => `${s.name}: ${s.description} - Best for: ${s.bestFor?.join(', ') || ''}`).join('\n');
 
@@ -706,15 +683,15 @@ export async function generateBeatDraft(
   storyContext: any,
   previousBeats: any[]
 ): Promise<string> {
-  const currentKey = process.env.GEMINI_API_KEY;
-  if (!currentKey) {
-    console.error("GEMINI_API_KEY is missing in server environment");
-    // Return fallback immediately if no key
+  if (!isGeminiConfigured()) {
+    if (!isNextProductionBuild()) {
+      warnGeminiMissingOnce("beat draft generation");
+    }
     return getFallbackBeatDraft(beat, storyContext);
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME });
 
     const prompt = `You are a storytelling expert helping someone write a beat in their story.
 
@@ -786,12 +763,10 @@ export async function generateStructureOutline(
   structure: any,
   storyContext: any
 ): Promise<any> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
+    const model = getGeminiClient().getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `Generate a story outline using the ${structure.name} structure.
 
@@ -832,9 +807,7 @@ export async function generateIllustration(
   prompt: string,
   style: string = "cinematic"
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
+  requireGeminiApiKey();
 
   try {
     // Attempt to use a model that might support image generation or fallback to text-to-SVG
@@ -845,7 +818,7 @@ export async function generateIllustration(
     // which acts as a vector image. This is a robust way to get visuals from a text-only LLM.
     
     // Configure model with optimized generation parameters for higher quality output
-    const model = genAI.getGenerativeModel({ 
+    const model = getGeminiClient().getGenerativeModel({ 
       model: MODEL_NAME,
       generationConfig: {
         temperature: 1.0, // Higher creativity for artistic output
