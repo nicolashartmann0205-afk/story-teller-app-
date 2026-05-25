@@ -89,6 +89,21 @@ function rebuildWithEncodedCredentials(url: string): string | undefined {
 const TRANSACTION_POOLER_PORT = "6543";
 const SESSION_POOLER_PORT = "5432";
 
+function getSupabaseProjectRefFromEnv(): string | undefined {
+  const raw =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+    process.env.SUPABASE_URL?.trim();
+  if (!raw) return undefined;
+  try {
+    const host = new URL(raw).hostname;
+    const ref = host.split(".")[0];
+    return ref || undefined;
+  } catch {
+    const match = raw.match(/https?:\/\/([^.]+)\.supabase\.co/i);
+    return match?.[1];
+  }
+}
+
 /** Session pooler (5432) pasted into POOLING_DATABASE_URL — use transaction pooler (6543). */
 function fixSupabasePoolerPort(url: string): string {
   if (!/pooler\.supabase\.com/i.test(url)) {
@@ -98,6 +113,47 @@ function fixSupabasePoolerPort(url: string): string {
     new RegExp(`:${SESSION_POOLER_PORT}(/|$)`, "g"),
     `:${TRANSACTION_POOLER_PORT}$1`
   );
+}
+
+/** Vercel often gets `postgres` instead of `postgres.<project_ref>` on pooler URLs. */
+function fixSupabasePoolerUsername(url: string): string {
+  if (!/pooler\.supabase\.com/i.test(url)) {
+    return url;
+  }
+  const projectRef = getSupabaseProjectRefFromEnv();
+  if (!projectRef) {
+    return url;
+  }
+
+  const schemeMatch = url.match(/^(postgres(?:ql)?):\/\//i);
+  if (!schemeMatch) {
+    return url;
+  }
+
+  const protocol =
+    schemeMatch[1].toLowerCase() === "postgres" ? "postgresql" : schemeMatch[1];
+  const rest = url.slice(schemeMatch[0].length);
+  const atIdx = rest.lastIndexOf("@");
+  if (atIdx < 0) {
+    return url;
+  }
+
+  const userinfo = rest.slice(0, atIdx);
+  const hostAndRest = rest.slice(atIdx + 1);
+  const colon = userinfo.indexOf(":");
+  const user = colon >= 0 ? userinfo.slice(0, colon) : userinfo;
+  const password = colon >= 0 ? userinfo.slice(colon + 1) : "";
+
+  if (user === "postgres" || user === `postgres.${projectRef}`) {
+    const fixedUser = `postgres.${projectRef}`;
+    return `${protocol}://${fixedUser}${password ? `:${password}` : ""}@${hostAndRest}`;
+  }
+
+  return url;
+}
+
+function applySupabasePoolerFixes(url: string): string {
+  return fixSupabasePoolerUsername(fixSupabasePoolerPort(url));
 }
 
 export type PoolerUrlIssue =
@@ -150,7 +206,7 @@ export function repairPostgresConnectionUrl(raw: string | undefined): string | u
     }
   }
 
-  url = fixSupabasePoolerPort(url);
+  url = applySupabasePoolerFixes(url);
 
   if (isValidPostgresUrl(url)) {
     return url;
@@ -158,7 +214,7 @@ export function repairPostgresConnectionUrl(raw: string | undefined): string | u
 
   const rebuilt = rebuildWithEncodedCredentials(url);
   if (rebuilt) {
-    return fixSupabasePoolerPort(rebuilt);
+    return applySupabasePoolerFixes(rebuilt);
   }
 
   return undefined;
@@ -173,6 +229,13 @@ export type PostgresUrlDiagnostics = {
   looksLikeSupabasePooler: boolean;
   poolerIssues: PoolerUrlIssue[];
 };
+
+/** Diagnostics for the URL actually used at runtime (after repair). */
+export function diagnoseRepairedPostgresUrl(
+  raw: string | undefined
+): PostgresUrlDiagnostics {
+  return diagnosePostgresUrl(repairPostgresConnectionUrl(raw));
+}
 
 /** Safe metadata for /api/health/db — never includes credentials. */
 export function diagnosePostgresUrl(raw: string | undefined): PostgresUrlDiagnostics {

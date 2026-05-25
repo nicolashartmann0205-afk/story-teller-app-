@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import postgres from "postgres";
 import {
   diagnosePostgresUrl,
+  diagnoseRepairedPostgresUrl,
   type PostgresUrlDiagnostics,
   repairPostgresConnectionUrl,
 } from "@/lib/db/normalize-database-url";
@@ -11,10 +12,10 @@ function poolingHint(
   errorMessage: string
 ): string {
   if (pooling.poolerIssues.includes("wrong_port_session_pooler")) {
-    return "POOLING_DATABASE_URL uses port 5432 (session pooler). In Supabase → Connect choose Transaction pooler (port 6543), not Session pooler.";
+    return "POOLING_DATABASE_URL uses port 5432 (session pooler). In Supabase → Connect copy Transaction pooler (port 6543). The app can rewrite 5432→6543 at runtime, but you must redeploy after saving a correct URI.";
   }
   if (pooling.poolerIssues.includes("wrong_username")) {
-    return "POOLING_DATABASE_URL username should be postgres.YOUR_PROJECT_REF (from Supabase Connect), not postgres alone.";
+    return "POOLING_DATABASE_URL username should be postgres.YOUR_PROJECT_REF. Copy Transaction pooler URI from Supabase Connect, or ensure NEXT_PUBLIC_SUPABASE_URL matches the same project.";
   }
   if (errorMessage.toLowerCase().includes("password authentication")) {
     return "Password rejected. In Supabase reset the database password, copy a fresh Transaction pooler URI (port 6543), update POOLING_DATABASE_URL on Vercel, redeploy.";
@@ -43,6 +44,7 @@ export async function GET() {
   const configured = isRuntimeDatabaseConfigured();
 
   const poolingDiag = diagnosePostgresUrl(poolingRaw);
+  const poolingRepairedDiag = diagnoseRepairedPostgresUrl(poolingRaw);
   const databaseDiag = diagnosePostgresUrl(databaseRaw);
   const repairedPooling = repairPostgresConnectionUrl(poolingRaw);
   const repairedDatabase = repairPostgresConnectionUrl(databaseRaw);
@@ -55,6 +57,7 @@ export async function GET() {
         hasPooling: Boolean(poolingRaw),
         hasDatabase: Boolean(databaseRaw),
         pooling: poolingDiag,
+        poolingRepaired: poolingRepairedDiag,
         database: databaseDiag,
         hint: "Set POOLING_DATABASE_URL on Vercel (Production scope), then redeploy.",
       },
@@ -72,6 +75,7 @@ export async function GET() {
       connected: ok === 1,
       usesPooling: Boolean(poolingUrl),
       pooling: poolingDiag,
+      poolingRepaired: poolingRepairedDiag,
       database: databaseDiag,
       repaired: {
         pooling: Boolean(repairedPooling),
@@ -88,12 +92,13 @@ export async function GET() {
         usesPooling: Boolean(poolingUrl),
         error: message.slice(0, 200),
         pooling: poolingDiag,
+        poolingRepaired: poolingRepairedDiag,
         database: databaseDiag,
         repaired: {
           pooling: Boolean(repairedPooling),
           database: Boolean(repairedDatabase),
         },
-        hint: poolingHint(poolingDiag, message),
+        hint: poolingHint(poolingRepairedDiag, message),
       },
       { status: 503 }
     );
