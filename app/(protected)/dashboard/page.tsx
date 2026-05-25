@@ -2,69 +2,17 @@ import { redirect } from "next/navigation";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { selfReferencingCanonical } from "@/lib/seo/site-metadata";
 import Link from "next/link";
-import { db } from "@/lib/db";
-import { stories, scenes } from "@/lib/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
 import { BookOpen, PenTool, TrendingUp, Calendar, ArrowRight, Plus } from "lucide-react";
 import { getStyleGuidesForUser } from "../style-guide/actions";
 import { StyleGuideSelector } from "./style-guide-selector";
 import { getRequestUser } from "@/lib/auth/request-user";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { dashboardDataLoadWarning } from "@/lib/db/connection-error";
+import { loadDashboardData } from "@/lib/dashboard/load-dashboard-data";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = selfReferencingCanonical("/dashboard");
-
-async function getDashboardData(userId: string) {
-  // 1. Get total stories count
-  const [storiesCountResult] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(stories)
-    .where(eq(stories.userId, userId));
-  
-  const totalStories = Number(storiesCountResult?.count || 0);
-
-  // 2. Get total word count (sum of all scenes for user's stories)
-  // We join scenes with stories to filter by userId
-  const [wordCountResult] = await db
-    .select({ count: sql<number>`sum(${scenes.wordCount})` })
-    .from(scenes)
-    .innerJoin(stories, eq(scenes.storyId, stories.id))
-    .where(eq(stories.userId, userId));
-    
-  const totalWords = Number(wordCountResult?.count || 0);
-
-  // 3. Get recent stories (limit 3)
-  const recentStories = await db
-    .select({
-      id: stories.id,
-      title: stories.title,
-      description: stories.description,
-      updatedAt: stories.updatedAt,
-      mode: stories.mode,
-      // We can also try to get word count per story here if needed, but let's keep it simple
-    })
-    .from(stories)
-    .where(eq(stories.userId, userId))
-    .orderBy(desc(stories.updatedAt))
-    .limit(3);
-
-  // 4. Calculate streak (mock implementation for now as we don't have a daily activity log table yet)
-  // Logic: distinct days in the last 7 days where updated_at exists? 
-  // For MVP, let's just use a placeholder or simple logic based on recent activity.
-  const streak = 0; // Placeholder for now
-
-  return {
-    stats: {
-      totalStories,
-      totalWords,
-      streak,
-      completionRate: 0, // Placeholder
-    },
-    recentStories,
-  };
-}
 
 type DashboardPageProps = {
   searchParams: Promise<{ blogAdmin?: string }>;
@@ -86,13 +34,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     streak: 0,
     completionRate: 0,
   };
-  let recentStories: Awaited<ReturnType<typeof getDashboardData>>["recentStories"] = [];
+  let recentStories: Awaited<ReturnType<typeof loadDashboardData>>["recentStories"] = [];
   let dataLoadWarning: string | null = null;
 
   try {
-    const dashboardData = await getDashboardData(user.id);
+    const dashboardData = await loadDashboardData(user.id);
     stats = dashboardData.stats;
     recentStories = dashboardData.recentStories;
+    if (dashboardData.usedSupabaseFallback && isBlogAdminUser(user.id, user.email)) {
+      dataLoadWarning =
+        "Stories loaded via Supabase API because POOLING_DATABASE_URL on Vercel has the wrong password (109 chars, should be ~110). Run pnpm db:copy-env-vercel pooling, replace the variable on Vercel, and redeploy to restore full database features.";
+    }
   } catch (error) {
     console.error("Failed to load dashboard data", error);
     dataLoadWarning = dashboardDataLoadWarning(error, {

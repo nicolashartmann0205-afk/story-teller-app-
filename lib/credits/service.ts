@@ -1,6 +1,10 @@
 import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { creditTransactions, userCredits } from "@/lib/db/schema";
+import {
+  getUserCreditBalanceViaSupabase,
+  isDirectPostgresConnectionError,
+} from "@/lib/db/supabase-fallback";
 
 /** Daily AI generation allowance (stored in `monthly_free_quota` column for v1 schema). */
 export const DAILY_FREE_QUOTA = 140;
@@ -86,17 +90,24 @@ async function applyDailyRefill(tx: Parameters<Parameters<typeof db.transaction>
 }
 
 export async function getUserCreditBalance(userId: string): Promise<number> {
-  await ensureCreditRow({ userId });
+  try {
+    await ensureCreditRow({ userId });
 
-  return db.transaction(async (tx) => {
-    await applyDailyRefill(tx, userId);
-    const [row] = await tx
-      .select({ balance: userCredits.balance })
-      .from(userCredits)
-      .where(eq(userCredits.userId, userId))
-      .limit(1);
-    return row?.balance ?? 0;
-  });
+    return await db.transaction(async (tx) => {
+      await applyDailyRefill(tx, userId);
+      const [row] = await tx
+        .select({ balance: userCredits.balance })
+        .from(userCredits)
+        .where(eq(userCredits.userId, userId))
+        .limit(1);
+      return row?.balance ?? 0;
+    });
+  } catch (error) {
+    if (isDirectPostgresConnectionError(error)) {
+      return getUserCreditBalanceViaSupabase(userId);
+    }
+    throw error;
+  }
 }
 
 export async function consumeCredit(input: ConsumeCreditInput): Promise<ConsumeCreditResult> {
