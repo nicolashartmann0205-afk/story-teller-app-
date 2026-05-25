@@ -1,4 +1,4 @@
-import { normalizeDatabaseUrl } from "./normalize-database-url";
+import { repairPostgresConnectionUrl } from "./normalize-database-url";
 
 /** Env keys as variables so bundlers do not inline a single build-time value. */
 const POOLING_VAR = "POOLING_DATABASE_URL";
@@ -14,14 +14,26 @@ export function getDatabaseUrlsFromRuntimeEnv(): {
   databaseUrl?: string;
 } {
   const env = process.env;
-  const poolingUrl = normalizeDatabaseUrl(env[POOLING_VAR]);
-  const databaseUrl = normalizeDatabaseUrl(env[DATABASE_VAR]);
+  const poolingUrl = repairPostgresConnectionUrl(env[POOLING_VAR]);
+  const databaseUrl = repairPostgresConnectionUrl(env[DATABASE_VAR]);
   return { poolingUrl, databaseUrl };
 }
 
 export function resolveDatabaseConnectionUrl(): string | undefined {
   const { poolingUrl, databaseUrl } = getDatabaseUrlsFromRuntimeEnv();
   return poolingUrl || databaseUrl;
+}
+
+/** Raw env values before repair — for diagnostics only. */
+export function getRawDatabaseUrlsFromRuntimeEnv(): {
+  poolingRaw?: string;
+  databaseRaw?: string;
+} {
+  const env = process.env;
+  return {
+    poolingRaw: env[POOLING_VAR]?.trim() || undefined,
+    databaseRaw: env[DATABASE_VAR]?.trim() || undefined,
+  };
 }
 
 export function isRuntimeDatabaseConfigured(): boolean {

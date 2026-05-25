@@ -9,7 +9,7 @@
 import { execSync } from "child_process";
 import { config } from "dotenv";
 import { resolve } from "path";
-import { isValidPostgresUrl, normalizeDatabaseUrl } from "../lib/db/normalize-database-url";
+import { repairPostgresConnectionUrl } from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -44,18 +44,12 @@ function copyToClipboard(text: string) {
 
 function runStep(key: StepKey) {
   const step = STEPS[key];
-  const value = normalizeDatabaseUrl(process.env[step.envKey]);
+  const value =
+    step.envKey === "POOLING_DATABASE_URL" || step.envKey === "DATABASE_URL"
+      ? repairPostgresConnectionUrl(process.env[step.envKey])
+      : (process.env[step.envKey] || "").trim();
   if (!value) {
-    console.error(`Missing ${step.envKey} in .env.local`);
-    process.exit(1);
-  }
-  if (
-    (step.envKey === "POOLING_DATABASE_URL" || step.envKey === "DATABASE_URL") &&
-    !isValidPostgresUrl(value)
-  ) {
-    console.error(
-      `${step.envKey} in .env.local is not a valid postgres URL. Fix before copying to Vercel.`
-    );
+    console.error(`Missing or invalid ${step.envKey} in .env.local`);
     process.exit(1);
   }
 

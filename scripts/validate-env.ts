@@ -5,7 +5,10 @@
 import { config } from "dotenv";
 import { resolve } from "path";
 import postgres from "postgres";
-import { isValidPostgresUrl, normalizeDatabaseUrl } from "../lib/db/normalize-database-url";
+import {
+  diagnosePostgresUrl,
+  repairPostgresConnectionUrl,
+} from "../lib/db/normalize-database-url";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -20,23 +23,26 @@ function maskUrl(url: string): string {
 }
 
 async function testDatabase(label: string, url: string | undefined): Promise<boolean> {
-  const normalized = normalizeDatabaseUrl(url);
-  if (!normalized) {
-    console.log(`  ${label}: not set`);
+  const repaired = repairPostgresConnectionUrl(url);
+  if (!repaired) {
+    const diag = diagnosePostgresUrl(url);
+    if (diag.length === 0) {
+      console.log(`  ${label}: not set`);
+    } else {
+      console.log(
+        `  ${label}: FAIL (invalid url, ${diag.length} chars) — use Supabase transaction pooler URI (port 6543)`
+      );
+    }
     return false;
   }
-  if (!isValidPostgresUrl(normalized)) {
-    console.log(`  ${label}: FAIL (invalid url) — must start with postgresql:// and be a complete Supabase pooler URI`);
-    return false;
-  }
-  const sql = postgres(normalized, { prepare: false, max: 1, connect_timeout: 10 });
+  const sql = postgres(repaired, { prepare: false, max: 1, connect_timeout: 10 });
   try {
     const [{ ok }] = await sql`SELECT 1 AS ok`;
-    console.log(`  ${label}: OK (${maskUrl(normalized)})`);
+    console.log(`  ${label}: OK (${maskUrl(repaired)})`);
     return ok === 1;
   } catch (error) {
     console.log(
-      `  ${label}: FAIL (${maskUrl(normalized)}) — ${error instanceof Error ? error.message : error}`
+      `  ${label}: FAIL (${maskUrl(repaired)}) — ${error instanceof Error ? error.message : error}`
     );
     return false;
   } finally {
@@ -67,8 +73,8 @@ async function testGemini(key: string | undefined): Promise<boolean> {
 }
 
 async function main() {
-  const pooling = normalizeDatabaseUrl(process.env.POOLING_DATABASE_URL);
-  const database = normalizeDatabaseUrl(process.env.DATABASE_URL);
+  const pooling = repairPostgresConnectionUrl(process.env.POOLING_DATABASE_URL);
+  const database = repairPostgresConnectionUrl(process.env.DATABASE_URL);
   const gemini = process.env.GEMINI_API_KEY?.trim();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
