@@ -1,6 +1,7 @@
 import { eq, desc, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { stories, scenes } from "@/lib/db/schema";
+import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
 import {
   getDashboardDataViaSupabase,
   isDirectPostgresConnectionError,
@@ -55,7 +56,16 @@ async function getDashboardDataViaPostgres(userId: string): Promise<DashboardDat
   };
 }
 
+async function loadViaSupabase(userId: string): Promise<DashboardData> {
+  const fallback = await getDashboardDataViaSupabase(userId);
+  return { ...fallback, usedSupabaseFallback: true };
+}
+
 export async function loadDashboardData(userId: string): Promise<DashboardData> {
+  if (shouldPreferSupabaseOverPostgres()) {
+    return loadViaSupabase(userId);
+  }
+
   try {
     return await getDashboardDataViaPostgres(userId);
   } catch (error) {
@@ -63,8 +73,7 @@ export async function loadDashboardData(userId: string): Promise<DashboardData> 
       throw error;
     }
     try {
-      const fallback = await getDashboardDataViaSupabase(userId);
-      return { ...fallback, usedSupabaseFallback: true };
+      return await loadViaSupabase(userId);
     } catch (fallbackError) {
       console.error("Dashboard Supabase fallback failed", fallbackError);
       throw error;

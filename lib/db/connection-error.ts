@@ -74,9 +74,12 @@ export function dashboardDataLoadWarning(
   const errMsg = error instanceof Error ? error.message : String(error);
   if (options?.isOwner && errMsg.includes("Failed query")) {
     if (errMsg.includes("127.0.0.1") || errMsg.includes("build@")) {
-      return `${base} POOLING_DATABASE_URL on Vercel is malformed (often missing postgresql:// or a truncated paste). Run pnpm db:copy-env-vercel pooling locally, replace the entire value on Vercel, redeploy, then check /api/health/db shows connected:true.`;
+      return `${base} POOLING_DATABASE_URL on Vercel is malformed. Run pnpm db:copy-env-vercel pooling, replace the entire value (~110 characters), redeploy, then check /api/health/db.`;
     }
-    return `${base} Database queries failed. Open /api/health/db — if port is 5432 or length is under ~105, run pnpm db:copy-env-vercel pooling, replace POOLING_DATABASE_URL on Vercel, redeploy.`;
+    if (errMsg.toLowerCase().includes("password authentication")) {
+      return `${base} The database password on Vercel is wrong or truncated (your URL is ~98 chars; it should be ~110). In Supabase → Connect → Transaction pooler, copy the URI, run pnpm db:copy-env-vercel pooling, replace POOLING_DATABASE_URL on Vercel entirely, redeploy.`;
+    }
+    return `${base} Database connection failed. Open /api/health/db for details. Fix: pnpm db:copy-env-vercel pooling → paste on Vercel → redeploy.`;
   }
   return `We could not load your story stats (${errMsg}).`;
 }

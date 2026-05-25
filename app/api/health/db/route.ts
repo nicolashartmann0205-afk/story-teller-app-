@@ -7,6 +7,14 @@ import {
   type PostgresUrlDiagnostics,
   repairPostgresConnectionUrl,
 } from "@/lib/db/normalize-database-url";
+import { isPoolingUrlLikelyBroken } from "@/lib/db/pooling-url-health";
+import {
+  getDatabaseUrlsFromRuntimeEnv,
+  getRawDatabaseUrlsFromRuntimeEnv,
+  isRuntimeDatabaseConfigured,
+  resolveDatabaseConnectionUrl,
+} from "@/lib/db/runtime-env";
+import { getServiceRoleClient } from "@/lib/supabase/service-role";
 
 function poolingHint(
   pooling: PostgresUrlDiagnostics,
@@ -32,12 +40,6 @@ function poolingHint(
   }
   return "Confirm Transaction pooler (port 6543) and redeploy Production after saving the env var.";
 }
-import {
-  getDatabaseUrlsFromRuntimeEnv,
-  getRawDatabaseUrlsFromRuntimeEnv,
-  isRuntimeDatabaseConfigured,
-  resolveDatabaseConnectionUrl,
-} from "@/lib/db/runtime-env";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +57,8 @@ export async function GET() {
   const hasSupabasePublicUrl = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim()
   );
+  const hasServiceRole = Boolean(getServiceRoleClient());
+  const poolingBroken = isPoolingUrlLikelyBroken();
 
   if (!configured) {
     return NextResponse.json(
@@ -67,6 +71,8 @@ export async function GET() {
         poolingRepaired: poolingRepairedDiag,
         database: databaseDiag,
         hint: "Set POOLING_DATABASE_URL on Vercel (Production scope), then redeploy.",
+        poolingBroken,
+        hasServiceRole,
       },
       { status: 503 }
     );
@@ -110,6 +116,11 @@ export async function GET() {
           database: Boolean(repairedDatabase),
         },
         hint: poolingHint(poolingRepairedDiag, message),
+        poolingBroken,
+        hasServiceRole,
+        fix: poolingBroken
+          ? "Delete POOLING_DATABASE_URL on Vercel, run: pnpm db:copy-env-vercel pooling — paste full ~110 char URI, redeploy. Optional: add SUPABASE_SERVICE_ROLE_KEY so the app can read data until the pooler URL is fixed."
+          : undefined,
       },
       { status: 503 }
     );

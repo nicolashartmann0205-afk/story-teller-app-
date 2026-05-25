@@ -214,6 +214,13 @@ export function repairPostgresConnectionUrl(raw: string | undefined): string | u
 
   url = applySupabasePoolerFixes(url);
 
+  if (/pooler\.supabase\.com/i.test(url)) {
+    const encoded = rebuildWithEncodedCredentials(url);
+    if (encoded) {
+      url = encoded;
+    }
+  }
+
   if (isValidPostgresUrl(url) && !isLocalhostDatabaseUrl(url)) {
     return url;
   }

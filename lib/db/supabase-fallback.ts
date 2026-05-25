@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { getServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type DashboardStats = {
   totalStories: number;
@@ -16,15 +17,29 @@ export type DashboardStoryRow = {
   mode: "quick" | "comprehensive" | null;
 };
 
-export async function getSupabaseServerClient(): Promise<SupabaseClient> {
-  return createClient() as unknown as SupabaseClient;
+async function getSupabaseClientForUserData(userId: string): Promise<SupabaseClient> {
+  const anon = (await createClient()) as unknown as SupabaseClient;
+  const {
+    data: { user },
+  } = await anon.auth.getUser();
+
+  if (user?.id === userId) {
+    return anon;
+  }
+
+  const service = getServiceRoleClient();
+  if (service) {
+    return service;
+  }
+
+  return anon;
 }
 
-/** Load dashboard metrics via PostgREST + user JWT (no POOLING_DATABASE_URL). */
+/** Load dashboard metrics via PostgREST (works when POOLING_DATABASE_URL on Vercel is wrong). */
 export async function getDashboardDataViaSupabase(
   userId: string
 ): Promise<{ stats: DashboardStats; recentStories: DashboardStoryRow[] }> {
-  const supabase = await getSupabaseServerClient();
+  const supabase = await getSupabaseClientForUserData(userId);
 
   const { count: totalStories, error: countError } = await supabase
     .from("stories")
@@ -91,7 +106,7 @@ export async function getDashboardDataViaSupabase(
 }
 
 export async function getUserCreditBalanceViaSupabase(userId: string): Promise<number> {
-  const supabase = await getSupabaseServerClient();
+  const supabase = await getSupabaseClientForUserData(userId);
   const { data, error } = await supabase
     .from("user_credits")
     .select("balance")
@@ -105,18 +120,41 @@ export async function getUserCreditBalanceViaSupabase(userId: string): Promise<n
   return data?.balance ?? 0;
 }
 
-export function isDirectPostgresConnectionError(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-  const message = error.message.toLowerCase();
+function messageIncludesPostgresFailure(message: string): boolean {
+  const lower = message.toLowerCase();
   return (
-    message.includes("failed query") ||
-    message.includes("password authentication") ||
-    message.includes("invalid url") ||
-    message.includes("database_not_configured") ||
-    message.includes("econnrefused") ||
-    message.includes("connect_timeout") ||
-    message.includes("127.0.0.1")
+    lower.includes("failed query") ||
+    lower.includes("password authentication") ||
+    lower.includes("invalid url") ||
+    lower.includes("database_not_configured") ||
+    lower.includes("econnrefused") ||
+    lower.includes("connect_timeout") ||
+    lower.includes("127.0.0.1") ||
+    lower.includes("tenant or user not found")
   );
+}
+
+export function isDirectPostgresConnectionError(error: unknown): boolean {
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    if (current instanceof Error) {
+      if (messageIncludesPostgresFailure(current.message)) {
+        return true;
+      }
+      current = current.cause;
+      continue;
+    }
+    if (typeof current === "object" && current !== null && "message" in current) {
+      const msg = String((current as { message: unknown }).message);
+      if (messageIncludesPostgresFailure(msg)) {
+        return true;
+      }
+    }
+    break;
+  }
+
+  return false;
 }

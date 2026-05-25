@@ -5,6 +5,7 @@ import {
   getUserCreditBalanceViaSupabase,
   isDirectPostgresConnectionError,
 } from "@/lib/db/supabase-fallback";
+import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
 
 /** Daily AI generation allowance (stored in `monthly_free_quota` column for v1 schema). */
 export const DAILY_FREE_QUOTA = 140;
@@ -90,6 +91,10 @@ async function applyDailyRefill(tx: Parameters<Parameters<typeof db.transaction>
 }
 
 export async function getUserCreditBalance(userId: string): Promise<number> {
+  if (shouldPreferSupabaseOverPostgres()) {
+    return getUserCreditBalanceViaSupabase(userId);
+  }
+
   try {
     await ensureCreditRow({ userId });
 
