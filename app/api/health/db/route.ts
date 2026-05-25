@@ -3,6 +3,7 @@ import postgres from "postgres";
 import {
   diagnosePostgresUrl,
   diagnoseRepairedPostgresUrl,
+  getPostgresUrlRole,
   type PostgresUrlDiagnostics,
   repairPostgresConnectionUrl,
 } from "@/lib/db/normalize-database-url";
@@ -48,6 +49,9 @@ export async function GET() {
   const databaseDiag = diagnosePostgresUrl(databaseRaw);
   const repairedPooling = repairPostgresConnectionUrl(poolingRaw);
   const repairedDatabase = repairPostgresConnectionUrl(databaseRaw);
+  const hasSupabasePublicUrl = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim()
+  );
 
   if (!configured) {
     return NextResponse.json(
@@ -74,6 +78,8 @@ export async function GET() {
       configured: true,
       connected: ok === 1,
       usesPooling: Boolean(poolingUrl),
+      hasSupabasePublicUrl,
+      repairedUserRole: getPostgresUrlRole(repairedPooling),
       pooling: poolingDiag,
       poolingRepaired: poolingRepairedDiag,
       database: databaseDiag,
@@ -90,6 +96,8 @@ export async function GET() {
         configured: true,
         connected: false,
         usesPooling: Boolean(poolingUrl),
+        hasSupabasePublicUrl,
+        repairedUserRole: getPostgresUrlRole(repairedPooling),
         error: message.slice(0, 200),
         pooling: poolingDiag,
         poolingRepaired: poolingRepairedDiag,

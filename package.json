@@ -14,6 +14,7 @@
     "db:validate-env": "tsx scripts/validate-env.ts",
     "db:check-user-stories": "tsx scripts/check-user-stories.ts",
     "db:test-usage-admin": "tsx scripts/test-usage-admin.ts",
+    "db:compare-pooling-url": "tsx scripts/compare-pooling-url.ts",
     "db:reset-user-credits": "tsx scripts/reset-user-credits.ts",
     "db:copy-env-vercel": "tsx scripts/copy-env-for-vercel.ts",
     "db:sync-env-vercel": "tsx scripts/sync-env-to-vercel.ts",

@@ -237,6 +237,17 @@ export function diagnoseRepairedPostgresUrl(
   return diagnosePostgresUrl(repairPostgresConnectionUrl(raw));
 }
 
+/** Safe role name from a postgres URL (no password). */
+export function getPostgresUrlRole(url: string | undefined): string | undefined {
+  const normalized = normalizeDatabaseUrl(url);
+  if (!normalized) return undefined;
+  const atIdx = normalized.lastIndexOf("@");
+  if (atIdx < 0) return undefined;
+  const schemeEnd = normalized.indexOf("://");
+  const userinfo = normalized.slice(schemeEnd >= 0 ? schemeEnd + 3 : 0, atIdx);
+  return userinfo.split(":")[0] || undefined;
+}
+
 /** Safe metadata for /api/health/db — never includes credentials. */
 export function diagnosePostgresUrl(raw: string | undefined): PostgresUrlDiagnostics {
   const url = normalizeDatabaseUrl(raw);

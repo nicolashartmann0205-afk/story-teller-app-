@@ -66,7 +66,11 @@ function runStep(key: StepKey) {
   const copied = copyToClipboard(value);
   console.log(`\n=== ${step.vercelName} ===`);
   console.log(step.hint);
-  console.log(`Length: ${value.length} characters`);
+  console.log(`Length: ${value.length} characters (transaction pooler URI is usually ~110)`);
+  if (step.envKey === "POOLING_DATABASE_URL" && value.length < 100) {
+    console.error("URL looks too short — it may be truncated. Copy the full URI from Supabase.");
+    process.exit(1);
+  }
   if (copied) {
     console.log("Copied to clipboard (macOS). Paste into Vercel → Edit → Value → Save.");
   } else {
