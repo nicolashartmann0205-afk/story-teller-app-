@@ -41,7 +41,14 @@ async function updateProfileAction(previousState: { error?: string; success?: st
   }
 
   try {
-    await updateUserProfile(user.id, { displayName, bio });
+    if (!user.email) {
+      return { error: "Your account has no email; cannot save profile." };
+    }
+    await updateUserProfile(user.id, {
+      email: user.email,
+      displayName,
+      bio,
+    });
     return { success: "Profile updated successfully" };
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -112,16 +119,24 @@ export default async function ProfilePage() {
     redirect(AUTH_ROUTES.SIGN_IN);
   }
 
-  const { profile: userProfile, recentCreditTransactions } = await loadSettingsPageData(user.id);
+  if (!user.email) {
+    redirect(`${AUTH_ROUTES.SIGN_IN}?reason=settings-no-email`);
+  }
+
+  const displayNameFromAuth =
+    typeof user.user_metadata?.display_name === "string"
+      ? user.user_metadata.display_name
+      : null;
+
+  const { profile: userProfile, recentCreditTransactions } = await loadSettingsPageData(user.id, {
+    id: user.id,
+    email: user.email,
+    displayName: displayNameFromAuth,
+  });
   const creditBalance = await getUserCreditBalance(user.id);
   const canGrantCredits = isBlogAdminUser(user.id, user.email);
 
   const metadataBaseUrl = getAppUrl().replace(/\/$/, "") || "http://localhost:3000";
-
-  // If profile doesn't exist in public table yet (e.g. old user), create it or just use auth data
-  // For now, we'll assume we can display what we have. 
-  // In a real sync scenario, we'd want to ensure the record exists.
-  // Let's handle the null case gracefully in the form.
 
   return (
     <div className="min-h-screen bg-brand-cream dark:bg-brand-ink py-12 px-4 sm:px-6 lg:px-8">

@@ -3,11 +3,18 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { withPostgresOrSupabase } from "@/lib/db/postgres-or-supabase";
 import { updateUserProfileViaSupabase } from "@/lib/db/supabase-fallback";
+import { ensureUserProfile } from "@/lib/users/ensure-profile";
 
 export async function updateUserProfile(
   userId: string,
-  fields: { displayName: string; bio: string }
+  fields: { email: string; displayName: string; bio: string }
 ): Promise<void> {
+  await ensureUserProfile({
+    id: userId,
+    email: fields.email,
+    displayName: fields.displayName,
+  });
+
   return withPostgresOrSupabase(
     async () => {
       await db

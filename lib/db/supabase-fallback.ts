@@ -17,7 +17,6 @@ export type DashboardStoryRow = {
   mode: "quick" | "comprehensive" | null;
 };
 
-/** Signed-in user JWT, or service role when acting on another user (admin tools). */
 export async function getSupabaseClientForUserData(userId: string): Promise<SupabaseClient> {
   const anon = (await createClient()) as unknown as SupabaseClient;
   const {

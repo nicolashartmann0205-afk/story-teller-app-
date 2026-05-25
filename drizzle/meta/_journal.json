@@ -99,6 +99,13 @@
       "when": 1777200000000,
       "tag": "0072_owner_usage_admin_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1777300000000,
+      "tag": "0073_users_insert_own_profile",
+      "breakpoints": true
     }
   ]
 }
