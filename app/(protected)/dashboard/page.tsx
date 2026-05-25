@@ -41,10 +41,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     const dashboardData = await loadDashboardData(user.id);
     stats = dashboardData.stats;
     recentStories = dashboardData.recentStories;
-    if (dashboardData.usedSupabaseFallback && isBlogAdminUser(user.id, user.email)) {
-      dataLoadWarning =
-        "Stories are loading via Supabase API because POOLING_DATABASE_URL on Vercel is incomplete (98 chars — needs ~110). Run pnpm db:copy-env-vercel pooling, replace the whole value on Vercel, redeploy. Optional: add SUPABASE_SERVICE_ROLE_KEY on Vercel for a reliable fallback.";
-    }
   } catch (error) {
     console.error("Failed to load dashboard data", error);
     dataLoadWarning = dashboardDataLoadWarning(error, {

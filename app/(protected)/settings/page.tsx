@@ -24,6 +24,7 @@ import {
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { revalidatePath } from "next/cache";
 import AdminGrantCreditsForm from "./admin-grant-credits-form";
+import { ProductionDatabaseCard } from "@/components/settings/production-database-card";
 
 export const metadata = selfReferencingCanonical("/settings");
 
@@ -220,6 +221,7 @@ export default async function ProfilePage() {
         </div>
 
         {canGrantCredits ? (
+          <>
           <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
             <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
               <h3 className="text-lg font-medium leading-6 text-brand-ink dark:text-brand-yellow">
@@ -236,6 +238,8 @@ export default async function ProfilePage() {
               />
             </div>
           </div>
+          <ProductionDatabaseCard />
+          </>
         ) : null}
 
         <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
