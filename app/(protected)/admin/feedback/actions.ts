@@ -23,13 +23,11 @@ async function requireFeedbackAdmin() {
   return user;
 }
 
-export async function updateFeedbackStatusAction(
-  id: string,
-  formData: FormData
-) {
+export async function updateFeedbackStatusAction(formData: FormData) {
   await requireFeedbackAdmin();
+  const id = String(formData.get("id") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
-  if (!status) {
+  if (!id || !status) {
     return;
   }
 

@@ -3,16 +3,106 @@ import { createClient } from "@/lib/supabase/server";
 import { getServiceRoleClient } from "@/lib/supabase/service-role";
 import type { AdminUsageStats, RecentSignup } from "./usage-queries";
 
+type UsageStatsRpcRow = {
+  total_users: number;
+  new_users_7d: number;
+  new_users_30d: number;
+  active_users_24h: number;
+  active_users_7d: number;
+  active_users_30d: number;
+  recently_online_users: number;
+  total_stories: number;
+  total_ai_generations: number;
+  ai_generations_7d: number;
+};
+
+function toCount(value: unknown): number {
+  return Number(value ?? 0);
+}
+
+function mapRpcStats(row: UsageStatsRpcRow): AdminUsageStats {
+  return {
+    totalUsers: toCount(row.total_users),
+    newUsers7d: toCount(row.new_users_7d),
+    newUsers30d: toCount(row.new_users_30d),
+    activeUsers24h: toCount(row.active_users_24h),
+    activeUsers7d: toCount(row.active_users_7d),
+    activeUsers30d: toCount(row.active_users_30d),
+    recentlyOnlineUsers: toCount(row.recently_online_users),
+    totalStories: toCount(row.total_stories),
+    totalAiGenerations: toCount(row.total_ai_generations),
+    aiGenerations7d: toCount(row.ai_generations_7d),
+  };
+}
+
+function isMissingRpcError(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  const msg = (error.message || "").toLowerCase();
+  return (
+    error.code === "PGRST202" ||
+    error.code === "42883" ||
+    msg.includes("get_usage_admin_stats") ||
+    msg.includes("could not find the function")
+  );
+}
+
+/** Owner JWT client — required for SECURITY DEFINER RPCs that check auth.jwt(). */
+async function getSessionSupabase(): Promise<SupabaseClient> {
+  return (await createClient()) as unknown as SupabaseClient;
+}
+
 async function getAdminMetricsSupabase(): Promise<SupabaseClient> {
   const service = getServiceRoleClient();
   if (service) {
     return service;
   }
-  return (await createClient()) as unknown as SupabaseClient;
+  return getSessionSupabase();
 }
 
 function hasServiceRole(): boolean {
   return getServiceRoleClient() !== null;
+}
+
+async function getAdminUsageStatsViaRpc(): Promise<AdminUsageStats | null> {
+  const supabase = await getSessionSupabase();
+  const { data, error } = await supabase.rpc("get_usage_admin_stats");
+
+  if (error) {
+    if (isMissingRpcError(error)) {
+      return null;
+    }
+    throw error;
+  }
+
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+
+  return mapRpcStats(data as UsageStatsRpcRow);
+}
+
+async function getRecentSignupsViaRpc(limit: number): Promise<RecentSignup[] | null> {
+  const supabase = await getSessionSupabase();
+  const { data, error } = await supabase.rpc("get_usage_admin_recent_signups", {
+    p_limit: limit,
+  });
+
+  if (error) {
+    if (isMissingRpcError(error)) {
+      return null;
+    }
+    throw error;
+  }
+
+  if (!Array.isArray(data)) {
+    return null;
+  }
+
+  return data.map((row: { id: string; email: string; created_at: string }) => ({
+    id: row.id,
+    email: row.email,
+    createdAt: new Date(row.created_at),
+  }));
 }
 
 function daysAgoIso(days: number): string {
@@ -137,7 +227,7 @@ function mergeActiveUserCounts(...sets: Set<string>[]): number {
   return merged.size;
 }
 
-export async function getAdminUsageStatsViaSupabase(): Promise<AdminUsageStats> {
+async function getAdminUsageStatsViaTableScan(): Promise<AdminUsageStats> {
   const supabase = await getAdminMetricsSupabase();
   const users = await listAllAuthUsers(supabase);
   const now = Date.now();
@@ -211,7 +301,20 @@ export async function getAdminUsageStatsViaSupabase(): Promise<AdminUsageStats> 
   };
 }
 
+export async function getAdminUsageStatsViaSupabase(): Promise<AdminUsageStats> {
+  const rpcStats = await getAdminUsageStatsViaRpc();
+  if (rpcStats) {
+    return rpcStats;
+  }
+  return getAdminUsageStatsViaTableScan();
+}
+
 export async function getRecentSignupsViaSupabase(limit = 15): Promise<RecentSignup[]> {
+  const rpcRows = await getRecentSignupsViaRpc(limit);
+  if (rpcRows) {
+    return rpcRows;
+  }
+
   const supabase = await getAdminMetricsSupabase();
   const users = await listAllAuthUsers(supabase);
 

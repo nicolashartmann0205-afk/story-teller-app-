@@ -30,10 +30,26 @@ async function listBlogPostSeoViaPostgres(): Promise<BlogPostSeoRow[]> {
 
 async function listBlogPostSeoViaSupabase(): Promise<BlogPostSeoRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const fullSelect =
+    "slug, title, seo_title, meta_description, canonical_url, updated_at, published_at";
+  let { data, error } = await supabase
     .from("blog_posts")
-    .select("slug, title, seo_title, meta_description, canonical_url, updated_at, published_at")
+    .select(fullSelect)
     .order("published_at", { ascending: false });
+
+  if (error && /seo_title|meta_description|canonical_url|column/i.test(error.message)) {
+    const fallback = await supabase
+      .from("blog_posts")
+      .select("slug, title, updated_at, published_at")
+      .order("published_at", { ascending: false });
+    data = fallback.data?.map((row) => ({
+      ...row,
+      seo_title: null,
+      meta_description: null,
+      canonical_url: null,
+    })) as typeof data;
+    error = fallback.error;
+  }
 
   if (error) {
     throw error;
@@ -42,9 +58,9 @@ async function listBlogPostSeoViaSupabase(): Promise<BlogPostSeoRow[]> {
   return (data ?? []).map((row) => ({
     slug: row.slug,
     title: row.title,
-    seoTitle: row.seo_title,
-    metaDescription: row.meta_description,
-    canonicalUrl: row.canonical_url,
+    seoTitle: row.seo_title ?? null,
+    metaDescription: row.meta_description ?? null,
+    canonicalUrl: row.canonical_url ?? null,
     updatedAt: new Date(row.updated_at),
   }));
 }

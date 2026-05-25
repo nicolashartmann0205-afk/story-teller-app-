@@ -9,6 +9,8 @@ import { updateFeedbackStatusAction } from "./actions";
 
 const FEEDBACK_ADMIN_PATH = "/admin/feedback";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata() {
   return buildDynamicPageMetadata("feedback-admin", {
     title: "Feedback admin - Story Teller",
@@ -70,7 +72,8 @@ export default async function FeedbackAdminPage() {
                     {row.email || "No email"} · {row.createdAt.toISOString().replace("T", " ").slice(0, 16)}
                   </p>
                 </div>
-                <form action={updateFeedbackStatusAction.bind(null, row.id)} className="flex items-center gap-2">
+                <form action={updateFeedbackStatusAction} className="flex items-center gap-2">
+                  <input type="hidden" name="id" value={row.id} />
                   <select
                     name="status"
                     defaultValue={row.status}

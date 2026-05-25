@@ -10,6 +10,7 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:fix-production-admin": "drizzle-kit migrate && echo 'Migrations applied. Next: pnpm db:copy-env-vercel pooling → Vercel → Redeploy. See scripts/fix-production-admin.md'",
     "db:enable-password-hibp": "tsx scripts/enable-supabase-password-hibp.ts",
     "db:validate-env": "tsx scripts/validate-env.ts",
     "db:check-user-stories": "tsx scripts/check-user-stories.ts",

@@ -14,6 +14,7 @@ const SEO_ADMIN_PATH = "/seo-admin";
 const SEO_ADMIN_EMAIL = SITE_OWNER_EMAIL;
 
 export const metadata = selfReferencingCanonical(SEO_ADMIN_PATH);
+export const dynamic = "force-dynamic";
 
 export default async function SeoAdminPage() {
   const supabase = await createClient();
