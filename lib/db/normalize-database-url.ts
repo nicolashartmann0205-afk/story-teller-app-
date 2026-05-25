@@ -197,27 +197,47 @@ export function repairPostgresConnectionUrl(raw: string | undefined): string | u
     return undefined;
   }
 
-  // Host-only pastes from Supabase UI (no scheme).
+  // Host-only / scheme-less Supabase pastes (common on Vercel).
   if (!/^postgres(ql)?:\/\//i.test(url)) {
-    if (url.includes("@") && /supabase\.com|pooler\.supabase/i.test(url)) {
+    if (url.startsWith("//")) {
+      // Supabase "URI" copy sometimes starts with // — must not become postgresql:////...
+      url = `postgresql:${url}`;
+    } else if (url.includes("@") && /supabase\.com|pooler\.supabase/i.test(url)) {
       url = `postgresql://${url}`;
     } else {
       return undefined;
     }
   }
 
+  // Collapse postgresql:////user@... from bad pastes.
+  url = url.replace(/^(postgres(?:ql)?:\/\/)\/+/i, "$1");
+
   url = applySupabasePoolerFixes(url);
 
-  if (isValidPostgresUrl(url)) {
+  if (isValidPostgresUrl(url) && !isLocalhostDatabaseUrl(url)) {
     return url;
   }
 
   const rebuilt = rebuildWithEncodedCredentials(url);
   if (rebuilt) {
-    return applySupabasePoolerFixes(rebuilt);
+    const fixed = applySupabasePoolerFixes(rebuilt).replace(
+      /^(postgres(?:ql)?:\/\/)\/+/i,
+      "$1"
+    );
+    return isValidPostgresUrl(fixed) && !isLocalhostDatabaseUrl(fixed) ? fixed : undefined;
   }
 
   return undefined;
+}
+
+function isLocalhostDatabaseUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.replace(/^postgres(ql)?:/, "http:"));
+    const host = parsed.hostname.toLowerCase();
+    return host === "127.0.0.1" || host === "localhost" || host === "build";
+  } catch {
+    return /127\.0\.0\.1|localhost|build@/i.test(url);
+  }
 }
 
 export type PostgresUrlDiagnostics = {
@@ -239,13 +259,14 @@ export function diagnoseRepairedPostgresUrl(
 
 /** Safe role name from a postgres URL (no password). */
 export function getPostgresUrlRole(url: string | undefined): string | undefined {
-  const normalized = normalizeDatabaseUrl(url);
+  const normalized = repairPostgresConnectionUrl(url) ?? normalizeDatabaseUrl(url);
   if (!normalized) return undefined;
   const atIdx = normalized.lastIndexOf("@");
   if (atIdx < 0) return undefined;
   const schemeEnd = normalized.indexOf("://");
   const userinfo = normalized.slice(schemeEnd >= 0 ? schemeEnd + 3 : 0, atIdx);
-  return userinfo.split(":")[0] || undefined;
+  const user = userinfo.split(":")[0] || "";
+  return user.replace(/^\/+/, "") || undefined;
 }
 
 /** Safe metadata for /api/health/db — never includes credentials. */

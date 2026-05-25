@@ -12,6 +12,9 @@ function poolingHint(
   pooling: PostgresUrlDiagnostics,
   errorMessage: string
 ): string {
+  if (errorMessage.includes("127.0.0.1") || errorMessage.includes("ECONNREFUSED")) {
+    return "POOLING_DATABASE_URL on Vercel is malformed (missing postgresql:// or truncated). Run pnpm db:copy-env-vercel pooling locally, replace the full value on Vercel, redeploy.";
+  }
   if (pooling.poolerIssues.includes("wrong_port_session_pooler")) {
     return "POOLING_DATABASE_URL uses port 5432 (session pooler). In Supabase → Connect copy Transaction pooler (port 6543). The app can rewrite 5432→6543 at runtime, but you must redeploy after saving a correct URI.";
   }

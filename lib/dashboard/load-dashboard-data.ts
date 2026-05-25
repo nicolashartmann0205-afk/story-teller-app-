@@ -62,7 +62,12 @@ export async function loadDashboardData(userId: string): Promise<DashboardData> 
     if (!isDirectPostgresConnectionError(error)) {
       throw error;
     }
-    const fallback = await getDashboardDataViaSupabase(userId);
-    return { ...fallback, usedSupabaseFallback: true };
+    try {
+      const fallback = await getDashboardDataViaSupabase(userId);
+      return { ...fallback, usedSupabaseFallback: true };
+    } catch (fallbackError) {
+      console.error("Dashboard Supabase fallback failed", fallbackError);
+      throw error;
+    }
   }
 }

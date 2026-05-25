@@ -74,9 +74,9 @@ export function dashboardDataLoadWarning(
   const errMsg = error instanceof Error ? error.message : String(error);
   if (options?.isOwner && errMsg.includes("Failed query")) {
     if (errMsg.includes("127.0.0.1") || errMsg.includes("build@")) {
-      return `${base} The app is still using a build-time database placeholder. Set POOLING_DATABASE_URL on Vercel (Transaction pooler, port 6543, ~110 characters), redeploy Production, then hard-refresh.`;
+      return `${base} POOLING_DATABASE_URL on Vercel is malformed (often missing postgresql:// or a truncated paste). Run pnpm db:copy-env-vercel pooling locally, replace the entire value on Vercel, redeploy, then check /api/health/db shows connected:true.`;
     }
-    return `${base} Database queries failed. Open /api/health/db — if length is not ~110 or port is 5432, delete POOLING_DATABASE_URL on Vercel, run pnpm db:copy-env-vercel pooling locally, paste, save, redeploy.`;
+    return `${base} Database queries failed. Open /api/health/db — if port is 5432 or length is under ~105, run pnpm db:copy-env-vercel pooling, replace POOLING_DATABASE_URL on Vercel, redeploy.`;
   }
   return `We could not load your story stats (${errMsg}).`;
 }

@@ -21,7 +21,7 @@ const STEPS = {
   pooling: {
     envKey: "POOLING_DATABASE_URL",
     vercelName: "POOLING_DATABASE_URL",
-    hint: "Supabase Transaction pooler (port 6543). Mark Sensitive. Apply to Production + Preview.",
+    hint: "Supabase Transaction pooler (port 6543, ~110 chars). Copies the REPAIRED URI from .env.local. Mark Sensitive. Production + Preview.",
   },
   database: {
     envKey: "DATABASE_URL",
