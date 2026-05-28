@@ -2,6 +2,8 @@ import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { creditTransactions, userCredits } from "@/lib/db/schema";
 import {
+  adminGrantCreditsViaSupabase,
+  adminResetCreditsToDailyQuotaViaSupabase,
   getUserCreditBalanceViaSupabase,
   isDirectPostgresConnectionError,
 } from "@/lib/db/supabase-fallback";
@@ -201,30 +203,41 @@ export async function adminGrantCredits(
     throw new Error("Credit grant amount must be a positive integer");
   }
 
+  if (shouldPreferSupabaseOverPostgres()) {
+    return adminGrantCreditsViaSupabase(userId, amount, reason);
+  }
+
   await ensureCreditRow({ userId });
 
-  return db.transaction(async (tx) => {
-    await applyDailyRefill(tx, userId);
+  try {
+    return await db.transaction(async (tx) => {
+      await applyDailyRefill(tx, userId);
 
-    const [updated] = await tx
-      .update(userCredits)
-      .set({
-        balance: sql`${userCredits.balance} + ${amount}`,
-        updatedAt: new Date(),
-      })
-      .where(eq(userCredits.userId, userId))
-      .returning({ balance: userCredits.balance });
+      const [updated] = await tx
+        .update(userCredits)
+        .set({
+          balance: sql`${userCredits.balance} + ${amount}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, userId))
+        .returning({ balance: userCredits.balance });
 
-    await tx.insert(creditTransactions).values({
-      userId,
-      type: "admin_grant",
-      amount,
-      reason,
-      metadata: {},
+      await tx.insert(creditTransactions).values({
+        userId,
+        type: "admin_grant",
+        amount,
+        reason,
+        metadata: {},
+      });
+
+      return updated?.balance ?? 0;
     });
-
-    return updated?.balance ?? 0;
-  });
+  } catch (error) {
+    if (isDirectPostgresConnectionError(error)) {
+      return adminGrantCreditsViaSupabase(userId, amount, reason);
+    }
+    throw error;
+  }
 }
 
 /** Set balance to the full daily allowance (140) for today — normal starting amount. */
@@ -232,30 +245,41 @@ export async function adminResetCreditsToDailyQuota(
   userId: string,
   reason = "admin_reset_daily_quota"
 ): Promise<number> {
+  if (shouldPreferSupabaseOverPostgres()) {
+    return adminResetCreditsToDailyQuotaViaSupabase(userId, reason);
+  }
+
   await ensureCreditRow({ userId });
   const dayStart = startOfCurrentUtcDay();
 
-  return db.transaction(async (tx) => {
-    const [updated] = await tx
-      .update(userCredits)
-      .set({
-        balance: DAILY_FREE_QUOTA,
-        monthlyFreeQuota: DAILY_FREE_QUOTA,
-        monthlyUsed: 0,
-        periodStart: dayStart,
-        updatedAt: new Date(),
-      })
-      .where(eq(userCredits.userId, userId))
-      .returning({ balance: userCredits.balance });
+  try {
+    return await db.transaction(async (tx) => {
+      const [updated] = await tx
+        .update(userCredits)
+        .set({
+          balance: DAILY_FREE_QUOTA,
+          monthlyFreeQuota: DAILY_FREE_QUOTA,
+          monthlyUsed: 0,
+          periodStart: dayStart,
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, userId))
+        .returning({ balance: userCredits.balance });
 
-    await tx.insert(creditTransactions).values({
-      userId,
-      type: "admin_grant",
-      amount: DAILY_FREE_QUOTA,
-      reason,
-      metadata: { resetToDailyQuota: true, periodStart: dayStart.toISOString() },
+      await tx.insert(creditTransactions).values({
+        userId,
+        type: "admin_grant",
+        amount: DAILY_FREE_QUOTA,
+        reason,
+        metadata: { resetToDailyQuota: true, periodStart: dayStart.toISOString() },
+      });
+
+      return updated?.balance ?? DAILY_FREE_QUOTA;
     });
-
-    return updated?.balance ?? DAILY_FREE_QUOTA;
-  });
+  } catch (error) {
+    if (isDirectPostgresConnectionError(error)) {
+      return adminResetCreditsToDailyQuotaViaSupabase(userId, reason);
+    }
+    throw error;
+  }
 }

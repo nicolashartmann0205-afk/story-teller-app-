@@ -236,6 +236,97 @@ export async function updateUserProfileViaSupabase(
   }
 }
 
+export async function adminGrantCreditsViaSupabase(
+  userId: string,
+  amount: number,
+  reason = "admin_grant"
+): Promise<number> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const now = new Date().toISOString();
+
+  const { error: upsertError } = await supabase.from("user_credits").upsert(
+    {
+      user_id: userId,
+      balance: 140,
+      monthly_free_quota: 140,
+      monthly_used: 0,
+      period_start: now,
+      updated_at: now,
+    },
+    { onConflict: "user_id" }
+  );
+  if (upsertError) throw upsertError;
+
+  const { data: current, error: currentError } = await supabase
+    .from("user_credits")
+    .select("balance")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (currentError) throw currentError;
+
+  const nextBalance = Number(current?.balance ?? 0) + amount;
+  const { error: updateError } = await supabase
+    .from("user_credits")
+    .update({ balance: nextBalance, updated_at: now })
+    .eq("user_id", userId);
+  if (updateError) throw updateError;
+
+  const { error: txError } = await supabase.from("credit_transactions").insert({
+    user_id: userId,
+    type: "admin_grant",
+    amount,
+    reason,
+    metadata: {},
+  });
+  if (txError) throw txError;
+
+  return nextBalance;
+}
+
+export async function adminResetCreditsToDailyQuotaViaSupabase(
+  userId: string,
+  reason = "admin_reset_daily_quota"
+): Promise<number> {
+  const supabase = await getSupabaseClientForAdminOperations();
+  const now = new Date().toISOString();
+
+  const { error: upsertError } = await supabase.from("user_credits").upsert(
+    {
+      user_id: userId,
+      balance: 140,
+      monthly_free_quota: 140,
+      monthly_used: 0,
+      period_start: now,
+      updated_at: now,
+    },
+    { onConflict: "user_id" }
+  );
+  if (upsertError) throw upsertError;
+
+  const { error: updateError } = await supabase
+    .from("user_credits")
+    .update({
+      balance: 140,
+      monthly_free_quota: 140,
+      monthly_used: 0,
+      period_start: now,
+      updated_at: now,
+    })
+    .eq("user_id", userId);
+  if (updateError) throw updateError;
+
+  const { error: txError } = await supabase.from("credit_transactions").insert({
+    user_id: userId,
+    type: "admin_grant",
+    amount: 140,
+    reason,
+    metadata: { resetToDailyQuota: true, periodStart: now },
+  });
+  if (txError) throw txError;
+
+  return 140;
+}
+
 /** Service role when configured; otherwise the signed-in session (owner RLS policies). */
 export async function getSupabaseClientForAdminOperations(): Promise<SupabaseClient> {
   const service = getServiceRoleClient();

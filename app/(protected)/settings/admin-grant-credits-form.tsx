@@ -20,6 +20,11 @@ export default function AdminGrantCreditsForm({
 
   return (
     <div className="space-y-6">
+      {state?.error ? (
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3">
+          <p className="text-sm text-red-800 dark:text-red-200">{state.error}</p>
+        </div>
+      ) : null}
       {state?.success ? (
         <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-3">
           <p className="text-sm text-green-800 dark:text-green-200">{state.success}</p>

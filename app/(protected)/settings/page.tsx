@@ -15,7 +15,6 @@ import ProfileForm from "./profile-form";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { revalidatePath } from "next/cache";
 import AdminGrantCreditsForm from "./admin-grant-credits-form";
-import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
 
 export const metadata = selfReferencingCanonical("/settings");
 const DAILY_FREE_QUOTA = 140;
@@ -72,13 +71,6 @@ async function grantCreditsAction(
     adminResetCreditsToDailyQuota,
   } = await import("@/lib/credits/service");
 
-  if (shouldPreferSupabaseOverPostgres()) {
-    return {
-      error:
-        "Credit admin tools are temporarily unavailable while the production database connection is being repaired.",
-    };
-  }
-
   if (action === "reset_daily") {
     const targetUserId = String(formData.get("targetUserId") ?? user.id).trim();
     if (!targetUserId) {
@@ -93,7 +85,7 @@ async function grantCreditsAction(
       console.error("Error resetting credits:", error);
       return {
         error:
-          "Could not reset credits right now. Please retry after the database connection issue is resolved.",
+          "Could not reset credits right now. Please try again in a moment.",
       };
     }
   }
@@ -117,7 +109,7 @@ async function grantCreditsAction(
     console.error("Error granting credits:", error);
     return {
       error:
-        "Could not grant credits right now. Please retry after the database connection issue is resolved.",
+        "Could not grant credits right now. Please try again in a moment.",
     };
   }
 }
@@ -268,7 +260,7 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {canGrantCredits && !shouldPreferSupabaseOverPostgres() ? (
+        {canGrantCredits ? (
           <>
           <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
             <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
