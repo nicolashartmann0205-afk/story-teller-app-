@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { stories } from "@/lib/db/schema";
+import { and, eq } from "drizzle-orm";
 
 async function resolveStoryId(
   params: Promise<{ storyId: string }> | { storyId: string }
@@ -10,6 +13,20 @@ async function resolveStoryId(
       typeof resolved?.storyId === "string" ? resolved.storyId.trim() : "";
     return storyId.length > 0 ? storyId : null;
   } catch {
+    return null;
+  }
+}
+
+async function getStoryViaPostgres(storyId: string, userId: string) {
+  try {
+    const [story] = await db
+      .select()
+      .from(stories)
+      .where(and(eq(stories.id, storyId), eq(stories.userId, userId)))
+      .limit(1);
+    return story ?? null;
+  } catch (error) {
+    console.error("[STORIES_API][POSTGRES_FALLBACK_GET_FAILED]", error);
     return null;
   }
 }
@@ -42,10 +59,18 @@ export async function GET(
       .maybeSingle();
 
     if (storyError) {
+      const fallbackStory = await getStoryViaPostgres(storyId, user.id);
+      if (fallbackStory) {
+        return NextResponse.json({ story: fallbackStory }, { status: 200 });
+      }
       throw storyError;
     }
 
     if (!story) {
+      const fallbackStory = await getStoryViaPostgres(storyId, user.id);
+      if (fallbackStory) {
+        return NextResponse.json({ story: fallbackStory }, { status: 200 });
+      }
       return NextResponse.json({ error: "Story not found" }, { status: 404 });
     }
 

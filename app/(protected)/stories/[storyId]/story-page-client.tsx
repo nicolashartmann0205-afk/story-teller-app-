@@ -21,9 +21,32 @@ type StoryRecord = {
 };
 
 type StoryResponse = {
-  story?: StoryRecord;
+  story?: StoryRecord & {
+    created_at?: string | null;
+    updated_at?: string | null;
+  };
   error?: string;
 };
+
+function normalizeStoryFromApi(raw: StoryResponse["story"]): StoryRecord | null {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+
+  const id = typeof raw.id === "string" ? raw.id : "";
+  if (!id) {
+    return null;
+  }
+
+  return {
+    id,
+    title: typeof raw.title === "string" ? raw.title : null,
+    description: typeof raw.description === "string" ? raw.description : null,
+    createdAt: raw.createdAt ?? raw.created_at ?? null,
+    updatedAt: raw.updatedAt ?? raw.updated_at ?? null,
+    hooks: raw.hooks,
+  };
+}
 
 function coerceText(value: unknown, fallback: string): string {
   if (typeof value === "string") {
@@ -88,12 +111,13 @@ export default function StoryPageClient({ storyId }: { storyId?: string }) {
           return;
         }
 
-        if (!response.ok || !data.story) {
+        const normalizedStory = normalizeStoryFromApi(data.story);
+        if (!response.ok || !normalizedStory) {
           setStatus("error");
           return;
         }
 
-        setStory(data.story);
+        setStory(normalizedStory);
         setStatus("ready");
       } catch (error) {
         if (!cancelled) {
