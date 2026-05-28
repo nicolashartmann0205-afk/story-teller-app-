@@ -12,12 +12,12 @@ import {
   selfReferencingCanonical,
 } from "@/lib/seo/site-metadata";
 import ProfileForm from "./profile-form";
-import { isBlogAdminUser } from "@/lib/blog/admin";
 import { revalidatePath } from "next/cache";
 import AdminGrantCreditsForm from "./admin-grant-credits-form";
 
 export const metadata = selfReferencingCanonical("/settings");
 const DAILY_FREE_QUOTA = 140;
+const CREDIT_ADMIN_OWNER_EMAIL = "nicolas@hartmanns.net";
 
 async function updateProfileAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
   "use server";
@@ -45,7 +45,21 @@ async function updateProfileAction(previousState: { error?: string; success?: st
     return { success: "Profile updated successfully" };
   } catch (error) {
     console.error("Error updating profile:", error);
-    return { error: "Failed to update profile" };
+    try {
+      const { error: authUpdateError } = await supabase.auth.updateUser({
+        data: {
+          display_name: displayName,
+          bio,
+        },
+      });
+      if (authUpdateError) {
+        throw authUpdateError;
+      }
+      return { success: "Profile updated successfully" };
+    } catch (fallbackError) {
+      console.error("Error updating profile via auth metadata fallback:", fallbackError);
+      return { error: "Failed to update profile" };
+    }
   }
 }
 
@@ -61,7 +75,9 @@ async function grantCreditsAction(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user || !isBlogAdminUser(user.id, user.email)) {
+  const isCreditAdminOwner =
+    (user?.email ?? "").trim().toLowerCase() === CREDIT_ADMIN_OWNER_EMAIL;
+  if (!user || !isCreditAdminOwner) {
     return { error: "Unauthorized" };
   }
 
@@ -180,7 +196,7 @@ export default async function ProfilePage() {
   } catch (error) {
     console.error("[SETTINGS][GET_CREDIT_BALANCE_FAILED]", error);
   }
-  const canGrantCredits = isBlogAdminUser(user.id, user.email);
+  const canGrantCredits = (user.email ?? "").trim().toLowerCase() === CREDIT_ADMIN_OWNER_EMAIL;
 
   const metadataBaseUrl = getAppUrl().replace(/\/$/, "") || "http://localhost:3000";
 
