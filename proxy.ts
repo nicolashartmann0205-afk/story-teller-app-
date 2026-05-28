@@ -30,14 +30,23 @@ function redirectUrlForOAuthRootCode(request: NextRequest): URL | null {
 }
 
 export async function proxy(request: NextRequest) {
-  // Handle OAuth on `/` before session refresh. Do not apex↔www redirect here — that breaks
-  // PKCE/session cookies when combined with Vercel domain redirects (see docs/oauth-callback-production.md).
-  const oauthRedirect = redirectUrlForOAuthRootCode(request);
-  if (oauthRedirect) {
-    return NextResponse.redirect(oauthRedirect);
-  }
+  try {
+    // Handle OAuth on `/` before session refresh. Do not apex↔www redirect here — that breaks
+    // PKCE/session cookies when combined with Vercel domain redirects (see docs/oauth-callback-production.md).
+    const oauthRedirect = redirectUrlForOAuthRootCode(request);
+    if (oauthRedirect) {
+      return NextResponse.redirect(oauthRedirect);
+    }
 
-  return await updateSession(request);
+    return await updateSession(request);
+  } catch (error) {
+    console.error("[PROXY][MIDDLEWARE_FAILED]", error);
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
 }
 
 export const config = {

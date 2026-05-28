@@ -10,7 +10,13 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Stories page error:", error);
+    console.error("[STORIES_SEGMENT][CLIENT_ERROR_BOUNDARY]", {
+      message: error.message,
+      digest: error.digest ?? null,
+      stack: error.stack ?? null,
+      pathname: typeof window !== "undefined" ? window.location.pathname : null,
+      href: typeof window !== "undefined" ? window.location.href : null,
+    });
   }, [error]);
 
   return (
@@ -35,6 +41,11 @@ export default function Error({
         >
           Try again
         </button>
+        {error.digest ? (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+            Ref: {error.digest}
+          </p>
+        ) : null}
       </div>
     </div>
   );

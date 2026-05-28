@@ -6,9 +6,11 @@ import { AppShellNavLinks } from "@/components/nav/app-shell-nav-links";
 import { PublicAuthLinks, PublicPrimaryNavLinks } from "@/components/nav/public-nav-links";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { isUsageAdminUser } from "@/lib/admin/usage-access";
-import { CREDITS_PER_AI_USE, DAILY_FREE_QUOTA, getUserCreditBalance } from "@/lib/credits/service";
 import { isDatabaseConfigured } from "@/lib/db/is-configured";
 import { createClient } from "@/lib/supabase/server";
+
+const DAILY_FREE_QUOTA = 140;
+const CREDITS_PER_AI_USE = 10;
 
 function isDynamicServerUsageError(error: unknown): boolean {
   return (
@@ -33,6 +35,7 @@ export async function SiteHeader() {
     let creditBalance: number | null = null;
     if (user && isDatabaseConfigured()) {
       try {
+        const { getUserCreditBalance } = await import("@/lib/credits/service");
         creditBalance = await getUserCreditBalance(user.id);
       } catch (error) {
         console.error("Failed to load user credit balance in header", error);
