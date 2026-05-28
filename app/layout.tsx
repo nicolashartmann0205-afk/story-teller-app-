@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import { SiteHeader } from "@/components/nav/site-header";
 import { SiteHeaderFallback } from "@/components/nav/site-header-fallback";
 import ClientParticleBackground from "@/components/ui/client-particle-background";
 import { getAppUrl } from "@/lib/config/env";
@@ -54,7 +56,9 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
         <ClientParticleBackground />
-        <SiteHeaderFallback />
+        <Suspense fallback={<SiteHeaderFallback />}>
+          <SiteHeader />
+        </Suspense>
         <div className="relative z-10">{children}</div>
       </body>
     </html>

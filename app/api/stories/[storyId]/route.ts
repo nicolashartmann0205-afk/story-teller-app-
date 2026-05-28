@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { db } from "@/lib/db";
-import { stories } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
 
 async function resolveStoryId(
   params: Promise<{ storyId: string }> | { storyId: string }
@@ -37,11 +34,16 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const [story] = await db
-      .select()
-      .from(stories)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
-      .limit(1);
+    const { data: story, error: storyError } = await supabase
+      .from("stories")
+      .select("*")
+      .eq("id", storyId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (storyError) {
+      throw storyError;
+    }
 
     if (!story) {
       return NextResponse.json({ error: "Story not found" }, { status: 404 });
@@ -80,12 +82,16 @@ export async function PATCH(
       );
     }
 
-    // Verify ownership by checking if the story belongs to the user
-    const [existingStory] = await db
-      .select()
-      .from(stories)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
-      .limit(1);
+    const { data: existingStory, error: existingStoryError } = await supabase
+      .from("stories")
+      .select("id")
+      .eq("id", storyId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingStoryError) {
+      throw existingStoryError;
+    }
 
     if (!existingStory) {
       return NextResponse.json(
@@ -107,9 +113,12 @@ export async function PATCH(
       }
     }
 
-    // Update only the provided fields
-    const updateData: { title?: string; description?: string | null; updatedAt?: Date } = {
-      updatedAt: new Date(),
+    const updateData: {
+      title?: string;
+      description?: string | null;
+      updated_at?: string;
+    } = {
+      updated_at: new Date().toISOString(),
     };
 
     if (title !== undefined) {
@@ -120,11 +129,17 @@ export async function PATCH(
       updateData.description = description?.trim() || null;
     }
 
-    const [updatedStory] = await db
-      .update(stories)
-      .set(updateData)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
-      .returning();
+    const { data: updatedStory, error: updateError } = await supabase
+      .from("stories")
+      .update(updateData)
+      .eq("id", storyId)
+      .eq("user_id", user.id)
+      .select("*")
+      .maybeSingle();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     return NextResponse.json({ story: updatedStory });
   } catch (error) {
@@ -159,12 +174,16 @@ export async function DELETE(
       );
     }
 
-    // Verify ownership by checking if the story belongs to the user
-    const [existingStory] = await db
-      .select()
-      .from(stories)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)))
-      .limit(1);
+    const { data: existingStory, error: existingStoryError } = await supabase
+      .from("stories")
+      .select("id")
+      .eq("id", storyId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingStoryError) {
+      throw existingStoryError;
+    }
 
     if (!existingStory) {
       return NextResponse.json(
@@ -173,10 +192,15 @@ export async function DELETE(
       );
     }
 
-    // Delete the story
-    await db
-      .delete(stories)
-      .where(and(eq(stories.id, storyId), eq(stories.userId, user.id)));
+    const { error: deleteError } = await supabase
+      .from("stories")
+      .delete()
+      .eq("id", storyId)
+      .eq("user_id", user.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
