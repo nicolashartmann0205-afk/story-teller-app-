@@ -244,25 +244,24 @@ export async function adminGrantCreditsViaSupabase(
   const supabase = await getSupabaseClientForAdminOperations();
   const now = new Date().toISOString();
 
-  const { error: upsertError } = await supabase.from("user_credits").upsert(
-    {
-      user_id: userId,
-      balance: 140,
-      monthly_free_quota: 140,
-      monthly_used: 0,
-      period_start: now,
-      updated_at: now,
-    },
-    { onConflict: "user_id" }
-  );
-  if (upsertError) throw upsertError;
-
   const { data: current, error: currentError } = await supabase
     .from("user_credits")
     .select("balance")
     .eq("user_id", userId)
     .maybeSingle();
   if (currentError) throw currentError;
+
+  if (!current) {
+    const { error: insertError } = await supabase.from("user_credits").insert({
+      user_id: userId,
+      balance: 140,
+      monthly_free_quota: 140,
+      monthly_used: 0,
+      period_start: now,
+      updated_at: now,
+    });
+    if (insertError) throw insertError;
+  }
 
   const nextBalance = Number(current?.balance ?? 0) + amount;
   const { error: updateError } = await supabase
@@ -278,7 +277,9 @@ export async function adminGrantCreditsViaSupabase(
     reason,
     metadata: {},
   });
-  if (txError) throw txError;
+  if (txError) {
+    console.warn("[CREDITS][ADMIN_GRANT_TX_INSERT_FAILED]", txError);
+  }
 
   return nextBalance;
 }
@@ -289,19 +290,24 @@ export async function adminResetCreditsToDailyQuotaViaSupabase(
 ): Promise<number> {
   const supabase = await getSupabaseClientForAdminOperations();
   const now = new Date().toISOString();
+  const { data: current, error: currentError } = await supabase
+    .from("user_credits")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (currentError) throw currentError;
 
-  const { error: upsertError } = await supabase.from("user_credits").upsert(
-    {
+  if (!current) {
+    const { error: insertError } = await supabase.from("user_credits").insert({
       user_id: userId,
       balance: 140,
       monthly_free_quota: 140,
       monthly_used: 0,
       period_start: now,
       updated_at: now,
-    },
-    { onConflict: "user_id" }
-  );
-  if (upsertError) throw upsertError;
+    });
+    if (insertError) throw insertError;
+  }
 
   const { error: updateError } = await supabase
     .from("user_credits")
@@ -322,7 +328,9 @@ export async function adminResetCreditsToDailyQuotaViaSupabase(
     reason,
     metadata: { resetToDailyQuota: true, periodStart: now },
   });
-  if (txError) throw txError;
+  if (txError) {
+    console.warn("[CREDITS][ADMIN_RESET_TX_INSERT_FAILED]", txError);
+  }
 
   return 140;
 }

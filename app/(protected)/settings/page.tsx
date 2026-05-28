@@ -22,8 +22,8 @@ const CREDIT_ADMIN_OWNER_EMAIL = "nicolas@hartmanns.net";
 async function updateProfileAction(previousState: { error?: string; success?: string } | null | void, formData: FormData) {
   "use server";
 
-  const displayName = formData.get("displayName") as string;
-  const bio = formData.get("bio") as string;
+  const displayName = String(formData.get("displayName") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -32,35 +32,46 @@ async function updateProfileAction(previousState: { error?: string; success?: st
     return { error: "Unauthorized" };
   }
 
+  if (!user.email) {
+    return { error: "Your account has no email; cannot save profile." };
+  }
+
+  let authUpdated = false;
+  let profileUpdated = false;
+
   try {
-    if (!user.email) {
-      return { error: "Your account has no email; cannot save profile." };
+    const { error: authUpdateError } = await supabase.auth.updateUser({
+      data: {
+        display_name: displayName,
+        bio,
+      },
+    });
+    if (authUpdateError) {
+      throw authUpdateError;
     }
+    authUpdated = true;
+  } catch (error) {
+    console.error("Error updating profile auth metadata:", error);
+  }
+
+  try {
     const { updateUserProfile } = await import("@/lib/settings/update-user-profile");
     await updateUserProfile(user.id, {
       email: user.email,
       displayName,
       bio,
     });
-    return { success: "Profile updated successfully" };
+    profileUpdated = true;
   } catch (error) {
-    console.error("Error updating profile:", error);
-    try {
-      const { error: authUpdateError } = await supabase.auth.updateUser({
-        data: {
-          display_name: displayName,
-          bio,
-        },
-      });
-      if (authUpdateError) {
-        throw authUpdateError;
-      }
-      return { success: "Profile updated successfully" };
-    } catch (fallbackError) {
-      console.error("Error updating profile via auth metadata fallback:", fallbackError);
-      return { error: "Failed to update profile" };
-    }
+    console.error("Error updating profile table:", error);
   }
+
+  if (authUpdated || profileUpdated) {
+    revalidatePath("/settings");
+    return { success: "Profile updated successfully" };
+  }
+
+  return { error: "Failed to update profile" };
 }
 
 type GrantCreditsState = { error?: string; success?: string } | null;
