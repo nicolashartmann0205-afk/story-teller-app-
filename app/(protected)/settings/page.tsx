@@ -268,7 +268,7 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {canGrantCredits ? (
+        {canGrantCredits && !shouldPreferSupabaseOverPostgres() ? (
           <>
           <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
             <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
