@@ -15,7 +15,7 @@ import ProfileForm from "./profile-form";
 import { isBlogAdminUser } from "@/lib/blog/admin";
 import { revalidatePath } from "next/cache";
 import AdminGrantCreditsForm from "./admin-grant-credits-form";
-import { ProductionDatabaseCard } from "@/components/settings/production-database-card";
+import { shouldPreferSupabaseOverPostgres } from "@/lib/db/pooling-url-health";
 
 export const metadata = selfReferencingCanonical("/settings");
 const DAILY_FREE_QUOTA = 140;
@@ -72,6 +72,13 @@ async function grantCreditsAction(
     adminResetCreditsToDailyQuota,
   } = await import("@/lib/credits/service");
 
+  if (shouldPreferSupabaseOverPostgres()) {
+    return {
+      error:
+        "Credit admin tools are temporarily unavailable while the production database connection is being repaired.",
+    };
+  }
+
   if (action === "reset_daily") {
     const targetUserId = String(formData.get("targetUserId") ?? user.id).trim();
     if (!targetUserId) {
@@ -84,7 +91,10 @@ async function grantCreditsAction(
       return { success: `Reset to full daily allowance. Balance is now ${balance}/${DAILY_FREE_QUOTA}.` };
     } catch (error) {
       console.error("Error resetting credits:", error);
-      return { error: error instanceof Error ? error.message : "Failed to reset credits." };
+      return {
+        error:
+          "Could not reset credits right now. Please retry after the database connection issue is resolved.",
+      };
     }
   }
 
@@ -105,7 +115,10 @@ async function grantCreditsAction(
     return { success: `Granted ${amount} credits. New balance: ${balance}.` };
   } catch (error) {
     console.error("Error granting credits:", error);
-    return { error: error instanceof Error ? error.message : "Failed to grant credits." };
+    return {
+      error:
+        "Could not grant credits right now. Please retry after the database connection issue is resolved.",
+    };
   }
 }
 
@@ -126,7 +139,6 @@ export default async function ProfilePage() {
       ? user.user_metadata.display_name
       : null;
 
-  let pageWarning: string | null = null;
   let userProfile: {
     id: string;
     email: string;
@@ -168,8 +180,6 @@ export default async function ProfilePage() {
     recentCreditTransactions = data.recentCreditTransactions;
   } catch (error) {
     console.error("[SETTINGS][LOAD_SETTINGS_PAGE_DATA_FAILED]", error);
-    pageWarning =
-      "Some account data is temporarily unavailable. You can still access settings while we retry in the background.";
   }
 
   try {
@@ -177,9 +187,6 @@ export default async function ProfilePage() {
     creditBalance = await getUserCreditBalance(user.id);
   } catch (error) {
     console.error("[SETTINGS][GET_CREDIT_BALANCE_FAILED]", error);
-    pageWarning =
-      pageWarning ??
-      "Credits are temporarily unavailable due to a backend connection issue. Please try again shortly.";
   }
   const canGrantCredits = isBlogAdminUser(user.id, user.email);
 
@@ -214,12 +221,6 @@ export default async function ProfilePage() {
             />
           </div>
         </div>
-
-        {pageWarning ? (
-          <div className="mt-6 rounded-lg border border-amber-300/60 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:border-amber-700/60 dark:bg-amber-900/20 dark:text-amber-200">
-            {pageWarning}
-          </div>
-        ) : null}
 
         <div className="mt-8 bg-white dark:bg-brand-ink/80 shadow rounded-lg overflow-hidden border border-brand-seafoam/30">
           <div className="px-4 py-5 sm:px-6 border-b border-brand-seafoam/30">
@@ -285,7 +286,6 @@ export default async function ProfilePage() {
               />
             </div>
           </div>
-          <ProductionDatabaseCard />
           </>
         ) : null}
 
